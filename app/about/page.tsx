@@ -2,10 +2,18 @@
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 
+// Создаем описание структуры данных, чтобы TS понимал, что к чему
+interface ContentBlock {
+  title: string;
+  p1: string;
+  p2: string;
+}
+
 export default function AboutPage() {
   const { lang } = useLang();
 
-  const manifest = {
+  // Явно указываем тип данных для manifest
+  const manifest: Record<'EN' | 'UA', ContentBlock> = {
     EN: {
       title: 'ABOUT',
       p1: 'STIROL IS AN INDEPENDENT CLOTHING IMPRINT FOUNDED IN 2012 BY SKATEBOARDERS WITHIN THE INDUSTRIAL LANDSCAPES OF THE UKRAINIAN DONBAS (Horlivka). THE PROJECT MERGES THE RAW ESTHETICS OF HEAVY INDUSTRY WITH UNDERGROUND SUBSTREET CULTURES.',
@@ -17,9 +25,9 @@ export default function AboutPage() {
       p2: 'НАШЕ ДНК СФОРМУВАЛОСЯ НА ПЕРЕТИНІ СИРОГО БЛЕК-МЕТАЛУ, БЕЗКОМПРОМІСНОГО ДУХУ DIY ПАНК-РОКУ ТА ЖОРСТКОГО СТРІТ-СКЕЙТБОРДИНГУ, ЗНЯТОГО НА СТАРІ ВІДЕОКАМЕРИ. МИ НЕ СЛІДУЄМО ТРЕНДАМ — МИ ДОКУМЕНТУЄМО ЕСТЕТИКУ БЕТОННОЇ ЕПОХИ.'
     }
   };
-  // @ts-ignore
-  const currentData = manifest[lang];
-  
+
+  // Теперь TypeScript знает, что currentData будет объектом с полями title, p1, p2
+  const currentData = manifest[lang as 'EN' | 'UA'];
 
   return (
     <CommonLayout>
