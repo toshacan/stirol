@@ -17,8 +17,9 @@ export default function AboutPage() {
       p2: 'НАШЕ ДНК СФОРМУВАЛОСЯ НА ПЕРЕТИНІ СИРОГО БЛЕК-МЕТАЛУ, БЕЗКОМПРОМІСНОГО ДУХУ DIY ПАНК-РОКУ ТА ЖОРСТКОГО СТРІТ-СКЕЙТБОРДИНГУ, ЗНЯТОГО НА СТАРІ ВІДЕОКАМЕРИ. МИ НЕ СЛІДУЄМО ТРЕНДАМ — МИ ДОКУМЕНТУЄМО ЕСТЕТИКУ БЕТОННОЇ ЕПОХИ.'
     }
   };
-
-  const currentData = (manifest as any)[lang];
+  // @ts-ignore
+  const currentData = manifest[lang];
+  
 
   return (
     <CommonLayout>
