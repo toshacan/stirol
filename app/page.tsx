@@ -73,7 +73,7 @@ export default function Home() {
     shop: '/menuimg/shop.jpg',
     about: '/menuimg/about.jpg',  
     videos: '/menuimg/video.jpg',
-    contact: '/menuimg/contact.jpg',
+    contact: '/menuimg/contact.jpeg',
   };
 
   return (
