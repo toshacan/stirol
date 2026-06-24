@@ -1,65 +1,167 @@
-import Image from "next/image";
+'use client';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+
+const Icons = {
+  instagram: () => (
+    <svg className="w-4 h-4 fill-current hover:text-white transition-colors" viewBox="0 0 24 24">
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+    </svg>
+  ),
+  youtube: () => (
+    <svg className="w-4 h-4 fill-current hover:text-white transition-colors" viewBox="0 0 24 24">
+      <path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.508a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.503 5.837a3.003 3.003 0 002.11 2.11c1.871.508 9.387.508 9.387.508s7.517 0 9.387-.508a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+    </svg>
+  ),
+  telegram: () => (
+    <svg className="w-4 h-4 fill-current hover:text-white transition-colors" viewBox="0 0 24 24">
+      <path d="M23.89 2.42a1.14 1.14 0 00-1.14-.15L1.13 9.47a1.15 1.15 0 00-.08 2.11l5.24 1.63a1.14 1.14 0 001.03-.23l11.45-7.72c.07-.05.15.04.09.1L9.61 14.51a1.14 1.14 0 00-.33.79v4.92a1.14 1.14 0 001.97.77l2.84-2.73a1.14 1.14 0 001.21-.08l4.9 3.61a1.14 1.14 0 001.78-.62l3.65-17.2a1.14 1.14 0 00-1.74-1.15z"/>
+    </svg>
+  ),
+  facebook: () => (
+    <svg className="w-4 h-4 fill-current hover:text-white transition-colors" viewBox="0 0 24 24">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+    </svg>
+  )
+};
 
 export default function Home() {
+  const [time, setTime] = useState('');
+  const [activeHover, setActiveHover] = useState('');
+  const [lang, setLang] = useState<'EN' | 'UA'>('EN');
+  const changeLang = (newLang: 'EN' | 'UA') => {
+  setLang(newLang);
+  localStorage.setItem('stirol_lang', newLang);
+};
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem('stirol_lang') as 'EN' | 'UA';
+  if (savedLang) {
+    setLang(savedLang);
+  }
+    const updateTime = () => {
+      const now = new Date();
+      setTime(now.toTimeString().split(' ')[0]);
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+ const menuItems = {
+    EN: [
+      { id: 'news', label: 'news', path: '/news' },
+      { id: 'lookbook', label: 'lookbook 2026', path: '/lookbook' },
+      { id: 'shop', label: 'shop', path: '/shop' },
+      { id: 'about', label: 'about', path: '/about' },
+      { id: 'videos', label: 'videos', path: '/videos' },
+      { id: 'contact', label: 'contact', path: '/contact' },
+    ],
+    UA: [
+      { id: 'news', label: 'новини', path: '/news' },
+      { id: 'lookbook', label: 'лукбук 2026', path: '/lookbook' },
+      { id: 'shop', label: 'магазин', path: '/shop' },
+      { id: 'about', label: 'про бренд', path: '/about' },
+      { id: 'videos', label: 'відео', path: '/videos' },
+      { id: 'contact', label: 'контакти', path: '/contact' },
+    ]
+  };
+
+  const bgImages: { [key: string]: string } = {
+    news: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=70', 
+    lookbook: 'https://images.unsplash.com/photo-1509281373149-e957c6296406?w=1200&q=70', 
+    shop: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=70',
+    about: 'https://imgur.com/quUDtvS', 
+    archives: 'https://images.unsplash.com/photo-1533928298208-27ff66555d8d?w=1200&q=70', 
+    videos: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&q=70',
+    contact: 'https://images.unsplash.com/photo-1534536281715-e28d76689b4d?w=1200&q=70',
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen bg-[#121212] text-[#f0f0f0] font-mono antialiased flex flex-col justify-between p-6 select-none relative overflow-hidden">
+      
+      {activeHover && bgImages[activeHover] && (
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-15 invert mix-blend-screen pointer-events-none transition-all duration-300 z-0 scale-102"
+          style={{ backgroundImage: `url(${bgImages[activeHover]})` }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      )}
+
+      {/* ================= ВЕРХНЯЯ СТРОКА ================= */}
+      <header className="w-full flex justify-between items-center text-[11px] tracking-widest uppercase z-10 text-gray-500">
+        <div className="flex items-center space-x-2 text-[#f0f0f0]">
+          <span className="text-red-600 font-bold animate-pulse">●</span>
+          <span>REC</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        
+        {/* Логотип переключатель языка оставляем в центре, EST убрали отсюда */}
+        <div className="flex space-x-2 text-[9px] tracking-normal font-bold">
+            <button onClick={() => changeLang('EN')} className={`hover:text-white ${lang === 'EN' ? 'text-white underline' : 'text-gray-600'}`}>EN</button>
+            <span className="text-gray-700">/</span>
+            <button onClick={() => changeLang('UA')} className={`hover:text-white ${lang === 'UA' ? 'text-white underline' : 'text-gray-600'}`}>UA</button>
+        </div>
+
+        <div className="text-[#f0f0f0]">
+          {time ? time : '00:00:00'}
+        </div>
+      </header>
+
+      {/* ================= ЦЕНТР ================= */}
+      <main className="flex flex-col items-center justify-center text-center my-auto space-y-10 z-10 w-full">
+        
+        <a 
+          href="/" 
+          onClick={(e) => { e.preventDefault(); window.location.reload(); }}
+          className="cursor-pointer hover:opacity-80 transition-opacity duration-200 block w-full max-w-[320px]"
+        >
+          <div className="relative w-full h-24 flex items-center justify-center">
+            <Image 
+              src="/logo-heavy.png"
+              alt="STIROL HEAVY LOGO"
+              fill
+              className="object-contain"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+                const txt = document.getElementById('logo-fallback');
+                if (txt) txt.style.display = 'block';
+              }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <div id="logo-fallback" className="hidden font-black text-3xl tracking-tighter uppercase italic border border-white px-4 py-1">
+              STIROL
+            </div>
+          </div>
+        </a>
+
+        <nav className="flex flex-col space-y-3 pt-2 text-xs tracking-[0.25em] uppercase font-sans font-bold">
+          {menuItems[lang].map((item) => (
+            <a
+              key={item.id}
+              href={item.path}
+              onMouseEnter={() => setActiveHover(item.id)}
+              onMouseLeave={() => setActiveHover('')}
+              className="text-gray-500 hover:text-white transition-colors duration-150 block py-0.5"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
       </main>
+
+      {/* ================= ПОДВАЛ ================= */}
+      <footer className="w-full flex flex-col items-center z-10 pb-4 space-y-4">
+        {/* EST. 2012 теперь здесь */}
+        
+        
+        <div className="flex items-center space-x-6 text-gray-500">
+          <a href="https://www.instagram.com/_stirol/" target="_blank" rel="noreferrer"><Icons.instagram /></a>
+          <a href="https://youtube.com" target="_blank" rel="noreferrer"><Icons.youtube /></a>
+          <a href="https://telegram.org" target="_blank" rel="noreferrer"><Icons.telegram /></a>
+          <a href="https://facebook.com" target="_blank" rel="noreferrer"><Icons.facebook /></a>
+        </div>
+        <div className="text-gray-600 font-sans text-[10px] tracking-[0.3em]">EST. 2012</div>
+      </footer>
+
     </div>
   );
 }
