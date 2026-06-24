@@ -18,7 +18,7 @@ export default function AboutPage() {
     }
   };
 
-  const currentData = manifest[lang];
+  const currentData = (manifest as any)[lang];
 
   return (
     <CommonLayout>
