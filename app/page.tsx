@@ -68,13 +68,12 @@ export default function Home() {
   };
 
   const bgImages: { [key: string]: string } = {
-    news: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=70', 
-    lookbook: 'https://images.unsplash.com/photo-1509281373149-e957c6296406?w=1200&q=70', 
-    shop: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=70',
-    about: 'https://imgur.com/quUDtvS', 
-    archives: 'https://images.unsplash.com/photo-1533928298208-27ff66555d8d?w=1200&q=70', 
-    videos: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&q=70',
-    contact: 'https://images.unsplash.com/photo-1534536281715-e28d76689b4d?w=1200&q=70',
+    news: '/menuimg/news.jpg', 
+    lookbook: '/menuimg/lookbook.jpeg', 
+    shop: '/menuimg/shop.jpg',
+    about: '/menuimg/about.jpg',  
+    videos: '/menuimg/video.jpg',
+    contact: '/menuimg/contact.jpg',
   };
 
   return (
@@ -82,7 +81,7 @@ export default function Home() {
       
       {activeHover && bgImages[activeHover] && (
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-15 invert mix-blend-screen pointer-events-none transition-all duration-300 z-0 scale-102"
+          className="absolute inset-0 bg-cover bg-center opacity-15  mix-blend-screen pointer-events-none transition-all duration-300 z-0 scale-102"
           style={{ backgroundImage: `url(${bgImages[activeHover]})` }}
         />
       )}
