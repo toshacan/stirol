@@ -10,17 +10,17 @@ export default function VideoPlayerPage() {
   const content = {
     EN: {
       back: '← BACK TO ARCHIVE',
-      title: 'STIROL SKATEBOARDING — "GORLOVKA DAYS"',
-      meta: 'FILMED IN 2012-2014 / DONBAS ARCHIVES',
-      specs: 'CAMERA: SONY DCR-VX1000 (PAL) + CENTURY MK1 FISHEYE\nFORMAT: 4:3 MINI-DV\nEDIT: ANTON SICAK',
-      description: 'Authentic skate video from the streets of Gorlovka, captured on the legendary VX1000 setup before the war. Raw street skating, local spots, and the genuine energy of industrial youth culture in early 2010s.'
+      title: 'STIROL SKATEBOARDING',
+      meta: '',
+      specs: 'OLD DIGITAL OLYMPUS CAMERA',
+      description: 'A dialogue between the dynamics of modern skateboarding and monumental shots from Fellinis "8 1/2," Vertigo, and Hitchcocks "Psycho."'
     },
     UA: {
       back: '← НАЗАД ДО АРХІВУ',
-      title: 'STIROL SKATEBOARDING — "GORLOVKA DAYS"',
-      meta: 'ЗНЯТО У 2012-2014 / АРХІВИ ДОНБАСУ',
-      specs: 'КАМЕРА: SONY DCR-VX1000 (PAL) + CENTURY MK1 FISHEYE\nФОРМАТ: 4:3 MINI-DV\nМОНТАЖ: АНТОН СІЦАК',
-      description: 'Автентичне скейт-відео з вулиць Горлівки, зняте на легендарну VX1000 ще до початку війни. Сирої стріт-скейтинг, локальні споти та справжня енергія індустріальної молодіжної культури початку 2010-х років.'
+      title: 'STIROL SKATEBOARDING',
+      meta: '',
+      specs: 'СТАРА ЦИФРОВА КАМЕРА ',
+      description: 'Діалог між динамікою сучасного скейтбордингу та монументальними кадрами з фільмів Фелліні «8 1/2», «Запаморочення» та «Психо» Гічкока.'
     }
   };
 

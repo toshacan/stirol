@@ -38,7 +38,6 @@ export default function ShopPage() {
             {filteredProducts.map((product) => (
               <Link key={product.id} href={`/shop/${product.id}`} className="flex flex-col space-y-2 group cursor-pointer">
                 
-                {/* Контейнер картинки: теперь всегда 100% яркость */}
                 <div className="aspect-square bg-transparent flex items-center justify-center relative overflow-hidden">
                   {product.images.length > 0 && (
                     <img 
@@ -48,17 +47,20 @@ export default function ShopPage() {
                       className="w-full h-full object-cover brightness-100" 
                     />
                   )}
+                  
                   {product.status !== 'comingSoon' && (
-                    <span className={`absolute top-2 left-2 text-[8px] px-1 py-0.5 uppercase tracking-widest font-bold ${product.status === 'limited' ? 'bg-red-600 text-white' : 'border border-black text-black'}`}>
+                    <span className={`absolute top-2 left-2 text-[9px] px-2 py-1 uppercase tracking-widest font-extrabold 
+                      ${product.status === 'limited' 
+                        ? 'bg-red-600 text-white' 
+                        : 'bg-pink-400 text-white'}`}>
                       {uiText[currentLang][product.status as keyof typeof uiText.EN]}
                     </span>
                   )}
                 </div>
 
-                {/* Затемняем только текст, если товар продан */}
                 <div className={`flex flex-col text-[10px] uppercase tracking-wider space-y-0.5 ${product.status === 'soldout' ? 'opacity-50' : ''}`}>
                   <span className="text-black font-bold">{product.title}</span>
-                  <span className="text-gray-500 font-sans font-bold">{product.price}</span>
+                  {product.price && <span className="text-pink-500 font-sans font-bold">{product.price}</span>}
                 </div>
                 
               </Link>

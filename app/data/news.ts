@@ -1,63 +1,40 @@
-export const MAGAZINE_POSTS = [
+interface NewsPage {
+  image: string;
+  text: {
+    EN: string;
+    UA: string;
+  };
+}
+
+export interface MagazinePost {
+  id: string;
+  tag: string;
+  title: {
+    EN: string;
+    UA: string;
+  };
+  date: string; 
+  pages: NewsPage[];
+}
+
+export const MAGAZINE_POSTS: MagazinePost[] = [
   {
     id: 'chronicle-01',
-    tag: 'ISSUE 01 // TEXTURE',
+    tag: 'REBOOT',
     title: {
-      EN: 'BLACK METAL MINIMALISM: THE SOUNDSCAPES OF DISTORTION',
-      UA: 'БЛЕК-МЕТАЛ МІНІМАЛІЗМ: ЗВУКОВІ LАНДШАФТИ ДИСТОРШНУ'
+      EN: 'STIROL: CHAPTER II / THE REBOOT',
+      UA: 'STIROL: ГЛАВА II / ПЕРЕЗАПУСК'
     },
     date: '24/06/2026',
     pages: [
       {
-        image: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=1000&auto=format&fit=crop&q=80',
+        image: '/news/run.png',
         text: {
-          EN: 'THE STUDY OF EXTREME FREQUENCIES AND RAW TEXTURES. HOW THE DRIFT OF THE SCANDINAVIAN UNDERGROUND, MONOLITHIC GUITAR WALLS, AND COLD DISTORTED REVERB DIRECTLY INFLUENCED THE PATTERNS OF OUR NEW ZIP-HOODIES.',
-          UA: 'ДОСЛІДЖЕННЯ ЕКСТРЕМАЛЬНИХ ЧАСТОТ ТА СИРИХ ТЕКСТУР. ЯК ВПЛИВ СКАНДИНАВСЬКОГО АНДЕГРАУНДУ, МОНОЛІТНИХ ГІТАРНИХ СТІН ТА ХОЛОДНОГО ДИСТОРШНУ НАПРЯМУ СФОРМУВАВ КРІЙ НАШИХ ЗІП-ХУДІ.'
-        }
-      },
-      {
-        image: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1000&auto=format&fit=crop&q=80',
-        text: {
-          EN: 'PART II: THE MATERIALIZATION. WE TOOK 500GSM COTTON AND DESTROYED THE EDGES MANUALLY. EACH PIECE REFLECTS THE STATIC NOISE OF OLD CASSETTE TAPES RECORDED IN NORTHERN ISOLATION.',
-          UA: 'ЧАСТИНА II: МАТЕРІАЛІЗАЦІЯ. МИ ВЗЯЛИ 500GSM БАВОВНУ ТА ЗРУЙНУВАЛИ КРАЇ ВРУЧНУ. КОЖЕН ОБ\'ЄКТ ВІДОБРАЖАЄ СТАТИЧНИЙ ШУМ СТАРИХ КАСЕТ, ЗАПИСАНИХ У ПІВНІЧНІЙ ІЗОЛЯЦІЇ.'
+          EN: 'We are fully shifting our focus back to STIROL. This website is a basic setup for everything we want to release next. From our roots in the industrial landscapes of Horlivka to this new system, we are just quietly doing what we love. More attention to product quality, custom cuts, and bright contrast graphics. The framework is ready, and Drop 1 is loading. Stay tuned.',
+          UA: 'Ми повністю повертаємо фокус на STIROL. Цей сайт — базова інфраструктура для всього, що ми хочемо релізити далі. Від нашого коріння в індустріальній Горлівці до цієї нової системи, ми просто спокійно робимо те, що любимо. Більше уваги до якості речей, правильного крою та яскравої контрастної графіки. Система готова, первый дроп уже завантажується. На звʼязку.'
         }
       }
     ]
   },
-  {
-    id: 'chronicle-02',
-    tag: 'ISSUE 02 // VISUAL',
-    title: {
-      EN: 'BRUTALIST CONCRETE ENCLOSURES IN URBAN MONOLITHS',
-      UA: 'БРУТАЛІСТИЧНІ БЕТОННІ КОНСТРУКЦІЇ В МІСЬКИХ МОНОЛІТАХ'
-    },
-    date: '12/06/2026',
-    pages: [
-      {
-        image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1000&auto=format&fit=crop&q=80',
-        text: {
-          EN: 'DOCUMENTING THE RUST AND MONOLITHIC WALLS THAT DEFINE THE INFRASTRUCTURE OF COLD CITIES. THIS DECAY INSPIRES THE METALLIC WASHED SHADES.',
-          UA: 'ДОСЛІДЖЕННЯ ІРЖІ ТА МОНОЛІТНИХ СТІН ХОЛОДНИХ МІСТ. ЦЕЙ ЗАНЕПАД НАДИХАЄ НА СТВОРЕННЯ МЕТАЛЕВИХ ВИВАРЕНИХ ВІДТІНКІВ.'
-        }
-      }
-    ]
-  },
-  {
-    id: 'chronicle-03',
-    tag: 'ISSUE 03 // ANOMALY',
-    title: {
-      EN: 'DISTORTED PATTERNS: CONVERTING ERROR INTO DESIGN',
-      UA: 'СПОТВОРЕНІ ВИКРІЙКИ: ПЕРЕТВОРЕННЯ ПОМИЛКИ НА ДИЗАЙН'
-    },
-    date: '02/05/2026',
-    pages: [
-      {
-        image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1000&auto=format&fit=crop&q=80',
-        text: {
-          EN: 'WHEN THE MACHINERY FAILS, THE REAL DISRUPTIVE DESIGN BEGINS. WE EXPLORE ANALOG PRINT ERRORS AND ASYMMETRICAL INFRASTRUCTURES.',
-          UA: 'КОЛИ ОБЛАДНАННЯ ДАЄ ЗБІЙ, ПОЧИНАЄТЬСЯ СПРАВЖНІЙ ДЕСТРУКТИВНИЙ ДИЗАЙН. МИ ДОСЛІДЖУЄМО ПОМИЛКИ АНАЛОГОВОГО ДРУКУ ТА АСИМЕТРІЮ.'
-        }
-      }
-    ]
-  }
+
 ];

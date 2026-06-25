@@ -12,15 +12,15 @@ export default function MidwinterPage() {
     EN: {
       back: '← BACK TO ARCHIVE',
       title: 'STIROL SKATEBOARDING — "MIDWINTER"',
-      meta: 'WINTER SKATE SESSION ARCHIVE',
-      specs: 'CAMERA: SONY DCR-VX1000\nEDIT: ANTON SICAK',
+      meta: 'FILMED IN 2014 BEFORE THE OCCUPATION OF DONBAS',
+      specs: 'OLD DIGITAL OLYMPUS CAMERA',
       description: 'Raw winter street skate clip from the archives. Cold concrete, heavy vibes, and the unyielding spirit of local skateboarding.'
     },
     UA: {
       back: '← НАЗАД ДО АРХІВУ',
       title: 'STIROL SKATEBOARDING — "MIDWINTER"',
-      meta: 'АРХІВ ЗИМОВОЇ СКЕЙТ СЕСІЇ',
-      specs: 'КАМЕРА: SONY DCR-VX1000\nМОНТАЖ: АНТОН СІЦАК',
+      meta: 'ЗНЯТО У 2014 ПЕРЕД ОКУПАЦІЄЮ ДОНБАСУ',
+      specs: 'OLD DIGITAL OLYMPUS CAMERA',
       description: 'Сирий зимовий стріт-скейт кліп з архівів. Холодний бетон, важкий вайб та непохитний дух локального скейтбордингу.'
     }
   };
