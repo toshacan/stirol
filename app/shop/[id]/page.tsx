@@ -20,8 +20,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const currentIndex = PRODUCTS.findIndex(p => p.id === id);
   const nextProduct = PRODUCTS[currentIndex + 1] || PRODUCTS[0];
 
-  // ИСПРАВЛЕНИЕ ОШИБКИ ДЕПЛОЯ:
-  // Приводим lang к типу, который гарантированно существует в объекте labels
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
 
   const labels = {
@@ -38,14 +36,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <CommonLayout>
-      <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 min-h-screen flex flex-col">
+      {/* Я убрал min-h-screen и flex-col, теперь страница просто тянется по контенту */}
+      <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12">
         
         <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
           <Link href="/shop" className="hover:opacity-50">{labels[currentLang].back}</Link>
           <Link href={`/shop/${nextProduct.id}`} className="hover:opacity-50">{labels[currentLang].next}</Link>
         </nav>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 flex-grow">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           
           <div className="w-full">
             <div className="aspect-square bg-gray-100 flex items-center justify-center border w-full">
@@ -82,7 +81,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <button 
               onClick={handleAddToCart}
               className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all 
-                ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}
+                ${isAdded ? 'bg-red-600 text-white' : 'bg-black text-white'}
                 ${product.status === 'soldout' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-800'}`}
               disabled={product.status === 'soldout' || isAdded}
             >
