@@ -94,7 +94,7 @@ export default function Home() {
         </div>
         
         {/* Логотип переключатель языка оставляем в центре, EST убрали отсюда */}
-        <div className="flex space-x-2 text-[9px] tracking-normal font-bold">
+        <div className="flex space-x-2 text-[13px] tracking-normal font-bold">
             <button onClick={() => changeLang('EN')} className={`hover:text-white ${lang === 'EN' ? 'text-white underline' : 'text-gray-600'}`}>EN</button>
             <span className="text-gray-700">/</span>
             <button onClick={() => changeLang('UA')} className={`hover:text-white ${lang === 'UA' ? 'text-white underline' : 'text-gray-600'}`}>UA</button>

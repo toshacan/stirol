@@ -11,7 +11,7 @@ export default function Header() {
   
   // Определяем переводы здесь
   const t = {
-    back: lang === 'EN' ? '← BACK' : '← НАЗАД',
+    back: lang === 'EN' ? '← BACK TO MAIN' : '← НАЗАД НА ГОЛОВНУ',
     cart: lang === 'EN' ? 'CART' : 'КОШИК',
     close: lang === 'EN' ? 'CLOSE' : 'ЗАКРИТИ',
     checkout: lang === 'EN' ? 'CHECKOUT' : 'ОФОРМИТИ',
@@ -33,7 +33,7 @@ export default function Header() {
         <Link href="/" className="block w-32 h-10 relative">
           <img src="/logo-heavy.png" alt="STIROL" className="w-full h-full object-contain invert" />
         </Link>
-        <div className="flex space-x-1 text-[8px] font-bold pt-1">
+        <div className="flex space-x-1 text-[12px] font-bold pt-1">
           <button onClick={() => changeLang('EN')} className={lang === 'EN' ? 'text-black underline' : ''}>EN</button>
           <span className="text-gray-300">/</span>
           <button onClick={() => changeLang('UA')} className={lang === 'UA' ? 'text-black underline' : ''}>UA</button>

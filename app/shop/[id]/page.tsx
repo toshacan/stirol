@@ -81,7 +81,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <button 
               onClick={handleAddToCart}
               className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all 
-                ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}
+                ${isAdded ? 'bg-red-600 text-white' : 'bg-black text-white'}
                 ${product.status === 'soldout' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-800'}`}
               disabled={product.status === 'soldout' || isAdded}
             >
