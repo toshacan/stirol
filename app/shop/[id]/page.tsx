@@ -35,43 +35,44 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <CommonLayout>
-      {/* min-h-[80vh] гарантирует, что блок займет почти весь экран, 
-         pb-24 дает место футеру, чтобы он не перекрывал кнопки 
-      */}
-      <div className="w-full max-w-6xl mx-auto px-4 py-8 min-h-[80vh] pb-24">
+      {/* Контейнер теперь имеет padding и min-height для защиты от перекрытия футером */}
+      <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 min-h-screen flex flex-col">
         
-        <div className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
-          <Link href="/shop" className="hover:text-gray-500">{labels[currentLang].back}</Link>
-          <Link href={`/shop/${nextProduct.id}`} className="hover:text-gray-500">{labels[currentLang].next}</Link>
-        </div>
+        {/* Навигация */}
+        <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
+          <Link href="/shop" className="hover:opacity-50">{labels[currentLang].back}</Link>
+          <Link href={`/shop/${nextProduct.id}`} className="hover:opacity-50">{labels[currentLang].next}</Link>
+        </nav>
 
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Изображение - фиксированный размер для мобилки */}
-          <div className="w-full md:w-1/2">
-            <div className="aspect-square bg-gray-100 flex items-center justify-center border">
-              <span className="text-gray-400 text-[10px]">IMAGE: {product.title}</span>
+        {/* Сетка продукта: Картинка слева, Инфо справа */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 flex-grow">
+          
+          {/* Изображение */}
+          <div className="w-full">
+            <div className="aspect-square bg-gray-100 flex items-center justify-center border w-full">
+              <span className="text-[10px] text-gray-400 uppercase">IMAGE: {product.title}</span>
             </div>
           </div>
 
-          {/* Контент */}
-          <div className="w-full md:w-1/2 flex flex-col">
-            <h1 className="text-2xl font-bold uppercase">{product.title}</h1>
-            <p className="text-lg mt-2 font-bold">{product.price}</p>
+          {/* Информация */}
+          <div className="flex flex-col w-full">
+            <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tighter leading-none">{product.title}</h1>
+            <p className="text-lg mt-3 font-bold">{product.price}</p>
             
             <div className="mt-6 py-4 border-t border-b border-gray-200">
-              <p className="text-sm uppercase text-gray-700 leading-relaxed">{product.description}</p>
+              <p className="text-[11px] uppercase text-gray-700 leading-normal">{product.description}</p>
             </div>
 
-            {/* Блок размеров - увеличил отступы */}
+            {/* Размеры - Grid для идеального выравнивания */}
             {product.sizes.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].select}</h3>
-                <div className="flex flex-wrap gap-2">
+                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].select}</h3>
+                <div className="grid grid-cols-4 gap-2">
                   {product.sizes.map(size => (
                     <button 
                       key={size} 
                       onClick={() => setSelectedSize(size)}
-                      className={`border-2 px-8 py-3 text-sm font-bold uppercase transition-all 
+                      className={`border py-3 text-[10px] font-bold uppercase transition-all 
                         ${selectedSize === size ? 'bg-black text-white border-black' : 'border-gray-200 hover:border-black'}`}
                     >
                       {size}
@@ -81,10 +82,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
             )}
 
-            {/* Кнопка купить - теперь с margin-top для явного отделения */}
+            {/* Кнопка купить - 100% ширина */}
             <button 
               onClick={handleAddToCart}
-              className={`mt-12 w-full py-5 uppercase font-bold text-sm tracking-widest transition-all 
+              className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all 
                 ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}
                 ${product.status === 'soldout' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-800'}`}
               disabled={product.status === 'soldout' || isAdded}
@@ -93,7 +94,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </button>
           </div>
         </div>
-      </div>
+      </main>
     </CommonLayout>
   );
 }
