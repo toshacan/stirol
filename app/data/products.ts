@@ -1,5 +1,6 @@
 // data/products.ts
 
+
 export type Product = {
   id: string;
   category: 'tshirts' | 'hoodies' | 'shoppers';
@@ -16,11 +17,11 @@ export const PRODUCTS: Product[] = [
     id: 'fuck-the-roc-tee',
     category: 'tshirts',
     title: '"FUCK THE ROC" T-SHIRT',
-    price: '1200 UAH / 30$',
-    status: 'limited',
-    description: 'Heavyweight military-grade cotton. Screen printed in Kyiv. Limited edition FW26.',
-    sizes: ['S', 'M', 'L', 'XL'],
-    images: ['/products/tee1.jpg', '/products/tee1_back.jpg']
+    price: 'SOLD OUT$',
+    status: 'soldout',
+    description: 'Heavyweight cotton. Limited edition FW23.',
+    sizes: ['Sold Out'],
+    images: ['/shop/fuck.jpg', '/shop/fuckw.jpg']
   },
   {
     id: 'shopper-bag-org',
@@ -30,8 +31,9 @@ export const PRODUCTS: Product[] = [
     status: 'soldout',
     description: 'Durable canvas texture, reinforced stitching for urban environments.',
     sizes: ['One Size'],
-    images: ['/products/bag1.jpg']
+    images: ['/shop/orshopper.jpg']
   },
+  
   {
     id: 'hoodiev1',
     category: 'hoodies',
@@ -40,16 +42,16 @@ export const PRODUCTS: Product[] = [
     status: 'soldout',
     description: 'Regular fit, heavy cotton.',
     sizes: ['M', 'L', 'XL'],
-    images: ['/shop/sthood.jpg']
+    images: ['/shop/hoodie.jpg']
   },
   {
-    id: 'stirol-sticker-pack',
-    category: 'tshirts',
-    title: 'STIROL STICKER PACK',
-    price: '-- UAH',
-    status: 'comingSoon',
-    description: 'High-quality vinyl stickers pack.',
-    sizes: [],
-    images: ['/products/stickers.jpg']
+    id: 'whshopper',
+    category: 'shoppers',
+    title: 'White Shopper Bag',
+    price: 'SOLD OUT',
+    status: 'soldout',
+    description: 'High-quality Shopper Bag.',
+    sizes: ['One Size'],
+    images: ['/shop/whshopper.jpg']
   }
 ];

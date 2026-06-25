@@ -11,6 +11,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const { id } = use(params);
   const { lang } = useLang();
   const { addToCart } = useCart();
+  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isAdded, setIsAdded] = useState(false);
   
@@ -19,12 +21,19 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   const currentIndex = PRODUCTS.findIndex(p => p.id === id);
   const nextProduct = PRODUCTS[currentIndex + 1] || PRODUCTS[0];
-
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
 
   const labels = {
-    EN: { back: '← BACK', next: 'NEXT →', buy: 'ADD TO CART', added: 'ADDED', sold: 'SOLD OUT', select: 'SIZE' },
-    UA: { back: '← НАЗАД', next: 'ДАЛІ →', buy: 'ДОДАТИ', added: 'ДОДАНО', sold: 'РОЗПРОДАНО', select: 'РОЗМІР' }
+    EN: { back: '← BACK', next: 'NEXT →', buy: 'ADD TO CART', added: 'ADDED', sold: 'SOLD OUT', select: 'SIZE', prev: 'PREV', nextImg: 'NEXT' },
+    UA: { back: '← НАЗАД', next: 'ДАЛІ →', buy: 'ДОДАТИ', added: 'ДОДАНО', sold: 'РОЗПРОДАНО', select: 'РОЗМІР', prev: 'НАЗАД', nextImg: 'ДАЛІ' }
+  };
+
+  const changeImage = (direction: 'prev' | 'next') => {
+    if (direction === 'next') {
+      setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
+    } else {
+      setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
+    }
   };
 
   const handleAddToCart = () => {
@@ -36,9 +45,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <CommonLayout>
-      {/* МЫ УБРАЛИ min-h-screen И flex-col, ЧТОБЫ СТРАНИЦА МОГЛА ТЯНУТЬСЯ ВНИЗ */}
       <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 h-auto">
-        
         <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
           <Link href="/shop" className="hover:opacity-50">{labels[currentLang].back}</Link>
           <Link href={`/shop/${nextProduct.id}`} className="hover:opacity-50">{labels[currentLang].next}</Link>
@@ -46,10 +53,27 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           
-          <div className="w-full">
-            <div className="aspect-square bg-gray-100 flex items-center justify-center border w-full">
-              <span className="text-[10px] text-gray-400 uppercase">IMAGE: {product.title}</span>
+          {/* Блок с картинкой */}
+          <div className="flex flex-col gap-3">
+            <div className="w-full aspect-square overflow-hidden">
+               {product.images.length > 0 && (
+                 <img 
+                   src={product.images[currentImageIndex]} 
+                   alt={product.title} 
+                   draggable="false" 
+                   className="w-full h-full object-cover transition-opacity duration-300" 
+                 />
+               )}
             </div>
+
+            {/* Блок навигации под фото */}
+            {product.images.length > 1 && (
+              <div className="flex justify-between items-center text-[9px] uppercase tracking-widest font-bold text-gray-500">
+                <button onClick={() => changeImage('prev')} className="hover:text-black">← {labels[currentLang].prev}</button>
+                <span>{currentImageIndex + 1} / {product.images.length}</span>
+                <button onClick={() => changeImage('next')} className="hover:text-black">{labels[currentLang].nextImg} →</button>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col w-full">
@@ -65,26 +89,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].select}</h3>
                 <div className="grid grid-cols-4 gap-2">
                   {product.sizes.map((size: string) => (
-                    <button 
-                      key={size} 
-                      onClick={() => setSelectedSize(size)}
-                      className={`border py-3 text-[10px] font-bold uppercase transition-all 
-                        ${selectedSize === size ? 'bg-black text-white border-black' : 'border-gray-200 hover:border-black'}`}
-                    >
-                      {size}
-                    </button>
+                    <button key={size} onClick={() => setSelectedSize(size)} className={`border py-3 text-[10px] font-bold uppercase ${selectedSize === size ? 'bg-black text-white' : 'border-gray-200'}`}>{size}</button>
                   ))}
                 </div>
               </div>
             )}
 
-            <button 
-              onClick={handleAddToCart}
-              className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all 
-                ${isAdded ? 'bg-pink-300 text-white' : 'bg-black text-white'}
-                ${product.status === 'soldout' ? 'bg-red-400 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-800'}`}
-              disabled={product.status === 'soldout' || isAdded}
-            >
+            <button onClick={handleAddToCart} className={`mt-10 w-full py-4 uppercase font-bold text-[10px] ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}`} disabled={product.status === 'soldout' || isAdded}>
               {product.status === 'soldout' ? labels[currentLang].sold : (isAdded ? labels[currentLang].added : labels[currentLang].buy)}
             </button>
           </div>
