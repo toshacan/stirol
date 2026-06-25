@@ -17,9 +17,16 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const product = PRODUCTS.find((p) => p.id === id);
   if (!product) return notFound();
 
+  const currentIndex = PRODUCTS.findIndex(p => p.id === id);
+  const nextProduct = PRODUCTS[currentIndex + 1] || PRODUCTS[0];
+
+  // ИСПРАВЛЕНИЕ ОШИБКИ ДЕПЛОЯ:
+  // Приводим lang к типу, который гарантированно существует в объекте labels
+  const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
+
   const labels = {
-    EN: { back: '← BACK', buy: 'ADD TO CART', added: 'ADDED', select: 'SIZE' },
-    UA: { back: '← НАЗАД', buy: 'ДОДАТИ', added: 'ДОДАНО', select: 'РОЗМІР' }
+    EN: { back: '← BACK', next: 'NEXT →', buy: 'ADD TO CART', added: 'ADDED', sold: 'SOLD OUT', select: 'SIZE' },
+    UA: { back: '← НАЗАД', next: 'ДАЛІ →', buy: 'ДОДАТИ', added: 'ДОДАНО', sold: 'РОЗПРОДАНО', select: 'РОЗМІР' }
   };
 
   const handleAddToCart = () => {
@@ -31,45 +38,59 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <CommonLayout>
-      {/* Никаких min-h-screen, только естественный поток контента */}
-      <div className="w-full px-4 pt-4 pb-20">
+      <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 min-h-screen flex flex-col">
         
-        {/* Картинка */}
-        <div className="w-full aspect-square bg-gray-100 flex items-center justify-center border mb-6">
-          <span className="text-[10px] text-gray-400">IMAGE: {product.title}</span>
-        </div>
+        <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
+          <Link href="/shop" className="hover:opacity-50">{labels[currentLang].back}</Link>
+          <Link href={`/shop/${nextProduct.id}`} className="hover:opacity-50">{labels[currentLang].next}</Link>
+        </nav>
 
-        {/* Текст */}
-        <h1 className="text-xl font-bold uppercase">{product.title}</h1>
-        <p className="text-md font-bold mb-4">{product.price}</p>
-        <p className="text-[11px] text-gray-600 mb-6">{product.description}</p>
-
-        {/* Размеры - простые кнопки в ряд */}
-        {product.sizes.length > 0 && (
-          <div className="mb-6">
-            <p className="text-[9px] font-bold uppercase text-gray-400 mb-2">{labels[lang].select}</p>
-            <div className="flex gap-2">
-              {product.sizes.map(size => (
-                <button 
-                  key={size} 
-                  onClick={() => setSelectedSize(size)}
-                  className={`border px-6 py-3 text-[10px] font-bold uppercase ${selectedSize === size ? 'bg-black text-white' : ''}`}
-                >
-                  {size}
-                </button>
-              ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 flex-grow">
+          
+          <div className="w-full">
+            <div className="aspect-square bg-gray-100 flex items-center justify-center border w-full">
+              <span className="text-[10px] text-gray-400 uppercase">IMAGE: {product.title}</span>
             </div>
           </div>
-        )}
 
-        {/* Кнопка купить - самая важная часть */}
-        <button 
-          onClick={handleAddToCart}
-          className={`w-full py-4 uppercase font-bold text-[10px] ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}`}
-        >
-          {isAdded ? labels[lang].added : labels[lang].buy}
-        </button>
-      </div>
+          <div className="flex flex-col w-full">
+            <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tighter leading-none">{product.title}</h1>
+            <p className="text-lg mt-3 font-bold">{product.price}</p>
+            
+            <div className="mt-6 py-4 border-t border-b border-gray-200">
+              <p className="text-[11px] uppercase text-gray-700 leading-normal">{product.description}</p>
+            </div>
+
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].select}</h3>
+                <div className="grid grid-cols-4 gap-2">
+                  {product.sizes.map((size: string) => (
+                    <button 
+                      key={size} 
+                      onClick={() => setSelectedSize(size)}
+                      className={`border py-3 text-[10px] font-bold uppercase transition-all 
+                        ${selectedSize === size ? 'bg-black text-white border-black' : 'border-gray-200 hover:border-black'}`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button 
+              onClick={handleAddToCart}
+              className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all 
+                ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}
+                ${product.status === 'soldout' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-800'}`}
+              disabled={product.status === 'soldout' || isAdded}
+            >
+              {product.status === 'soldout' ? labels[currentLang].sold : (isAdded ? labels[currentLang].added : labels[currentLang].buy)}
+            </button>
+          </div>
+        </div>
+      </main>
     </CommonLayout>
   );
 }
