@@ -36,8 +36,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <CommonLayout>
-      {/* Я убрал min-h-screen и flex-col, теперь страница просто тянется по контенту */}
-      <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12">
+      {/* МЫ УБРАЛИ min-h-screen И flex-col, ЧТОБЫ СТРАНИЦА МОГЛА ТЯНУТЬСЯ ВНИЗ */}
+      <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 h-auto">
         
         <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
           <Link href="/shop" className="hover:opacity-50">{labels[currentLang].back}</Link>
@@ -81,7 +81,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <button 
               onClick={handleAddToCart}
               className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all 
-                ${isAdded ? 'bg-red-600 text-white' : 'bg-black text-white'}
+                ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}
                 ${product.status === 'soldout' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-800'}`}
               disabled={product.status === 'soldout' || isAdded}
             >
