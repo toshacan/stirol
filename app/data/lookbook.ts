@@ -1,4 +1,19 @@
-export const LOOKBOOK_PRODUCTS = [
+// 1. Описываем интерфейс, чтобы TypeScript понимал структуру данных
+interface LookbookProduct {
+  id: string;
+  title: {
+    EN: string;
+    UA: string;
+  };
+  description: {
+    EN: string;
+    UA: string;
+  };
+  images: string[];
+}
+
+// 2. Добавляем тип : LookbookProduct[] к массиву, спасая билд от ошибки "type never"
+export const LOOKBOOK_PRODUCTS: LookbookProduct[] = [
   // {
   //   id: 'studio-session-01',
   //   title: { EN: 'ARCHIVE ESSENTIALS — VOLUME I', UA: 'АРХІВНІ ОСНОВИ — ЧАСТИНА I' },
