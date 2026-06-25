@@ -33,14 +33,14 @@ export const PRODUCTS: Product[] = [
     images: ['/products/bag1.jpg']
   },
   {
-    id: 'core-logo-hoodie',
+    id: 'hoodiev1',
     category: 'hoodies',
-    title: 'CORE LOGO HOODIE',
+    title: 'Stirol Hoodie',
     price: 'SOLD OUT',
     status: 'soldout',
-    description: 'Oversized fit, heavy fleece lining.',
+    description: 'Regular fit, heavy cotton.',
     sizes: ['M', 'L', 'XL'],
-    images: ['/products/hoodie1.jpg']
+    images: ['/shop/sthood.jpg']
   },
   {
     id: 'stirol-sticker-pack',
