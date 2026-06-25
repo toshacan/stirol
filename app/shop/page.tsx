@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link'; // <--- Добавили импорт
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import { PRODUCTS } from '@/app/data/products';
@@ -8,7 +9,6 @@ export default function ShopPage() {
   const { lang } = useLang(); 
   const [activeCategory, setActiveCategory] = useState('all');
   
-  // Приводим язык к ожидаемому типу один раз для всего компонента
   const currentLang = lang as 'EN' | 'UA';
 
   const uiText = {
@@ -54,7 +54,8 @@ export default function ShopPage() {
         <div className="flex-grow w-full">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10">
             {filteredProducts.map((product) => (
-              <div key={product.id} className={`flex flex-col space-y-2 group cursor-pointer ${product.status === 'soldout' ? 'opacity-50' : ''}`}>
+              // <--- Обернули каждый товар в Link:
+              <Link key={product.id} href={`/shop/${product.id}`} className={`flex flex-col space-y-2 group cursor-pointer ${product.status === 'soldout' ? 'opacity-50' : ''}`}>
                 <div className="aspect-square bg-white border border-gray-200 flex items-center justify-center p-4 relative transition-all group-hover:border-gray-400">
                   {product.status !== 'comingSoon' && (
                     <span className={`absolute top-2 left-2 text-[8px] px-1 py-0.5 uppercase tracking-widest font-sans font-bold ${product.status === 'limited' ? 'bg-red-600 text-white' : 'border border-black text-black'}`}>
@@ -69,7 +70,7 @@ export default function ShopPage() {
                   <span className="text-black font-bold">{product.title}</span>
                   <span className="text-gray-500 font-sans font-bold">{product.price}</span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
