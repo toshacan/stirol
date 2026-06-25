@@ -35,44 +35,44 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <CommonLayout>
-      {/* Главный контейнер с отступами для мобильных */}
-      <div className="w-full max-w-6xl mx-auto px-4 py-8 md:py-20">
+      {/* min-h-[80vh] гарантирует, что блок займет почти весь экран, 
+         pb-24 дает место футеру, чтобы он не перекрывал кнопки 
+      */}
+      <div className="w-full max-w-6xl mx-auto px-4 py-8 min-h-[80vh] pb-24">
         
-        {/* Навигация */}
-        <div className="flex justify-between items-center mb-6 uppercase text-[10px] tracking-widest font-bold">
+        <div className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
           <Link href="/shop" className="hover:text-gray-500">{labels[currentLang].back}</Link>
           <Link href={`/shop/${nextProduct.id}`} className="hover:text-gray-500">{labels[currentLang].next}</Link>
         </div>
 
-        {/* Основной блок: изображение + контент */}
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Изображение */}
+          {/* Изображение - фиксированный размер для мобилки */}
           <div className="w-full md:w-1/2">
-            <div className="aspect-square bg-gray-100 flex items-center justify-center border w-full">
+            <div className="aspect-square bg-gray-100 flex items-center justify-center border">
               <span className="text-gray-400 text-[10px]">IMAGE: {product.title}</span>
             </div>
           </div>
 
-          {/* Контент: Название, цена, описание, размеры, кнопка */}
+          {/* Контент */}
           <div className="w-full md:w-1/2 flex flex-col">
-            <h1 className="text-2xl font-bold uppercase tracking-tight">{product.title}</h1>
+            <h1 className="text-2xl font-bold uppercase">{product.title}</h1>
             <p className="text-lg mt-2 font-bold">{product.price}</p>
             
-            <div className="mt-6 py-6 border-t border-b border-gray-200">
+            <div className="mt-6 py-4 border-t border-b border-gray-200">
               <p className="text-sm uppercase text-gray-700 leading-relaxed">{product.description}</p>
             </div>
 
-            {/* Размеры */}
+            {/* Блок размеров - увеличил отступы */}
             {product.sizes.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-2">{labels[currentLang].select}</h3>
-                <div className="flex gap-2">
+              <div className="mt-8">
+                <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].select}</h3>
+                <div className="flex flex-wrap gap-2">
                   {product.sizes.map(size => (
                     <button 
                       key={size} 
                       onClick={() => setSelectedSize(size)}
-                      className={`border px-6 py-3 text-xs font-bold uppercase transition-all 
-                        ${selectedSize === size ? 'bg-black text-white' : 'hover:border-black'}`}
+                      className={`border-2 px-8 py-3 text-sm font-bold uppercase transition-all 
+                        ${selectedSize === size ? 'bg-black text-white border-black' : 'border-gray-200 hover:border-black'}`}
                     >
                       {size}
                     </button>
@@ -81,10 +81,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
             )}
 
-            {/* Кнопка */}
+            {/* Кнопка купить - теперь с margin-top для явного отделения */}
             <button 
               onClick={handleAddToCart}
-              className={`mt-8 w-full py-4 uppercase font-bold text-sm tracking-widest transition-all 
+              className={`mt-12 w-full py-5 uppercase font-bold text-sm tracking-widest transition-all 
                 ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}
                 ${product.status === 'soldout' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-800'}`}
               disabled={product.status === 'soldout' || isAdded}
