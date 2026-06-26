@@ -95,7 +95,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
             )}
 
-            <button onClick={handleAddToCart} className={`mt-10 w-full py-4 uppercase font-bold text-[10px] ${isAdded ? 'bg-green-600 text-white' : 'bg-black text-white'}`} disabled={product.status === 'soldout' || isAdded}>
+            <button onClick={handleAddToCart} className={`mt-10 w-full py-4 uppercase font-bold text-[10px] ${isAdded ? 'bg-pink-400 text-white' : 'bg-black text-white'}`} disabled={product.status === 'soldout' || isAdded}>
               {product.status === 'soldout' ? labels[currentLang].sold : (isAdded ? labels[currentLang].added : labels[currentLang].buy)}
             </button>
           </div>

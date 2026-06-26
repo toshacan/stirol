@@ -9,11 +9,11 @@ export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const { lang } = useLang();
   
-  // Стейты для полей формы
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', address: '', city: '', zip: '', country: ''
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [orderId, setOrderId] = useState<string | number>('');
 
   const t = {
     title: lang === 'EN' ? 'CHECKOUT' : 'ОФОРМЛЕННЯ ЗАМОВЛЕННЯ',
@@ -27,13 +27,13 @@ export default function CheckoutPage() {
     cancel: lang === 'EN' ? 'CANCEL' : 'СКАСУВАТИ',
     empty: lang === 'EN' ? 'Cart is empty' : 'Кошик порожній',
     success: lang === 'EN' ? 'ORDER PLACED SUCCESSFULLY!' : 'ЗАМОВЛЕННЯ УСПІШНО ОФОРМЛЕНО!',
+    orderLabel: lang === 'EN' ? 'ORDER ID:' : 'НОМЕР ЗАМОВЛЕННЯ:',
     subSuccess: lang === 'EN' ? 'We will contact you shortly.' : 'Ми зв’яжемося з вами найближчим часом.',
     backShop: lang === 'EN' ? 'BACK TO SHOP' : 'НАЗАД ДО МАГАЗИНУ'
   };
 
   const countries = ["Netherlands", "Ukraine", "Germany", "France", "Poland", "USA"];
   
-  // Безопасный расчет итоговой суммы
   const total = cart.reduce((acc: number, item: any) => {
     const priceStr = typeof item.price === 'string' ? item.price : String(item.price || '0');
     const parsed = parseFloat(priceStr.replace('€', '').trim());
@@ -43,7 +43,6 @@ export default function CheckoutPage() {
   const handleSubmit = async () => {
     if (cart.length === 0 || status === 'loading') return;
 
-    // Базовая проверка на заполненность обязательных полей перед отправкой
     if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.country) {
       alert(lang === 'EN' ? 'Please fill in all required fields.' : 'Будь ласка, заповніть усі обов’язкові поля.');
       return;
@@ -55,10 +54,12 @@ export default function CheckoutPage() {
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, cart, total }),
+        body: JSON.stringify({ ...formData, cart, total, lang }),
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setOrderId(data.orderId); 
         setStatus('success');
         if (clearCart) clearCart(); 
       } else {
@@ -71,11 +72,18 @@ export default function CheckoutPage() {
     }
   };
 
-  // ЭКРАН УСПЕШНОГО ОФОРМЛЕНИЯ
   if (status === 'success') return (
     <CommonLayout>
       <div className="max-w-xl mx-auto mt-20 text-center uppercase tracking-widest text-[10px] space-y-4">
         <p className="font-bold text-black text-sm">{t.success}</p>
+        
+        <div className="text-black font-extrabold tracking-widest text-sm normal-case flex items-center justify-center gap-1.5 select-none">
+          <span>{t.orderLabel}</span>
+          <span className="select-all bg-gray-100 px-1.5 py-0.5 rounded cursor-pointer font-mono font-bold text-black">
+            {"#" + orderId}
+          </span>
+        </div>
+        
         <p className="text-gray-400">{t.subSuccess}</p>
         <div className="pt-6">
           <Link href="/shop" className="border border-black px-6 py-2 hover:bg-black hover:text-white transition-colors">
@@ -86,7 +94,6 @@ export default function CheckoutPage() {
     </CommonLayout>
   );
 
-  // ЭКРАН ПУСТОЙ КОРЗИНЫ
   if (cart.length === 0) return (
     <CommonLayout>
       <div className="max-w-xl mx-auto mt-20 text-center uppercase tracking-widest text-[10px]">
@@ -102,8 +109,6 @@ export default function CheckoutPage() {
         <h1 className="text-xl font-bold uppercase mb-12 tracking-widest">{t.title}</h1>
         
         <div className="flex flex-col md:flex-row gap-16">
-          
-          {/* ИНПУТЫ И ДАННЫЕ КЛИЕНТА */}
           <div className="w-full md:w-1/2 space-y-4">
             <input type="text" placeholder={t.name} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full border-b border-black py-2 uppercase text-[10px] focus:outline-none bg-transparent" />
             <input type="email" placeholder="Email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full border-b border-black py-2 uppercase text-[10px] focus:outline-none bg-transparent" />
@@ -124,7 +129,12 @@ export default function CheckoutPage() {
                 <button 
                   onClick={handleSubmit}
                   disabled={status === 'loading'} 
-                  className="flex-1 bg-black text-white py-4 font-bold text-[10px] tracking-widest hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+                  className={
+                    "flex-1 py-4 font-bold text-[10px] tracking-widest transition-colors uppercase " +
+                    (status === 'loading' 
+                      ? 'bg-neutral-800 text-gray-400 cursor-not-allowed' 
+                      : 'bg-black text-white hover:bg-neutral-800')
+                  }
                 >
                   {status === 'loading' ? 'PROCESSING...' : t.order}
                 </button>
@@ -132,7 +142,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* ИТОГОВАЯ КОРЗИНА СПРАВА */}
           <div className="w-full md:w-1/2 border-l pl-0 md:pl-16">
              {cart.map((item: any, idx: number) => (
                 <div key={idx} className="flex justify-between border-b pb-4 mb-4 text-[10px]">
@@ -145,7 +154,6 @@ export default function CheckoutPage() {
                 <span>{total}€</span>
               </div>
           </div>
-          
         </div>
       </div>
     </CommonLayout>
