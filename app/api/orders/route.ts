@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     // ЛОКАЛИЗАЦИЯ ДЛЯ EMAIL ЧЕКА (EN / UA)
     const isEn = lang === 'EN';
     const mailSubject = isEn ? "STIROL — ORDER RECEIVED #" + orderId : "STIROL — ЗАМОВЛЕННЯ ПРИЙНЯТО #" + orderId;
-    const mailHeading = isEn ? '[ STIROL — ORDER CONFIRMATION ]' : '[ STIROL — ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ ]';
+    const mailHeading = isEn ? 'STIROL — ORDER CONFIRMATION' : 'STIROL — ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ';
     const mailTextSuccess = isEn ? 'THANK YOU FOR YOUR ORDER. WE ARE PREPARING IT FOR SHIPPING.' : 'ДЯКУЄМО ЗА ВАШЕ ЗАМОВЛЕННЯ. МИ ВЖЕ ГОТУЄМО ЙОГО ДО ВІДПРАВКИ.';
     const mailTextId = isEn ? 'ORDER NUMBER:' : 'НОМЕР ЗАМОВЛЕННЯ:';
     const mailTextItems = isEn ? 'ITEMS:' : 'ТОВАРИ:';
@@ -97,21 +97,21 @@ export async function POST(request: Request) {
     }).join('\n');
     
     const tgLines = [
-      "⚡️ [ STIROL — NEW ORDER #" + orderId + " ] ⚡️",
+      " STIROL — NEW ORDER #" + orderId + " ",
       "----------------------------------",
-      "👤 CLIENT: " + (name ? name.toUpperCase() : 'UNKNOWN'),
-      "📞 PHONE: " + phone,
-      "✉️ EMAIL: " + email,
-      "🌐 LANG: " + lang,
+      "CLIENT: " + (name ? name.toUpperCase() : 'UNKNOWN'),
+      "PHONE: " + phone,
+      "EMAIL: " + email,
+      "LANG: " + lang,
       "",
-      "📍 SHIPPING:",
+      "SHIPPING:",
       (country ? country.toUpperCase() : '') + ", " + (city ? city.toUpperCase() : ''),
       (address ? address.toUpperCase() : '') + ", " + zip,
       "",
-      "📦 ITEMS:",
+      "ITEMS:",
       itemsTgList,
       "",
-      "💰 TOTAL: " + total + "€",
+      "TOTAL: " + total + "€",
       "----------------------------------"
     ];
     

@@ -29,7 +29,8 @@ export default function CheckoutPage() {
     success: lang === 'EN' ? 'ORDER PLACED SUCCESSFULLY!' : 'ЗАМОВЛЕННЯ УСПІШНО ОФОРМЛЕНО!',
     orderLabel: lang === 'EN' ? 'ORDER ID:' : 'НОМЕР ЗАМОВЛЕННЯ:',
     subSuccess: lang === 'EN' ? 'We will contact you shortly.' : 'Ми зв’яжемося з вами найближчим часом.',
-    backShop: lang === 'EN' ? 'BACK TO SHOP' : 'НАЗАД ДО МАГАЗИНУ'
+    backShop: lang === 'EN' ? 'BACK TO SHOP' : 'НАЗАД ДО МАГАЗИНУ',
+    totalLabel: lang === 'EN' ? 'TOTAL' : 'РАЗОМ'
   };
 
   const countries = ["Netherlands", "Ukraine", "Germany", "France", "Poland", "USA"];
@@ -144,13 +145,17 @@ export default function CheckoutPage() {
 
           <div className="w-full md:w-1/2 border-l pl-0 md:pl-16">
              {cart.map((item: any, idx: number) => (
-                <div key={idx} className="flex justify-between border-b pb-4 mb-4 text-[10px]">
+                <Link 
+                  key={idx} 
+                  href={"/shop/" + item.id} 
+                  className="flex justify-between border-b pb-4 mb-4 text-[10px] block hover:opacity-70 transition-opacity"
+                >
                   <span>{item.title} — {item.size}</span>
                   <span className="font-bold">{item.price}</span>
-                </div>
+                </Link>
               ))}
               <div className="flex justify-between font-bold text-sm">
-                <span>TOTAL</span>
+                <span>{t.totalLabel}</span>
                 <span>{total}€</span>
               </div>
           </div>
