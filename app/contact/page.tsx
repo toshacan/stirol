@@ -1,9 +1,22 @@
 'use client';
+import { useState } from 'react';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 
 export default function ContactPage() {
   const { lang } = useLang();
+
+  // 1. Создаем состояние для всех полей формы
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    order: '',
+    theme: '',
+    message: ''
+  });
+
+  // Состояние статуса отправки
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const ui = {
     EN: {
@@ -14,7 +27,10 @@ export default function ContactPage() {
       themeLabel: 'SELECT THEME',
       themes: ['ORDER INFO', 'RETURN', 'GENERAL', 'PRESS', 'COLLABORATION'],
       msg: 'MESSAGE',
-      send: 'SEND'
+      send: 'SEND',
+      sending: 'SENDING...',
+      success: 'SENT SUCCESS',
+      error: 'TRY AGAIN'
     },
     UA: {
       title: 'КОНТАКТИ',
@@ -24,32 +40,104 @@ export default function ContactPage() {
       themeLabel: 'ОБЕРІТЬ ТЕМУ',
       themes: ['ІНФОРМАЦІЯ ПО ЗАМОВЛЕННЮ', 'ПОВЕРНЕННЯ', 'ЗАГАЛЬНІ ЗАПИТИ', 'ПРЕСА', 'СПІВПРАЦЯ'],
       msg: 'ПОВІДОМЛЕННЯ',
-      send: 'НАДІСЛАТИ'
+      send: 'НАДІСЛАТИ',
+      sending: 'НАДСИЛАННЯ...',
+      success: 'УСПІШНО ВІДПРАВЛЕНО',
+      error: 'ПОМИЛКА, СКУШУЙ ЩЕ'
     }
   };
 
-  // Используем приведение типа для безопасности TypeScript
   const currentUi = ui[lang as 'EN' | 'UA'];
+
+  // 2. Функция отправки данных на наш бэкенд
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setStatus('success');
+        // Сбрасываем форму
+        setFormData({ name: '', email: '', order: '', theme: '', message: '' });
+        // Через 4 секунды возвращаем кнопку в обычный режим
+        setTimeout(() => setStatus('idle'), 4000);
+      } else {
+        setStatus('error');
+      }
+    } catch (err) {
+      setStatus('error');
+    }
+  };
 
   return (
     <CommonLayout>
-      <div className="flex-grow w-full flex items-center justify-center px-4">
-        <form className="w-full max-w-md space-y-6" action="https://formspree.io/f/ВАШ_ID" method="POST">
+      <div className="flex-grow w-full flex items-center justify-center px-4 py-12">
+        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 text-left">
           <h2 className="text-[10px] font-black tracking-[0.3em] uppercase mb-8">{currentUi.title}</h2>
           
-          <input type="text" name="name" placeholder={currentUi.name} className="w-full border-b border-gray-300 bg-transparent py-2 outline-none focus:border-black text-[10px]" required />
-          <input type="email" name="email" placeholder={currentUi.email} className="w-full border-b border-gray-300 bg-transparent py-2 outline-none focus:border-black text-[10px]" required />
-          <input type="text" name="order" placeholder={currentUi.order} className="w-full border-b border-gray-300 bg-transparent py-2 outline-none focus:border-black text-[10px]" />
+          <input 
+            type="text" 
+            placeholder={currentUi.name} 
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full border-b border-gray-300 bg-transparent py-2 outline-none focus:border-black text-[10px] uppercase" 
+            required 
+          />
           
-          <select name="theme" className="w-full border-b border-gray-300 bg-transparent py-2 outline-none focus:border-black text-[10px] uppercase">
+          <input 
+            type="email" 
+            placeholder={currentUi.email} 
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full border-b border-gray-300 bg-transparent py-2 outline-none focus:border-black text-[10px]" 
+            required 
+          />
+          
+          <input 
+            type="text" 
+            placeholder={currentUi.order} 
+            value={formData.order}
+            onChange={(e) => setFormData({ ...formData, order: e.target.value })}
+            className="w-full border-b border-gray-300 bg-transparent py-2 outline-none focus:border-black text-[10px] uppercase" 
+          />
+          
+          <select 
+            value={formData.theme}
+            onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
+            className="w-full border-b border-gray-300 bg-transparent py-2 outline-none focus:border-black text-[10px] uppercase rounded-none"
+          >
             <option value="">{currentUi.themeLabel}</option>
             {currentUi.themes.map((t, i) => <option key={i} value={t}>{t}</option>)}
           </select>
           
-          <textarea name="message" placeholder={currentUi.msg} className="w-full border border-gray-300 bg-transparent p-2 h-32 outline-none focus:border-black text-[10px]" required />
+          <textarea 
+            placeholder={currentUi.msg} 
+            value={formData.message}
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            className="w-full border border-gray-300 bg-transparent p-2 h-32 outline-none focus:border-black text-[10px] uppercase resize-none" 
+            required 
+          />
           
-          <button type="submit" className="w-full bg-black text-white py-3 text-[10px] font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors">
-            {currentUi.send}
+          <button 
+            type="submit" 
+            disabled={status === 'loading'}
+            className={`w-full py-3 text-[10px] font-bold tracking-widest uppercase transition-colors
+              ${status === 'success' ? 'bg-emerald-600 text-white' : ''}
+              ${status === 'error' ? 'bg-pink-600 text-white' : ''}
+              ${status === 'idle' ? 'bg-black text-white hover:bg-gray-800' : ''}
+              ${status === 'loading' ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : ''}
+            `}
+          >
+            {status === 'idle' && currentUi.send}
+            {status === 'loading' && currentUi.sending}
+            {status === 'success' && currentUi.success}
+            {status === 'error' && currentUi.error}
           </button>
         </form>
       </div>
