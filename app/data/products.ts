@@ -39,7 +39,7 @@ export const PRODUCTS: Product[] = [
     category: 'hoodies',
     title: 'Stirol Hoodie',
     price: '',
-    status: 'soldout',
+    status: 'limited',
     description: 'Regular fit, heavy cotton.',
     sizes: ['M', 'L', 'XL'],
     images: ['/shop/hoodie.jpg']
