@@ -40,7 +40,7 @@ export const PRODUCTS: Product[] = [
     category: 'tshirts',
     title: '"FUCK THE ROC" T-SHIRT - WHITE',
     price: '45€', 
-    // УБРАЛИ status: 'limited'. Вещь активна, доступна к покупке, но никаких лишних плашек сверху!
+     status: 'soldout',
     description: 'Heavyweight cotton. Limited edition FW23. Raw white base.',
     sizes: ['S', 'M', 'L', 'XL'], 
     images: ['/shop/fuckw.png'], 
@@ -64,7 +64,7 @@ export const PRODUCTS: Product[] = [
     category: 'hoodies',
     title: 'Stirol Hoodie',
     price: '65€',
-    // УБРАЛИ status: 'limited'. Худи в продаже, карточка чистая и брутальная.
+     status: 'soldout',
     description: 'Regular fit, heavy cotton.',
     sizes: ['M', 'L', 'XL'],
     images: ['/shop/hoodie.png']
@@ -81,7 +81,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'box-tshirt',
-    category: 'tshirts', // Поменял на tshirts, раз это футболка
+    category: 'tshirts', 
     title: 'Box Logo T-Shirt',
     price: '35€',
     status: 'soldout',
