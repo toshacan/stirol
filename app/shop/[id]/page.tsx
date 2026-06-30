@@ -24,8 +24,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
 
   const labels = {
-    EN: { back: '← BACK', next: 'NEXT →', buy: 'ADD TO CART', added: 'ADDED', sold: 'SOLD OUT', select: 'SIZE', prev: 'PREV', nextImg: 'NEXT' },
-    UA: { back: '← НАЗАД', next: 'ДАЛІ →', buy: 'ДОДАТИ', added: 'ДОДАНО', sold: 'РОЗПРОДАНО', select: 'РОЗМІР', prev: 'НАЗАД', nextImg: 'ДАЛІ' }
+    EN: { back: '← BACK', next: 'NEXT ITEM →', buy: 'ADD TO CART', added: 'ADDED', sold: 'SOLD OUT', selectSize: 'SIZE', selectColor: 'COLOR', prev: 'PREV', nextImg: 'NEXT' },
+    UA: { back: '← НАЗАД', next: 'НАСТУПНА РІЧ →', buy: 'ДОДАТИ', added: 'ДОДАНО', sold: 'РОЗПРОДАНО', selectSize: 'РОЗМІР', selectColor: 'КОЛІР', prev: 'НАЗАД', nextImg: 'ДАЛІ' }
   };
 
   const changeImage = (direction: 'prev' | 'next') => {
@@ -43,6 +43,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  // Проверяем, распродан ли весь товар полностью
+  const isTotalSoldOut = product.status === 'soldout';
+
   return (
     <CommonLayout>
       <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 h-auto">
@@ -53,9 +56,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           
-          {/* Блок с картинкой */}
+          {/* Блок с картинкой (Ракурсы товара) */}
           <div className="flex flex-col gap-3">
-            <div className="w-full aspect-square overflow-hidden">
+            <div className="w-full aspect-square overflow-hidden bg-transparent">
                {product.images.length > 0 && (
                  <img 
                    src={product.images[currentImageIndex]} 
@@ -66,7 +69,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                )}
             </div>
 
-            {/* Блок навигации под фото */}
+            {/* Стрелочки меняют РАКУРС одной вещи */}
             {product.images.length > 1 && (
               <div className="flex justify-between items-center text-[9px] uppercase tracking-widest font-bold text-gray-500">
                 <button onClick={() => changeImage('prev')} className="hover:text-black">← {labels[currentLang].prev}</button>
@@ -76,6 +79,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             )}
           </div>
 
+          {/* Информационный блок */}
           <div className="flex flex-col w-full">
             <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tighter leading-none">{product.title}</h1>
             <p className="text-lg mt-3 font-bold">{product.price}</p>
@@ -84,21 +88,64 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               <p className="text-[11px] uppercase text-gray-700 leading-normal">{product.description}</p>
             </div>
 
-            {product.sizes && product.sizes.length > 0 && (
-              <div className="mt-8">
-                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].select}</h3>
-                <div className="grid grid-cols-4 gap-2">
-                  {product.sizes.map((size: string) => (
-                    <button key={size} onClick={() => setSelectedSize(size)} className={`border py-3 text-[10px] font-bold uppercase ${selectedSize === size ? 'bg-black text-white' : 'border-gray-200'}`}>{size}</button>
+            {/* НОВЫЙ БЛОК: ВЫБОР ЦВЕТА */}
+            {(product as any).colorVariants && (product as any).colorVariants.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].selectColor}</h3>
+                <div className="flex gap-3">
+                  {(product as any).colorVariants.map((variant: any) => (
+                    <Link 
+                      key={variant.id} 
+                      href={`/shop/${variant.id}`}
+                      title={variant.name}
+                      className={`w-6 h-6 rounded-full border transition-all ${variant.id === id ? 'border-black scale-110 ring-1 ring-black' : 'border-gray-300 hover:scale-105'}`}
+                      style={{ backgroundColor: variant.hex }}
+                    />
                   ))}
                 </div>
               </div>
             )}
 
-            <button onClick={handleAddToCart} className={`mt-10 w-full py-4 uppercase font-bold text-[10px] ${isAdded ? 'bg-pink-400 text-white' : 'bg-black text-white'}`} disabled={product.status === 'soldout' || isAdded}>
-              {product.status === 'soldout' ? labels[currentLang].sold : (isAdded ? labels[currentLang].added : labels[currentLang].buy)}
+            {/* ВЫБОР РАЗМЕРА (Показываем только если товар не распродан полностью) */}
+            {product.sizes && product.sizes.length > 0 && !isTotalSoldOut && (
+              <div className="mt-6">
+                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].selectSize}</h3>
+                <div className="grid grid-cols-4 gap-2">
+                  {product.sizes.map((size: string) => {
+                    // Если в массиве написано "SOLD OUT" или "РОЗПРОДАНО" — глушим кнопку
+                    const isSizeSold = size.toUpperCase() === 'SOLD OUT' || size === 'РОЗПРОДАНО';
+                    
+                    return (
+                      <button 
+                        key={size} 
+                        disabled={isSizeSold}
+                        onClick={() => setSelectedSize(size)} 
+                        className={`border py-3 text-[10px] font-bold uppercase transition-all
+                          ${isSizeSold ? 'border-gray-200 text-gray-300 line-through cursor-not-allowed opacity-40' : ''}
+                          ${selectedSize === size && !isSizeSold ? 'bg-black text-white border-black' : 'border-gray-200 text-black'}
+                        `}
+                      >
+                        {size}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ГЛАВНАЯ КНОПКА КУПИТЬ / SOLD OUT */}
+            <button 
+              onClick={handleAddToCart} 
+              className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-colors
+                ${isTotalSoldOut ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed' : ''}
+                ${isAdded ? 'bg-pink-400 text-white' : 'bg-black text-white hover:bg-neutral-900'}
+              `} 
+              disabled={isTotalSoldOut || isAdded}
+            >
+              {isTotalSoldOut ? labels[currentLang].sold : (isAdded ? labels[currentLang].added : labels[currentLang].buy)}
             </button>
           </div>
+
         </div>
       </main>
     </CommonLayout>
