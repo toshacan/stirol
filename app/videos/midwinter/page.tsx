@@ -2,11 +2,20 @@
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import Link from 'next/link';
-
+import { useState, useEffect } from 'react';
 
 export default function MidwinterPage() {
   const { lang } = useLang();
   const currentLang = lang as 'EN' | 'UA';
+
+  // Динамическая смена названия вкладки браузера под текущий язык
+    useEffect(() => {
+      const titles = {
+        EN: '"MIDWINTER"',
+        UA: '"MIDWINTER"'
+      };
+      document.title = `${titles[currentLang]} - STIROL`;
+    }, [currentLang]);
 
   const content = {
     EN: {

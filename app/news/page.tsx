@@ -14,6 +14,17 @@ export default function NewsPage() {
   const [shareText, setShareText] = useState('SHARE');
   const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
 
+  const currentLang = lang as 'EN' | 'UA';
+
+  // Динамическая смена названия вкладки браузера под текущий язык
+  useEffect(() => {
+    const titles = {
+      EN: 'News',
+      UA: 'Новини'
+    };
+    document.title = `${titles[currentLang]} - STIROL`;
+  }, [currentLang]);
+
   // СТИЛИ ТЕКСТА И КНОПКИ: Меняй размеры и цвета прямо здесь
   const textStyles = {
     dateAndTag: "text-[9px] font-mono tracking-widest text-gray-400 uppercase space-x-2",
@@ -30,8 +41,6 @@ export default function NewsPage() {
     // Общие базовые стили кнопки (размер, шрифт, анимация)
     shareBtnBase: "text-[9px] font-mono font-bold tracking-widest px-4 py-2 transition-colors duration-200 uppercase mt-4 self-start"
   };
-
-  const currentLang = lang as 'EN' | 'UA';
 
   // Фильтрация новостей по тегу
   const filteredPosts = activeTagFilter 

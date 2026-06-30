@@ -1,5 +1,5 @@
 'use client';
-import { use, useState } from 'react';
+import { use, useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { PRODUCTS } from '@/app/data/products';
@@ -22,6 +22,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const currentIndex = PRODUCTS.findIndex(p => p.id === id);
   const nextProduct = PRODUCTS[currentIndex + 1] || PRODUCTS[0];
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
+
+  // Динамический заголовок вкладки с названием текущего товара
+  useEffect(() => {
+    if (product) {
+      document.title = `${product.title.toUpperCase()} - STIROL`;
+    }
+  }, [id, currentLang, product]);
 
   const labels = {
     EN: { back: '← BACK', next: 'NEXT ITEM →', buy: 'ADD TO CART', added: 'ADDED', sold: 'SOLD OUT', selectSize: 'SIZE', selectColor: 'COLOR', prev: 'PREV', nextImg: 'NEXT' },

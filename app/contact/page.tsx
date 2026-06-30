@@ -1,10 +1,20 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 
 export default function ContactPage() {
   const { lang } = useLang();
+  const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
+
+  // Динамическая смена названия вкладки браузера
+  useEffect(() => {
+    const titles = {
+      EN: 'Contact',
+      UA: 'Контакти'
+    };
+    document.title = `${titles[currentLang]} - STIROL`;
+  }, [currentLang]);
 
   // 1. Создаем состояние для всех полей формы
   const [formData, setFormData] = useState({
@@ -47,7 +57,7 @@ export default function ContactPage() {
     }
   };
 
-  const currentUi = ui[lang as 'EN' | 'UA'];
+  const currentUi = ui[currentLang];
 
   // 2. Функция отправки данных на наш бэкенд
   const handleSubmit = async (e: React.FormEvent) => {

@@ -14,8 +14,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Настроили динамический шаблон метаданных
 export const metadata: Metadata = {
-  title: "STIROL",
+  title: {
+    default: "STIROL",
+    template: "%s - STIROL", // %s будет автоматически заменяться на имя страницы
+  },
   description: "Official STIROL website",
 };
 

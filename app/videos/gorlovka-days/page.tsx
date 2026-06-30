@@ -2,10 +2,20 @@
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 export default function VideoPlayerPage() {
   const { lang } = useLang();
   const currentLang = lang as 'EN' | 'UA';
+
+  // Динамическая смена названия вкладки браузера под текущий язык
+    useEffect(() => {
+      const titles = {
+        EN: 'STIROL SKATEBOARDING',
+        UA: 'STIROL SKATEBOARDING'
+      };
+      document.title = `${titles[currentLang]} - STIROL`;
+    }, [currentLang]);
 
   const content = {
     EN: {
@@ -34,7 +44,8 @@ export default function VideoPlayerPage() {
       </div>
 
       {/* ОСНОВНОЙ КОНТЕНТ */}
-      <div className="w-full flex flex-col lg:flex-row gap-8 items-start my-auto px-4 mt-4">
+      {/* Добавлены классы mb-12 md:mb-16 для отступа снизу */}
+      <div className="w-full flex flex-col lg:flex-row gap-8 items-start px-4 mt-4 mb-12 md:mb-16">
         
         {/* ЛЕВАЯ СТОРОНА: ПЛЕЕР */}
         <div className="w-full lg:w-[70%] aspect-video bg-black border border-gray-200 overflow-hidden shadow-sm">

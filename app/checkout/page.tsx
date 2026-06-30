@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/components/CartContext';
 import { useLang } from '@/components/LangContext';
 import CommonLayout from '@/components/CommonLayout';
@@ -8,6 +8,16 @@ import Link from 'next/link';
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const { lang } = useLang();
+
+    const currentLang = lang as 'EN' | 'UA';
+ // Динамическая смена названия вкладки браузера под текущий язык
+  useEffect(() => {
+    const titles = {
+      EN: 'Checkout',
+      UA: 'Чекаут'
+    };
+    document.title = `${titles[currentLang]} - STIROL`;
+  }, [currentLang]);
   
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', address: '', city: '', zip: '', country: ''

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link'; 
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
@@ -10,6 +10,15 @@ export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const currentLang = lang as 'EN' | 'UA';
 
+  // Динамическая смена названия вкладки браузера под текущий язык
+  useEffect(() => {
+    const titles = {
+      EN: 'Shop',
+      UA: 'Магазин'
+    };
+    document.title = `${titles[currentLang]} - STIROL`;
+  }, [currentLang]);
+  
   const uiText = {
     EN: { soldout: 'SOLD OUT', comingSoon: 'COMING SOON' },
     UA: { soldout: 'РОЗПРОДАНО', comingSoon: 'СКОРО' }
@@ -48,7 +57,7 @@ export default function ShopPage() {
                     />
                   )}
                   
-                  {/* ИСПРАВЛЕНО: Плашка рендерится ТОЛЬКО если статус равен 'soldout' или 'comingSoon' */}
+                  {/* Плашка рендерится ТОЛЬКО если статус равен 'soldout' или 'comingSoon' */}
                   {product.status && (product.status === 'soldout' || product.status === 'comingSoon') && (
                     <span className={`absolute top-2 left-2 text-[9px] px-2 py-1 uppercase tracking-widest font-extrabold bg-pink-400 text-white`}>
                       {uiText[currentLang][product.status as keyof typeof uiText.EN]}
@@ -56,9 +65,10 @@ export default function ShopPage() {
                   )}
                 </div>
 
-                <div className={`flex flex-col text-[10px] uppercase tracking-wider space-y-0.5 ${product.status === 'soldout' ? 'opacity-50' : ''}`}>
-                  <span className="text-black font-bold">{product.title}</span>
-                  {product.price && <span className="text-pink-500 font-sans font-bold">{product.price}</span>}
+                {/* Добавили правильный брутальный трекинг буквам, чтобы капс отлично читался в карточке */}
+                <div className={`flex flex-col text-[10px] uppercase tracking-widest space-y-0.5 ${product.status === 'soldout' ? 'opacity-50' : ''}`}>
+                  <span className="text-black font-bold tracking-wide">{product.title}</span>
+                  {product.price && <span className="text-pink-500 font-sans font-bold tracking-widest">{product.price}</span>}
                 </div>
                 
               </Link>

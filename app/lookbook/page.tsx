@@ -4,13 +4,26 @@ import Link from 'next/link';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import { LOOKBOOK_PRODUCTS } from '@/app/data/lookbook';
+import {useEffect } from 'react';
 
 export default function LookbookPage() {
   const { lang } = useLang();
   const [activeProductIdx, setActiveProductIdx] = useState(0);
   const [activeImgIdx, setActiveImgIdx] = useState(0);
   
+
   const currentLang = lang as 'EN' | 'UA';
+ // Динамическая смена названия вкладки браузера под текущий язык
+  useEffect(() => {
+    const titles = {
+      EN: 'Lookbook',
+      UA: 'Лукбук'
+    };
+    document.title = `${titles[currentLang]} - STIROL`;
+  }, [currentLang]);
+
+
+
 
   // Проверяем, пуст ли массив с лукбуками
   const isLookbookEmpty = !LOOKBOOK_PRODUCTS || LOOKBOOK_PRODUCTS.length === 0;

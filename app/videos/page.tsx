@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import Link from 'next/link';
@@ -9,6 +9,15 @@ export default function VideosPage() {
   const { lang } = useLang();
   const [activeFilter, setActiveFilter] = useState('all');
   const currentLang = lang as 'EN' | 'UA';
+
+  // Динамическая смена названия вкладки браузера под текущий язык
+  useEffect(() => {
+    const titles = {
+      EN: 'Videos',
+      UA: 'Відео'
+    };
+    document.title = `${titles[currentLang]} - STIROL`;
+  }, [currentLang]);
 
   const menuFilters = {
     EN: [{ id: 'all', label: 'all' }, { id: 'skate', label: 'skate' }, { id: 'promo', label: 'promo' }],
