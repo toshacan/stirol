@@ -26,7 +26,7 @@ export const PRODUCTS: Product[] = [
     category: 'tshirts',
     title: '"FUCK THE ROC" T-SHIRT - BLACK',
     price: '45€', 
-    status: 'soldout', // Эта раскуплена, кнопка будет заблокирована
+     // Эта раскуплена, кнопка будет заблокирована
     description: 'Heavyweight cotton. Limited edition FW23. Deep black wash.',
     sizes: ['M', 'L'], 
     images: ['/shop/fuck.png'], 

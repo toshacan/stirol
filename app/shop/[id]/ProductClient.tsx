@@ -37,12 +37,18 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
 
   const handleAddToCart = () => {
     if (product.sizes.length > 0 && !selectedSize) return;
+    // Передаем полную структуру объекта в контекст корзины, чтобы имя было кликабельным по id
     addToCart({ id: product.id, title: product.title, size: selectedSize || 'OS', price: product.price });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
   const isTotalSoldOut = product.status === 'soldout';
+
+  // НАСТРОЙКА ЦВЕТА КНОПКИ ПРИ АКТИВАЦИИ ТОВАРА
+  // Меняй эти классы на любые нужные тебе цвета (например: 'bg-pink-400 text-white' и т.д.)
+  const activeButtonStyles = 'bg-white text-black border-black scale-[1.01]'; 
+  const defaultButtonStyles = 'bg-black text-white hover:bg-neutral-900 border-transparent';
 
   return (
     <CommonLayout>
@@ -86,7 +92,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
               <p className="text-[11px] uppercase text-gray-700 leading-normal">{product.description}</p>
             </div>
 
-            {/* ВЫБОР ЦВЕТА (убрали as any, теперь всё строго типизировано) */}
+            {/* ВЫБОР ЦВЕТА */}
             {product.colorVariants && product.colorVariants.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].selectColor}</h3>
@@ -133,13 +139,13 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
             {/* ГЛАВНАЯ КНОПКА */}
             <button 
               onClick={handleAddToCart} 
-              className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-colors
-                ${isTotalSoldOut ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed' : ''}
-                ${isAdded ? 'bg-pink-400 text-white' : 'bg-black text-white hover:bg-neutral-900'}
+              className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all duration-300 border transform active:scale-[0.99]
+                ${isTotalSoldOut ? 'bg-neutral-200 text-neutral-400 border-transparent cursor-not-allowed' : ''}
+                ${isAdded ? activeButtonStyles : defaultButtonStyles}
               `} 
               disabled={isTotalSoldOut || isAdded}
             >
-              {isTotalSoldOut ? labels[currentLang].sold : (isAdded ? labels[currentLang].added : labels[currentLang].buy)}
+              {isTotalSoldOut ? labels[currentLang].sold : (isAdded ? `✓ ${labels[currentLang].added}` : labels[currentLang].buy)}
             </button>
           </div>
 
