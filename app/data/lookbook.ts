@@ -12,6 +12,7 @@ interface LookbookProduct {
   images: string[];
 }
 
+
 // 2. Добавляем тип : LookbookProduct[] к массиву, спасая билд от ошибки "type never"
 export const LOOKBOOK_PRODUCTS: LookbookProduct[] = [
   // {
