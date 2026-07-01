@@ -6,7 +6,7 @@ import CommonLayout from '@/components/CommonLayout';
 import Link from 'next/link';
 
 export default function CheckoutClient() {
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, updateQuantity, removeFromCart } = useCart();
   const { lang } = useLang();
 
   const [formData, setFormData] = useState({
@@ -14,8 +14,6 @@ export default function CheckoutClient() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
   const [orderId, setOrderId] = useState<string | number>('');
-  
-  // Новое состояние для хранения текста ошибки
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const t = {
@@ -28,14 +26,13 @@ export default function CheckoutClient() {
     phone: lang === 'EN' ? 'Phone' : 'Телефон',
     order: lang === 'EN' ? 'PLACE ORDER' : 'ПІДТВЕРДИТИ',
     cancel: lang === 'EN' ? 'CANCEL' : 'СКАСУВАТИ',
-    empty: lang === 'EN' ? 'Cart is empty' : 'Кошик порожній',
+    empty: lang === 'EN' ? 'Cart is empty' : 'КОШИК ПОРОЖНІЙ',
     success: lang === 'EN' ? 'ORDER PLACED SUCCESSFULLY!' : 'ЗАМОВЛЕННЯ УСПІШНО ОФОРМЛЕНО!',
     orderLabel: lang === 'EN' ? 'ORDER ID:' : 'НОМЕР ЗАМОВЛЕННЯ:',
     subSuccess: lang === 'EN' ? 'We will contact you shortly.' : 'Ми зв’яжемося з вами найближчим часом.',
     backShop: lang === 'EN' ? 'BACK TO SHOP' : 'НАЗАД ДО МАГАЗИНУ',
     totalLabel: lang === 'EN' ? 'TOTAL' : 'РАЗОМ',
     
-    // Тексты ошибок для валидации
     errFields: lang === 'EN' ? 'PLEASE FILL IN ALL REQUIRED FIELDS.' : 'БУДЬ ЛАСКА, ЗАПОВНІТЬ УСІ ОБОВ’ЯЗКОВІ ПОЛЯ.',
     errEmail: lang === 'EN' ? 'PLEASE ENTER A VALID EMAIL ADDRESS.' : 'БУДЬ ЛАСКА, ВВЕДІТЬ КОРЕКТНИЙ EMAIL.',
     errPhone: lang === 'EN' ? 'PLEASE ENTER A VALID PHONE NUMBER.' : 'БУДЬ ЛАСКА, ВВЕДІТЬ КОРЕКТНИЙ НОМЕР ТЕЛЕФОНУ.',
@@ -48,27 +45,30 @@ export default function CheckoutClient() {
   const total = cart.reduce((acc: number, item: any) => {
     const priceStr = typeof item.price === 'string' ? item.price : String(item.price || '0');
     const parsed = parseFloat(priceStr.replace('€', '').trim());
-    return acc + (isNaN(parsed) ? 0 : parsed);
+    return acc + (isNaN(parsed) ? 0 : parsed) * (item.quantity || 1);
   }, 0);
+
+  const getItemSubtotal = (item: any) => {
+    const priceStr = typeof item.price === 'string' ? item.price : String(item.price || '0');
+    const parsed = parseFloat(priceStr.replace('€', '').trim());
+    return (isNaN(parsed) ? 0 : parsed) * (item.quantity || 1);
+  };
 
   const handleSubmit = async () => {
     if (cart.length === 0 || status === 'loading') return;
-    setErrorMessage(null); // Сбрасываем прошлую ошибку перед новой проверкой
+    setErrorMessage(null);
 
-    // 1. Проверка на заполненность обязательных полей
     if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.country) {
       setErrorMessage(t.errFields);
       return;
     }
 
-    // 2. Валидация Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email.trim())) {
       setErrorMessage(t.errEmail);
       return;
     }
 
-    // 3. Валидация Телефона (минимум 7 цифр)
     const phoneDigitsCount = formData.phone.replace(/\D/g, '').length;
     if (phoneDigitsCount < 7) {
       setErrorMessage(t.errPhone);
@@ -150,11 +150,7 @@ export default function CheckoutClient() {
               placeholder="Email" 
               value={formData.email} 
               onChange={e => setFormData({...formData, email: e.target.value})} 
-              autoComplete="email"
-              autoCorrect="off"
-              autoCapitalize="none"
-              spellCheck="false"
-              inputMode="email"
+              autoComplete="email" autoCorrect="off" autoCapitalize="none" spellCheck="false" inputMode="email"
               className="w-full border-b border-black py-2 text-[10px] focus:outline-none bg-transparent" 
             />
             
@@ -163,8 +159,7 @@ export default function CheckoutClient() {
               placeholder={t.phone} 
               value={formData.phone} 
               onChange={e => setFormData({...formData, phone: e.target.value})} 
-              autoComplete="tel"
-              inputMode="tel"
+              autoComplete="tel" inputMode="tel"
               className="w-full border-b border-black py-2 uppercase text-[10px] focus:outline-none bg-transparent" 
             />
             
@@ -202,7 +197,6 @@ export default function CheckoutClient() {
                 {countries.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
 
-            {/* БЛОК ВЫВОДА ОШИБКИ ВМЕСТО ALERT */}
             {errorMessage && (
               <div className="pt-4 text-red-500 text-[9px] font-bold tracking-widest uppercase transition-opacity duration-200">
                 {errorMessage}
@@ -226,18 +220,53 @@ export default function CheckoutClient() {
             </div>
           </div>
 
-          <div className="w-full md:w-1/2 border-l pl-0 md:pl-16">
+          <div className="w-full md:w-1/2 border-l pl-0 md:pl-16 space-y-4">
              {cart.map((item: any, idx: number) => (
-                <Link 
-                  key={idx} 
-                  href={"/shop/" + item.id} 
-                  className="flex justify-between border-b pb-4 mb-4 text-[10px] block hover:opacity-70 transition-opacity"
-                >
-                  <span>{item.title} — {item.size}</span>
-                  <span className="font-bold">{item.price}</span>
-                </Link>
+                <div key={idx} className="flex justify-between items-start border-b pb-4 text-[10px]">
+                  <div className="flex flex-col space-y-1">
+                    <Link href={"/shop/" + item.id} className="font-bold text-black hover:opacity-70 transition-opacity">
+                      {item.title} — {item.size}
+                    </Link>
+                    
+                    {/* ОБЪЕДИНЕННЫЙ БЛОК УПРАВЛЕНИЯ В ЧЕКАУТЕ */}
+                    <div className="flex items-center space-x-3 pt-1 text-black select-none font-bold">
+                      <div className="flex items-center space-x-2.5">
+                        <button 
+                          onClick={() => updateQuantity(idx, 'decrement')} 
+                          className="hover:text-red-500 font-mono text-xs px-1"
+                        >
+                          -
+                        </button>
+                        <span className="bg-neutral-100 px-2 py-0.5 rounded font-mono text-[9px]">
+                          {item.quantity || 1}
+                        </span>
+                        <button 
+                          onClick={() => updateQuantity(idx, 'increment')} 
+                          className="hover:text-green-500 font-mono text-xs px-1"
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      <span className="text-gray-300">|</span>
+
+                      <button 
+                        onClick={() => removeFromCart(idx)} 
+                        className="text-gray-400 hover:text-red-600 font-sans text-[11px] font-bold px-1 transition-colors"
+                        title="Remove item"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <span className="font-bold text-black whitespace-nowrap">
+                    {getItemSubtotal(item)}€
+                  </span>
+                </div>
               ))}
-              <div className="flex justify-between font-bold text-sm">
+              
+              <div className="flex justify-between font-bold text-sm pt-2">
                 <span>{t.totalLabel}</span>
                 <span>{total}€</span>
               </div>
