@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET() {
-  const supabaseAdmin = getSupabaseAdmin();
-  const { data } = await supabaseAdmin.from('subscribers').select('*').order('created_at', { ascending: false });
-  return NextResponse.json(data || []);
+  const { data, error } = await supabaseAdmin.from('subscribers').select('*');
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
 }
