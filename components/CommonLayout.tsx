@@ -1,20 +1,15 @@
 'use client';
 import Header from './Header';
+import Footer from './Footer';
 
 export default function CommonLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen bg-white flex flex-col isolation-auto">
-      {/* isolation-auto гарантирует, что z-index'ы внутри не вылезут наружу */}
+    <div className="min-h-screen flex flex-col bg-[#fcfcfc] text-[#121212] font-mono select-none isolation-auto">
       <Header />
-      
-      <main className="flex-grow w-full z-10">
+      <main className="flex-grow flex flex-col w-full z-10">
         {children}
       </main>
-
-      {/* Футер вернется на место */}
-      <footer className="p-4 text-[10px] text-gray-400 tracking-widest uppercase">
-        © 2026 STIROL. ALL RIGHTS RESERVED.
-      </footer>
+      <Footer />
     </div>
   );
 }
