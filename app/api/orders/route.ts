@@ -78,7 +78,7 @@ export async function POST(request: Request) {
     // 2. ОТПРАВКА ПИСЬМА ЧЕРЕЗ RESEND
     try {
       const emailResult = await resend.emails.send({
-        from: 'STIROL <onboarding@resend.dev>',
+        from: 'STIROL <orders@stirol.xyz>',
         to: email,
         subject: mailSubject,
         html: htmlContent,

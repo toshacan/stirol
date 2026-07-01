@@ -5,6 +5,44 @@ import { useLang } from '@/components/LangContext';
 import CommonLayout from '@/components/CommonLayout';
 import Link from 'next/link';
 
+// Массив стран: Украина первая, Нидерланды вторые, далее по алфавиту.
+// Включает ЕС + Швейцарию, Ирландию, Исландию, Норвегию, США, Канаду.
+const countries = [
+  { code: 'UA', nameEN: 'Ukraine', nameUA: 'Україна' },
+  { code: 'NL', nameEN: 'Netherlands', nameUA: 'Нідерланди' },
+  { code: 'AT', nameEN: 'Austria', nameUA: 'Австрія' },
+  { code: 'BE', nameEN: 'Belgium', nameUA: 'Бельгія' },
+  { code: 'BG', nameEN: 'Bulgaria', nameUA: 'Болгарія' },
+  { code: 'CA', nameEN: 'Canada', nameUA: 'Канада' },
+  { code: 'HR', nameEN: 'Croatia', nameUA: 'Хорватія' },
+  { code: 'CY', nameEN: 'Cyprus', nameUA: 'Кіпр' },
+  { code: 'CZ', nameEN: 'Czech Republic', nameUA: 'Чехія' },
+  { code: 'DK', nameEN: 'Denmark', nameUA: 'Данія' },
+  { code: 'EE', nameEN: 'Estonia', nameUA: 'Естонія' },
+  { code: 'FI', nameEN: 'Finland', nameUA: 'Фінляндія' },
+  { code: 'FR', nameEN: 'France', nameUA: 'Франція' },
+  { code: 'DE', nameEN: 'Germany', nameUA: 'Німеччина' },
+  { code: 'GR', nameEN: 'Greece', nameUA: 'Греція' },
+  { code: 'HU', nameEN: 'Hungary', nameUA: 'Угорщина' },
+  { code: 'IS', nameEN: 'Iceland', nameUA: 'Ісландія' },
+  { code: 'IE', nameEN: 'Ireland', nameUA: 'Ірландія' },
+  { code: 'IT', nameEN: 'Italy', nameUA: 'Італія' },
+  { code: 'LV', nameEN: 'Latvia', nameUA: 'Латвія' },
+  { code: 'LT', nameEN: 'Lithuania', nameUA: 'Литва' },
+  { code: 'LU', nameEN: 'Luxembourg', nameUA: 'Люксембург' },
+  { code: 'MT', nameEN: 'Malta', nameUA: 'Мальта' },
+  { code: 'NO', nameEN: 'Norway', nameUA: 'Норвегія' },
+  { code: 'PL', nameEN: 'Poland', nameUA: 'Польща' },
+  { code: 'PT', nameEN: 'Portugal', nameUA: 'Португалія' },
+  { code: 'RO', nameEN: 'Romania', nameUA: 'Румунія' },
+  { code: 'SK', nameEN: 'Slovakia', nameUA: 'Словаччина' },
+  { code: 'SI', nameEN: 'Slovenia', nameUA: 'Словенія' },
+  { code: 'ES', nameEN: 'Spain', nameUA: 'Іспанія' },
+  { code: 'SE', nameEN: 'Sweden', nameUA: 'Швеція' },
+  { code: 'CH', nameEN: 'Switzerland', nameUA: 'Швейцарія' },
+  { code: 'US', nameEN: 'USA', nameUA: 'США' }
+];
+
 export default function CheckoutClient() {
   const { cart, clearCart, updateQuantity, removeFromCart } = useCart();
   const { lang } = useLang();
@@ -40,8 +78,6 @@ export default function CheckoutClient() {
     errNetwork: lang === 'EN' ? 'NETWORK ERROR. PLEASE CHECK YOUR CONNECTION.' : 'ПОМИЛКА МЕРЕЖІ. ПЕРЕВІРТЕ З’ЄДНАННЯ.'
   };
 
-  const countries = ["Netherlands", "Ukraine", "Germany", "France", "Poland", "USA"];
-  
   const total = cart.reduce((acc: number, item: any) => {
     const priceStr = typeof item.price === 'string' ? item.price : String(item.price || '0');
     const parsed = parseFloat(priceStr.replace('€', '').trim());
@@ -194,7 +230,11 @@ export default function CheckoutClient() {
               onChange={e => setFormData({...formData, country: e.target.value})}
             >
                 <option value="">{t.country}</option>
-                {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                {countries.map(c => (
+                  <option key={c.code} value={c.nameEN}>
+                    {lang === 'EN' ? c.nameEN : c.nameUA}
+                  </option>
+                ))}
             </select>
 
             {errorMessage && (
@@ -228,7 +268,6 @@ export default function CheckoutClient() {
                       {item.title} — {item.size}
                     </Link>
                     
-                    {/* ОБЪЕДИНЕННЫЙ БЛОК УПРАВЛЕНИЯ В ЧЕКАУТЕ */}
                     <div className="flex items-center space-x-3 pt-1 text-black select-none font-bold">
                       <div className="flex items-center space-x-2.5">
                         <button 
