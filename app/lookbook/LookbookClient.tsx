@@ -1,0 +1,110 @@
+'use client';
+import { useState } from 'react';
+import Link from 'next/link';
+import CommonLayout from '@/components/CommonLayout';
+import { useLang } from '@/components/LangContext';
+import { LOOKBOOK_PRODUCTS } from '@/app/data/lookbook';
+
+export default function LookbookClient() {
+  const { lang } = useLang();
+  const [activeProductIdx, setActiveProductIdx] = useState(0);
+  const [activeImgIdx, setActiveImgIdx] = useState(0);
+  
+  const currentLang = lang as 'EN' | 'UA';
+
+  // Проверяем, пуст ли массив с лукбуками
+  const isLookbookEmpty = !LOOKBOOK_PRODUCTS || LOOKBOOK_PRODUCTS.length === 0;
+
+  // Тексты интерфейса
+  const uiText = {
+    EN: { 
+      prevItem: 'PREV ITEM', 
+      nextItem: 'NEXT ITEM',
+      comingSoon: 'COMING SOON',
+      backToShop: 'BACK TO SHOP'
+    },
+    UA: { 
+      prevItem: 'ПОПЕР. РІЧ', 
+      nextItem: 'НАСТ. РІЧ',
+      comingSoon: 'НЕЗАБАРОМ',
+      backToShop: 'НАЗАД ДО МАГАЗИНУ'
+    }
+  };
+
+  // Кастомизация стилей экрана заглушки
+  const styles = {
+    comingSoon: "text-[16px] md:text-[18px] font-mono font-black tracking-[0.4em] text-black uppercase select-none flex items-center gap-3",
+    vhsDot: "w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.7)]",
+    backButton: "text-[9px] font-mono tracking-widest text-gray-400 hover:text-black uppercase transition-colors underline underline-offset-4 decoration-gray-200 hover:decoration-black"
+  };
+
+  // 1. ЭКРАН СКОРО (С VHS ДЕТАЛЬЮ)
+  if (isLookbookEmpty) {
+    return (
+      <CommonLayout>
+        <div className="w-full flex-grow flex flex-col items-center justify-center my-auto gap-6 px-4">
+          {/* Текст + пульсирующий красный кружок REC */}
+          <h1 className={styles.comingSoon}>
+            <span className={styles.vhsDot} />
+            {uiText[currentLang].comingSoon}
+          </h1>
+          
+          <Link href="/shop" className={styles.backButton}>
+            {uiText[currentLang].backToShop}
+          </Link>
+        </div>
+      </CommonLayout>
+    );
+  }
+
+  // 2. СТАНДАРТНЫЙ РАБОЧИЙ ЛУКБУК
+  const currentProduct = LOOKBOOK_PRODUCTS[activeProductIdx];
+
+  return (
+    <CommonLayout>
+      <main className="w-full max-w-7xl mx-auto flex flex-col md:flex-row gap-8 px-4 mt-8">
+        
+        {/* ЛЕВАЯ ЧАСТЬ: ФОТО */}
+        <div className="w-full md:w-[68%] flex flex-col gap-4">
+          <div className="w-full aspect-[4/3] relative group flex items-center justify-center overflow-hidden bg-gray-50">
+            <img 
+              src={currentProduct.images[activeImgIdx]} 
+              alt={currentProduct.title[currentLang]} 
+              draggable="false"
+              className="w-full h-full object-cover select-none pointer-events-none"
+            />
+            {/* Стрелки переключения фото */}
+            <button onClick={() => setActiveImgIdx((p) => (p - 1 + currentProduct.images.length) % currentProduct.images.length)} className="absolute left-0 top-0 bottom-0 w-1/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-start pl-4 text-white text-3xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">←</button>
+            <button onClick={() => setActiveImgIdx((p) => (p + 1) % currentProduct.images.length)} className="absolute right-0 top-0 bottom-0 w-1/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-end pr-4 text-white text-3xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">→</button>
+            <div className="absolute bottom-3 right-3 bg-white/95 text-black font-mono text-[9px] px-2 py-0.5 tracking-wider font-bold">
+              {activeImgIdx + 1} / {currentProduct.images.length}
+            </div>
+          </div>
+
+          <div className="w-full flex justify-between items-start pt-1">
+            <div className="space-y-1 text-left max-w-[60%]">
+              <h2 className="text-[12px] font-bold uppercase tracking-wider text-black">{currentProduct.title[currentLang]}</h2>
+              <p className="text-[10px] text-gray-400 uppercase tracking-tight leading-relaxed font-sans">{currentProduct.description[currentLang]}</p>
+            </div>
+            <div className="flex gap-2 text-[9px] font-bold">
+              <button onClick={() => { setActiveImgIdx(0); setActiveProductIdx((p) => (p - 1 + LOOKBOOK_PRODUCTS.length) % LOOKBOOK_PRODUCTS.length); }} className="px-3 py-1.5 border border-black hover:bg-black hover:text-white transition-all uppercase tracking-widest">{uiText[currentLang].prevItem}</button>
+              <button onClick={() => { setActiveImgIdx(0); setActiveProductIdx((p) => (p + 1) % LOOKBOOK_PRODUCTS.length); }} className="px-3 py-1.5 border border-black hover:bg-black hover:text-white transition-all uppercase tracking-widest">{uiText[currentLang].nextItem}</button>
+            </div>
+          </div>
+        </div>
+
+        {/* ПРАВАЯ ЧАСТЬ: МИНИАТЮРЫ */}
+        <div className="w-full md:w-[28%] flex flex-col justify-start">
+          <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-black mb-4">LOOKBOOK FW26</div>
+          <div className="grid grid-cols-4 gap-2 w-full">
+            {LOOKBOOK_PRODUCTS.map((product, idx) => (
+              <button key={product.id} onClick={() => { setActiveProductIdx(idx); setActiveImgIdx(0); }} className={`aspect-square bg-white border overflow-hidden p-0.5 transition-all ${activeProductIdx === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}>
+                <img src={product.images[0]} alt={product.title[currentLang]} draggable="false" className="w-full h-full object-cover select-none" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </main>
+    </CommonLayout>
+  );
+}
