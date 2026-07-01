@@ -14,6 +14,9 @@ export default function CheckoutClient() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
   const [orderId, setOrderId] = useState<string | number>('');
+  
+  // Новое состояние для хранения текста ошибки
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const t = {
     title: lang === 'EN' ? 'CHECKOUT' : 'ОФОРМЛЕННЯ ЗАМОВЛЕННЯ',
@@ -30,7 +33,14 @@ export default function CheckoutClient() {
     orderLabel: lang === 'EN' ? 'ORDER ID:' : 'НОМЕР ЗАМОВЛЕННЯ:',
     subSuccess: lang === 'EN' ? 'We will contact you shortly.' : 'Ми зв’яжемося з вами найближчим часом.',
     backShop: lang === 'EN' ? 'BACK TO SHOP' : 'НАЗАД ДО МАГАЗИНУ',
-    totalLabel: lang === 'EN' ? 'TOTAL' : 'РАЗОМ'
+    totalLabel: lang === 'EN' ? 'TOTAL' : 'РАЗОМ',
+    
+    // Тексты ошибок для валидации
+    errFields: lang === 'EN' ? 'PLEASE FILL IN ALL REQUIRED FIELDS.' : 'БУДЬ ЛАСКА, ЗАПОВНІТЬ УСІ ОБОВ’ЯЗКОВІ ПОЛЯ.',
+    errEmail: lang === 'EN' ? 'PLEASE ENTER A VALID EMAIL ADDRESS.' : 'БУДЬ ЛАСКА, ВВЕДІТЬ КОРЕКТНИЙ EMAIL.',
+    errPhone: lang === 'EN' ? 'PLEASE ENTER A VALID PHONE NUMBER.' : 'БУДЬ ЛАСКА, ВВЕДІТЬ КОРЕКТНИЙ НОМЕР ТЕЛЕФОНУ.',
+    errServer: lang === 'EN' ? 'ERROR PLACING ORDER. PLEASE TRY AGAIN.' : 'ПОМИЛКА ПРИ ОФОРМЛЕННІ ЗАМОВЛЕННЯ. СПРОБУЙТЕ ЩЕ РАЗ.',
+    errNetwork: lang === 'EN' ? 'NETWORK ERROR. PLEASE CHECK YOUR CONNECTION.' : 'ПОМИЛКА МЕРЕЖІ. ПЕРЕВІРТЕ З’ЄДНАННЯ.'
   };
 
   const countries = ["Netherlands", "Ukraine", "Germany", "France", "Poland", "USA"];
@@ -43,21 +53,25 @@ export default function CheckoutClient() {
 
   const handleSubmit = async () => {
     if (cart.length === 0 || status === 'loading') return;
+    setErrorMessage(null); // Сбрасываем прошлую ошибку перед новой проверкой
 
+    // 1. Проверка на заполненность обязательных полей
     if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.country) {
-      alert(lang === 'EN' ? 'Please fill in all required fields.' : 'Будь ласка, заповніть усі обов’язкові поля.');
+      setErrorMessage(t.errFields);
       return;
     }
 
+    // 2. Валидация Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email.trim())) {
-      alert(lang === 'EN' ? 'Please enter a valid email address.' : 'Будь ласка, введіть коректний email.');
+      setErrorMessage(t.errEmail);
       return;
     }
 
+    // 3. Валидация Телефона (минимум 7 цифр)
     const phoneDigitsCount = formData.phone.replace(/\D/g, '').length;
     if (phoneDigitsCount < 7) {
-      alert(lang === 'EN' ? 'Please enter a valid phone number.' : 'Будь ласка, введіть коректний номер телефону.');
+      setErrorMessage(t.errPhone);
       return;
     }
 
@@ -76,11 +90,11 @@ export default function CheckoutClient() {
         setStatus('success');
         if (clearCart) clearCart(); 
       } else {
-        alert(lang === 'EN' ? 'Error placing order.' : 'Помилка при оформлении замовлення.');
+        setErrorMessage(t.errServer);
         setStatus('idle');
       }
     } catch (err) {
-      alert(lang === 'EN' ? 'Network error. Please try again.' : 'Помилка мережі. Спробуйте ще раз.');
+      setErrorMessage(t.errNetwork);
       setStatus('idle');
     }
   };
@@ -131,7 +145,6 @@ export default function CheckoutClient() {
               className="w-full border-b border-black py-2 uppercase text-[10px] focus:outline-none bg-transparent" 
             />
             
-            {/* ПОЛЕ EMAIL С ЖЕСТКИМ ОТКЛЮЧЕНИЕМ АВТОИСПРАВЛЕНИЙ И ВЫЗОВОМ КЛАВИАТУРЫ @ */}
             <input 
               type="email" 
               placeholder="Email" 
@@ -189,7 +202,14 @@ export default function CheckoutClient() {
                 {countries.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
 
-            <div className="flex gap-4 pt-8">
+            {/* БЛОК ВЫВОДА ОШИБКИ ВМЕСТО ALERT */}
+            {errorMessage && (
+              <div className="pt-4 text-red-500 text-[9px] font-bold tracking-widest uppercase transition-opacity duration-200">
+                {errorMessage}
+              </div>
+            )}
+
+            <div className="flex gap-4 pt-4">
                 <button 
                   onClick={handleSubmit}
                   disabled={status === 'loading'} 

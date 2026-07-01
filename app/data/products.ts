@@ -49,16 +49,17 @@ export const PRODUCTS: Product[] = [
       { name: 'WHITE', hex: '#FFFFFF', id: 'fuck-the-roc-tee-white' }
     ]
   },
-  {
-    id: 'shopper-bag-org',
-    category: 'shoppers',
-    title: 'Orange Shopper Bag',
-    price: '25€',
+   {
+    id: 'box-tshirt',
+    category: 'tshirts', 
+    title: 'Box Logo T-Shirt',
+    price: '35€',
     status: 'soldout',
-    description: 'Durable canvas texture, reinforced stitching for urban environments.',
-    sizes: ['One Size'],
-    images: ['/shop/orshopper.png']
+    description: 'Regular fit, heavy cotton.',
+    sizes: ['S', 'M', 'L'],
+    images: ['/shop/stirolnew.png']
   },
+  
   {
     id: 'hoodiev1',
     category: 'hoodies',
@@ -69,6 +70,17 @@ export const PRODUCTS: Product[] = [
     sizes: ['M', 'L', 'XL'],
     images: ['/shop/hoodie.png']
   },
+{
+    id: 'shopper-bag-org',
+    category: 'shoppers',
+    title: 'Orange Shopper Bag',
+    price: '25€',
+    status: 'soldout',
+    description: 'Durable canvas texture, reinforced stitching for urban environments.',
+    sizes: ['One Size'],
+    images: ['/shop/orshopper.png']
+  },
+
   {
     id: 'whshopper',
     category: 'shoppers',
@@ -79,14 +91,5 @@ export const PRODUCTS: Product[] = [
     sizes: ['One Size'],
     images: ['/shop/whshopper.png']
   },
-  {
-    id: 'box-tshirt',
-    category: 'tshirts', 
-    title: 'Box Logo T-Shirt',
-    price: '35€',
-    status: 'soldout',
-    description: 'Regular fit, heavy cotton.',
-    sizes: ['S', 'M', 'L'],
-    images: ['/shop/stirolnew.png']
-  },
+ 
 ];
