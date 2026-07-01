@@ -75,7 +75,6 @@ export const VIDEOS: VideoItem[] = [
     // Теперь указываем прямую универсальную ссылку Wistia
     cover: 'https://fast.wistia.com/embed/medias/n4t76b56ad/swatch',
     isComingSoon: false,
-    isComingSoon: false,
     wistiaId: 'n4t76b56ad', 
     hasCustomMargin: false,
     titleText: {
@@ -103,7 +102,6 @@ export const VIDEOS: VideoItem[] = [
     meta: 'PROMO / 00:52',
     // Теперь указываем прямую универсальную ссылку Wistia
     cover: 'https://fast.wistia.com/embed/medias/zma5ui2qdw/swatch',
-    isComingSoon: false,
     isComingSoon: false,
     wistiaId: 'zma5ui2qdw', 
     hasCustomMargin: false,
@@ -133,7 +131,6 @@ export const VIDEOS: VideoItem[] = [
     // Теперь указываем прямую универсальную ссылку Wistia
      cover: 'https://fast.wistia.com/embed/medias/s2h1satpl8/swatch',
     isComingSoon: false,
-    isComingSoon: false,
     wistiaId: 's2h1satpl8', 
     hasCustomMargin: false,
     titleText: {
@@ -162,7 +159,6 @@ export const VIDEOS: VideoItem[] = [
     // Теперь указываем прямую универсальную ссылку Wistia
     cover: 'https://fast.wistia.com/embed/medias/azp3fz7bz1/swatch', 
     isComingSoon: false,
-    isComingSoon: false,
     wistiaId: 'azp3fz7bz1', 
     hasCustomMargin: false,
     titleText: {
@@ -189,7 +185,6 @@ export const VIDEOS: VideoItem[] = [
     meta: 'PROMO / 00:59',
     // Теперь указываем прямую универсальную ссылку Wistia
   cover: 'https://fast.wistia.com/embed/medias/d26ss7r8xj/swatch', 
-    isComingSoon: false,
     isComingSoon: false,
     wistiaId: 'd26ss7r8xj', 
     hasCustomMargin: false,
