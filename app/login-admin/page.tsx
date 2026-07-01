@@ -15,7 +15,7 @@ export default function LoginAdmin() {
     });
 
     if (res.ok) {
-      router.push('/my-super-secret-panel');
+      router.push('/super-panel');
     } else {
       alert('Wrong password');
     }

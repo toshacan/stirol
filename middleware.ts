@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   // Проверяем, заходит ли пользователь на нашу секретную страницу
-  if (request.nextUrl.pathname.startsWith('/my-super-secret-panel')) {
+  if (request.nextUrl.pathname.startsWith('/super-panel')) {
     
     // Проверяем, есть ли у него "пропуск" (куки)
     const accessCookie = request.cookies.get('admin-auth');
