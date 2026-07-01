@@ -44,20 +44,17 @@ export default function CheckoutClient() {
   const handleSubmit = async () => {
     if (cart.length === 0 || status === 'loading') return;
 
-    // 1. Проверка на заполненность обязательных полей
     if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.country) {
       alert(lang === 'EN' ? 'Please fill in all required fields.' : 'Будь ласка, заповніть усі обов’язкові поля.');
       return;
     }
 
-    // 2. Валидация Email (проверка формата)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email.trim())) {
       alert(lang === 'EN' ? 'Please enter a valid email address.' : 'Будь ласка, введіть коректний email.');
       return;
     }
 
-    // 3. Валидация Телефона (минимум 7 цифр, разрешены +, знаки дефиса и пробелы)
     const phoneDigitsCount = formData.phone.replace(/\D/g, '').length;
     if (phoneDigitsCount < 7) {
       alert(lang === 'EN' ? 'Please enter a valid phone number.' : 'Будь ласка, введіть коректний номер телефону.');
@@ -79,7 +76,7 @@ export default function CheckoutClient() {
         setStatus('success');
         if (clearCart) clearCart(); 
       } else {
-        alert(lang === 'EN' ? 'Error placing order.' : 'Помилка при оформленні замовлення.');
+        alert(lang === 'EN' ? 'Error placing order.' : 'Помилка при оформлении замовлення.');
         setStatus('idle');
       }
     } catch (err) {
@@ -134,6 +131,7 @@ export default function CheckoutClient() {
               className="w-full border-b border-black py-2 uppercase text-[10px] focus:outline-none bg-transparent" 
             />
             
+            {/* ПОЛЕ EMAIL С ЖЕСТКИМ ОТКЛЮЧЕНИЕМ АВТОИСПРАВЛЕНИЙ И ВЫЗОВОМ КЛАВИАТУРЫ @ */}
             <input 
               type="email" 
               placeholder="Email" 
@@ -142,8 +140,9 @@ export default function CheckoutClient() {
               autoComplete="email"
               autoCorrect="off"
               autoCapitalize="none"
+              spellCheck="false"
               inputMode="email"
-              className="w-full border-b border-black py-2 uppercase text-[10px] focus:outline-none bg-transparent" 
+              className="w-full border-b border-black py-2 text-[10px] focus:outline-none bg-transparent" 
             />
             
             <input 
