@@ -216,9 +216,8 @@ export default function AdminClient() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex text-[#ffffff] font-mono selection:bg-white selection:text-black">
       <aside className="w-64 border-r border-[#222] p-8 flex flex-col gap-6">
-        <div className="w-32">
-          <img src="/new.png" alt="Stirol Logo" className="w-full h-auto" />
-        </div>
+  <h2 className="text-sm font-bold tracking-widest uppercase">Stirol Admin</h2>
+  <nav className="flex flex-col gap-2"></nav>
         <nav className="flex flex-col gap-2">
           <button onClick={() => setActiveTab('orders')} className={`text-left p-2 flex justify-between ${activeTab === 'orders' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'}`}>
             ORDERS {newOrdersCount > 0 && <span className="bg-red-600 text-white px-2 py-0.5 text-[10px] font-bold rounded-full">{newOrdersCount}</span>}
