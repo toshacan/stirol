@@ -14,13 +14,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Настроили динамический шаблон метаданных
 export const metadata: Metadata = {
   title: {
     default: "STIROL",
-    template: "%s - STIROL", // %s будет автоматически заменяться на имя страницы
+    template: "%s - STIROL",
   },
   description: "Official STIROL website",
+  // Добавим viewport, чтобы мобильные браузеры корректно считывали размеры
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
@@ -29,12 +30,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      {/* Убрали min-h-full и flex flex-col, чтобы контент не сжимался */}
-      <body className="font-sans">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
+      {/* min-h-[100dvh] — задает высоту по динамическому вьюпорту (лучшее решение для мобильных)
+        flex flex-col — выстраивает структуру так, что контент не накладывается, а футер всегда будет внизу
+      */}
+      <body className="font-sans min-h-[100dvh] flex flex-col">
         <CartProvider>
           <LangProvider>
-            {children}
+            {/* flex-grow или flex-1 заставляет контент занимать всё место, 
+               но не сжимает футер, если контента мало.
+            */}
+            <main className="flex-grow">
+              {children}
+            </main>
           </LangProvider>
         </CartProvider>
       </body>
