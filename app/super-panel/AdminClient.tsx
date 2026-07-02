@@ -39,7 +39,6 @@ export default function AdminClient() {
       fetch('/api/get-profiles').then(r => r.json()).then(j => {
         const cleanedProfiles = (Array.isArray(j) ? j : []).map(p => ({
           ...p,
-          // На случай, если из базы прилетает строка с физическими кавычками "'NEW'" или "'VIP'"
           client_status: p.client_status ? p.client_status.replace(/['"]/g, '').trim() : 'NEW'
         }));
         setProfiles(cleanedProfiles);
@@ -52,7 +51,7 @@ export default function AdminClient() {
   }, [activeTab]);
 
   const updateOrder = async (id: string, updates: any) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, ...updates } : o));
+    setOrders((prev: any[]) => prev.map(o => o.id === id ? { ...o, ...updates } : o));
     await fetch('/api/update-order', {
       method: 'POST',
       body: JSON.stringify({ id, updates }),
@@ -60,15 +59,15 @@ export default function AdminClient() {
   };
 
   const updateProfile = async (email: string, updates: any) => {
-    // Очищаем значение статуса от возможных случайных кавычек перед записью в стейт и отправкой
     if (updates.client_status) {
       updates.client_status = updates.client_status.replace(/['"]/g, '').trim();
     }
 
-    setProfiles(prev => prev.map(p => p.email === email ? { ...p, ...updates } : p));
+    setProfiles((prev: any[]) => prev.map(p => p.email === email ? { ...p, ...updates } : p));
     
     if (selectedProfile && selectedProfile.email === email) {
-      setSelectedProfile(prev => prev ? { ...prev, ...updates } : null);
+      // Тут явно указали тип (prev: any), исправляя ошибку с Vercel
+      setSelectedProfile((prev: any) => prev ? { ...prev, ...updates } : null);
     }
 
     await fetch('/api/update-profile', {
@@ -80,11 +79,10 @@ export default function AdminClient() {
     });
   };
 
-  // Функция удаления подписчика
   const deleteSub = async (email: string) => {
     if (!confirm(`Remove ${email} from subscribers?`)) return;
     
-    setSubs(prev => prev.filter(s => s.email !== email));
+    setSubs((prev: any[]) => prev.filter(s => s.email !== email));
     
     await fetch('/api/delete-sub', {
       method: 'POST',
@@ -110,7 +108,6 @@ export default function AdminClient() {
     setSendingId(null);
   };
 
-  // Умная функция рассылки без алертов с управлением цветом плашки
   const sendNewsletter = async () => {
     setSendResult('sending');
     try {
@@ -118,14 +115,13 @@ export default function AdminClient() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          subscribers: filtered, // Отправляем список подписчиков, прошедших фильтры
+          subscribers: filtered,
           ...campaignData 
         }),
       });
       const result = await res.json();
       if (result.success) {
         setSendResult('success');
-        // Даем посмотреть на зеленую плашку 1.5 секунды и закрываем модалку
         setTimeout(() => {
           setIsCampaignModalOpen(false);
           setSendResult('idle');
