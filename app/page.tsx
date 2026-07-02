@@ -29,16 +29,16 @@ export default function Home() {
   const [time, setTime] = useState('');
   const [activeHover, setActiveHover] = useState('');
   const [lang, setLang] = useState<'EN' | 'UA'>('EN');
+  
   const changeLang = (newLang: 'EN' | 'UA') => {
-  setLang(newLang);
-  localStorage.setItem('stirol_lang', newLang);
-};
+    setLang(newLang);
+    localStorage.setItem('stirol_lang', newLang);
+  };
 
   useEffect(() => {
     const savedLang = localStorage.getItem('stirol_lang') as 'EN' | 'UA';
-  if (savedLang) {
-    setLang(savedLang);
-  }
+    if (savedLang) setLang(savedLang);
+    
     const updateTime = () => {
       const now = new Date();
       setTime(now.toTimeString().split(' ')[0]);
@@ -48,7 +48,7 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
- const menuItems = {
+  const menuItems = {
     EN: [
       { id: 'news', label: 'news', path: '/news' },
       { id: 'lookbook', label: 'lookbook 2026', path: '/lookbook' },
@@ -77,11 +77,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121212] text-[#f0f0f0] font-mono antialiased flex flex-col justify-between p-6 select-none relative overflow-hidden">
+    // Убрали justify-between, чтобы не растягивать футер на мобиле
+    <div className="min-h-screen bg-[#121212] text-[#f0f0f0] font-mono antialiased flex flex-col p-6 select-none relative overflow-hidden">
       
       {activeHover && bgImages[activeHover] && (
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-15  mix-blend-screen pointer-events-none transition-all duration-300 z-0 scale-102"
+          className="absolute inset-0 bg-cover bg-center opacity-15 mix-blend-screen pointer-events-none transition-all duration-300 z-0 scale-102"
           style={{ backgroundImage: `url(${bgImages[activeHover]})` }}
         />
       )}
@@ -93,7 +94,6 @@ export default function Home() {
           <span>REC</span>
         </div>
         
-        {/* Логотип переключатель языка оставляем в центре, EST убрали отсюда */}
         <div className="flex space-x-2 text-[13px] tracking-normal font-bold">
             <button onClick={() => changeLang('EN')} className={`hover:text-white ${lang === 'EN' ? 'text-white underline' : 'text-gray-600'}`}>EN</button>
             <span className="text-gray-700">/</span>
@@ -105,9 +105,9 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ================= ЦЕНТР ================= */}
-      <main className="flex flex-col items-center justify-center text-center my-auto space-y-10 z-10 w-full">
-        
+      {/* ================= ЦЕНТР (Logo + Nav) ================= */}
+      {/* flex-grow заставляет контент занимать доступное место, но не "приклеивает" футер к самому низу на мобиле */}
+      <main className="flex-grow flex flex-col items-center justify-center text-center py-10 space-y-10 z-10 w-full">
         <a 
           href="/" 
           onClick={(e) => { e.preventDefault(); window.location.reload(); }}
@@ -144,14 +144,11 @@ export default function Home() {
             </a>
           ))}
         </nav>
-
       </main>
 
       {/* ================= ПОДВАЛ ================= */}
-      <footer className="w-full flex flex-col items-center z-10 pb-4 space-y-4">
-        {/* EST. 2012 теперь здесь */}
-        
-        
+      {/* mt-8 на мобиле (под списком), md:mt-auto на десктопе (прижат к низу) */}
+      <footer className="w-full flex flex-col items-center z-10 pb-4 space-y-4 mt-8 md:mt-auto">
         <div className="flex items-center space-x-6 text-gray-500">
           <a href="https://www.instagram.com/_stirol/" target="_blank" rel="noreferrer"><Icons.instagram /></a>
           <a href="https://youtube.com" target="_blank" rel="noreferrer"><Icons.youtube /></a>
@@ -160,7 +157,6 @@ export default function Home() {
         </div>
         <div className="text-gray-600 font-sans text-[10px] tracking-[0.3em]">EST. 2012</div>
       </footer>
-
     </div>
   );
 }
