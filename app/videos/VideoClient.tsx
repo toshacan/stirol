@@ -12,7 +12,7 @@ export default function VideosClient() {
 
   const menuFilters = {
     EN: [{ id: 'all', label: 'all' }, { id: 'skate', label: 'skate' }, { id: 'promo', label: 'promo' }],
-    UA: [{ id: 'all', label: 'все' }, { id: 'skate', label: 'скейт' }, { id: 'promo', label: 'промо' }]
+    UA: [{ id: 'all', label: 'всі' }, { id: 'skate', label: 'скейт' }, { id: 'promo', label: 'промо' }]
   };
 
   return (
