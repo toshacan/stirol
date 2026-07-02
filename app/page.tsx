@@ -156,7 +156,7 @@ export default function Home() {
           <a href="https://www.instagram.com/_stirol/" target="_blank" rel="noreferrer"><Icons.instagram /></a>
           <a href="https://youtube.com" target="_blank" rel="noreferrer"><Icons.youtube /></a>
           <a href="https://telegram.org" target="_blank" rel="noreferrer"><Icons.telegram /></a>
-          <a href="https://facebook.com" target="_blank" rel="noreferrer"><Icons.facebook /></a>
+          <a href="https://www.facebook.com/profile.php?id=100079812641807" target="_blank" rel="noreferrer"><Icons.facebook /></a>
         </div>
         <div className="text-gray-600 font-sans text-[10px] tracking-[0.3em]">EST. 2012</div>
       </footer>

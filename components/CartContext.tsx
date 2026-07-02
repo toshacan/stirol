@@ -22,35 +22,38 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       );
 
       if (existingItemIdx > -1) {
-        const newCart = [...prevCart];
-        newCart[existingItemIdx] = {
-          ...newCart[existingItemIdx],
-          quantity: (newCart[existingItemIdx].quantity || 1) + 1
-        };
-        return newCart;
+        return prevCart.map((cartItem, idx) => 
+          idx === existingItemIdx 
+            ? { ...cartItem, quantity: (cartItem.quantity || 1) + 1 } 
+            : cartItem
+        );
       }
 
       return [...prevCart, { ...item, quantity: 1 }];
     });
   };
 
-  // ФУНКЦИЯ ИЗМЕНЕНИЯ КОЛИЧЕСТВА (- / +)
+  // ИСПРАВЛЕННАЯ ЛОГИКА
   const updateQuantity = (index: number, action: 'increment' | 'decrement') => {
     setCart((prevCart) => {
-      const newCart = [...prevCart];
-      const currentQty = newCart[index].quantity || 1;
+      const item = prevCart[index];
+      const currentQty = item.quantity || 1;
 
       if (action === 'increment') {
-        newCart[index].quantity = currentQty + 1;
+        // Создаем новый массив и новый объект айтема
+        return prevCart.map((c, i) => 
+          i === index ? { ...c, quantity: currentQty + 1 } : c
+        );
       } else if (action === 'decrement') {
         if (currentQty > 1) {
-          newCart[index].quantity = currentQty - 1;
+          return prevCart.map((c, i) => 
+            i === index ? { ...c, quantity: currentQty - 1 } : c
+          );
         } else {
-          // Если жмут минус при количестве 1 — полностью удаляем айтем
           return prevCart.filter((_, i) => i !== index);
         }
       }
-      return newCart;
+      return prevCart;
     });
   };
 
