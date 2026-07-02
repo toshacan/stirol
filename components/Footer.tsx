@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLang } from '@/components/LangContext';
@@ -14,6 +14,17 @@ export default function Footer() {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'exists'>('idle');
+
+  // Управление скроллом при открытии модального окна
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    // Очистка при размонтировании компонента
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
 
   const translations: Record<string, Record<LangType, string>> = {
     '/news': { EN: 'NEWS', UA: 'НОВИНИ' },
@@ -50,7 +61,6 @@ export default function Footer() {
 
       const data = await response.json();
 
-      // Теперь и success, и exists закрывают окно через 1.5 секунды
       if (data.result === 'success' || data.result === 'exists') {
         setStatus(data.result);
         setEmail('');
