@@ -51,7 +51,7 @@ export default function Header() {
         
         {/* CENTER: Logo (Inverted) */}
         <div className="flex-shrink-0 mx-4">
-          <Link href="/shop" className="block w-24 md:w-32 h-8 relative hover:opacity-80 transition-opacity">
+          <Link href="/shop" className="block w-23 md:w-32 h-8 relative hover:opacity-80 transition-opacity">
             <img src="/logo-heavy.png" alt="STIROL" className="w-full h-full object-contain invert" />
           </Link>
         </div>

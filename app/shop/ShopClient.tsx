@@ -72,7 +72,7 @@ export default function ShopClient() {
                   
                   {/* Статус плашка */}
                   {product.status && (product.status === 'soldout' || product.status === 'comingSoon') && (
-                    <span className="absolute top-2 left-2 text-[9px] px-2 py-1 uppercase tracking-widest font-extrabold bg-blue-300 text-white z-10">
+                    <span className="absolute top-2 left-2 text-[9px] px-2 py-1 uppercase tracking-widest font-extrabold bg-blue-200 text-pink z-10">
                       {uiText[currentLang][product.status as keyof typeof uiText.EN]}
                     </span>
                   )}
