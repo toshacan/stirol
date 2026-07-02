@@ -66,7 +66,6 @@ export default function AdminClient() {
     setProfiles((prev: any[]) => prev.map(p => p.email === email ? { ...p, ...updates } : p));
     
     if (selectedProfile && selectedProfile.email === email) {
-      // Тут явно указали тип (prev: any), исправляя ошибку с Vercel
       setSelectedProfile((prev: any) => prev ? { ...prev, ...updates } : null);
     }
 
@@ -139,20 +138,24 @@ export default function AdminClient() {
   const shippedOrders = orders.filter(o => o.status === 'SHIPPED');
   const totalRevenue = shippedOrders.reduce((acc, o) => acc + (parseFloat(o.total) || 0), 0);
   
-  const topItems = useMemo(() => {
+  // Жестко типизируем массив, чтобы Vercel понимал, что это [строка, число]
+  const topItems: [string, number][] = useMemo(() => {
     const map: Record<string, number> = {};
     shippedOrders.forEach(o => {
-      o.items?.split(',').forEach((item: string) => {
-        const [name, qtyStr] = item.split(' x');
-        const qty = parseInt(qtyStr || '1');
-        const cleanName = name.trim();
-        map[cleanName] = (map[cleanName] || 0) + qty;
-      });
+      if (o.items) {
+        o.items.split(',').forEach((item: string) => {
+          const [name, qtyStr] = item.split(' x');
+          const qty = parseInt(qtyStr || '1', 10);
+          const cleanName = name.trim();
+          map[cleanName] = (map[cleanName] || 0) + qty;
+        });
+      }
     });
-    return Object.entries(map).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5);
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 5);
   }, [shippedOrders]);
 
-  const totalItemsSold = Object.values(topItems.reduce((acc: any, [name, val]: any) => ({...acc, [name]: val}), {})).reduce((a: any, b: any) => a + b, 0);
+  // Упростили подсчет и явно указали тип number
+  const totalItemsSold: number = topItems.reduce((acc, curr) => acc + curr[1], 0);
 
   const filtered = useMemo(() => {
     let data: any[] = [];
@@ -213,7 +216,9 @@ export default function AdminClient() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex text-[#ffffff] font-mono selection:bg-white selection:text-black">
       <aside className="w-64 border-r border-[#222] p-8 flex flex-col gap-6">
-        <h2 className="text-sm font-bold tracking-widest uppercase">Stirol Admin</h2>
+        <div className="w-32">
+          <img src="/new.png" alt="Stirol Logo" className="w-full h-auto" />
+        </div>
         <nav className="flex flex-col gap-2">
           <button onClick={() => setActiveTab('orders')} className={`text-left p-2 flex justify-between ${activeTab === 'orders' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'}`}>
             ORDERS {newOrdersCount > 0 && <span className="bg-red-600 text-white px-2 py-0.5 text-[10px] font-bold rounded-full">{newOrdersCount}</span>}
@@ -235,12 +240,13 @@ export default function AdminClient() {
                 </div>
                 <div className="border border-[#222] p-8 bg-[#111]">
                   <p className="text-[#555] uppercase text-xs mb-2">Total Items (Shipped Only)</p>
+                  {/* Теперь TypeScript 100% уверен, что тут будет число */}
                   <h3 className="text-4xl font-bold">{totalItemsSold}</h3>
                 </div>
               </div>
               <div className="border border-[#222] p-8 bg-[#111]">
                 <p className="text-[#555] uppercase text-xs mb-4">Top 5 Items</p>
-                {topItems.map(([name, count]: any, idx) => (
+                {topItems.map(([name, count], idx) => (
                   <div key={idx} className="flex justify-between py-2 border-b border-[#222] text-sm">
                     <span>{name}</span> <b>{count} sold</b>
                   </div>
@@ -387,7 +393,6 @@ export default function AdminClient() {
         </div>
       </main>
 
-      {/* УМНОЕ МОДАЛЬНОЕ ОКНО КАМПАНИИ С ИЗМЕНЕНИЕМ ЦВЕТА ПЛАШКИ */}
       {isCampaignModalOpen && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-8 z-50">
           <div className="bg-[#111] border border-[#333] p-8 w-full max-w-md">
@@ -424,7 +429,6 @@ export default function AdminClient() {
         </div>
       )}
 
-      {/* ПОПАП КАРТОЧКИ КЛИЕНТА */}
       {selectedProfile && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-8 z-50" onClick={() => setSelectedProfile(null)}>
           <div className="bg-[#111] border border-[#333] p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
