@@ -1,48 +1,78 @@
 'use client';
 import { useEffect, useState, useMemo } from 'react';
+import { DashboardTab } from './components/DashboardTab';
+import { OrdersTab } from './components/OrdersTab';
+import { ProductsTab } from './components/ProductsTab';
+import { SubscribersTab } from './components/SubscribersTab';
+import { CustomersTab } from './components/CustomersTab';
+import { CategoriesTab } from './components/CategoriesTab'; // Добавлено
+import { CampaignModal } from './components/CampaignModal';
+import { ProductModal } from './components/ProductModal';
+import { CustomerModal } from './components/CustomerModal';
 
 export default function AdminClient() {
-  const [activeTab, setActiveTab] = useState<'orders' | 'subs' | 'dashboard' | 'customers'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'subs' | 'dashboard' | 'customers' | 'products' | 'categories'>('orders');
   const [orders, setOrders] = useState<any[]>([]);
   const [subs, setSubs] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]); // Добавлено
+  const [productCategoryFilter, setProductCategoryFilter] = useState<string>('ALL');
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
   
+  const [productForm, setProductForm] = useState({
+    id: '',
+    category: 'tshirts',
+    title: '',
+    price: '',
+    status: '',
+    description: '',
+    description_ua: '', 
+    variants: [] as { size: string; stock: number }[],
+    imagesStr: '',
+    colorVariants: [] as { name: string; hex: string; id: string }[],
+  });
+  const [newColorVariant, setNewColorVariant] = useState({ name: '', hex: '#000000', id: '' });
+  const [productSaving, setProductSaving] = useState(false);
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [customerFilter, setCustomerFilter] = useState<string>('ALL');
-  
-  // Фильтры для раздела SUBSCRIBERS
+
   const [subStatusFilter, setSubStatusFilter] = useState<string>('ALL');
   const [subLangFilter, setSubLangFilter] = useState<string>('ALL');
 
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [isCopiedAll, setIsCopiedAll] = useState(false);
-  
-  // Состояние для отслеживания развернутого заказа в попапе истории
-  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
-  // Состояния для рассылки и динамического изменения цвета плашки
   const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
-  const [campaignData, setCampaignData] = useState({ headerText: '', imageUrl: '', description: '', linkUrl: '' });
-  const [sendResult, setSendResult] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const fetchData = async () => {
     if (orders.length === 0) {
-      fetch('/api/get-orders').then(r => r.json()).then(j => setOrders(Array.isArray(j) ? j : []));
+      fetch('/api/get-orders').then((r) => r.json()).then((j) => setOrders(Array.isArray(j) ? j : []));
     }
     if (subs.length === 0) {
-      fetch('/api/get-subs').then(r => r.json()).then(j => setSubs(Array.isArray(j) ? j : []));
+      fetch('/api/get-subs').then((r) => r.json()).then((j) => setSubs(Array.isArray(j) ? j : []));
     }
     if (profiles.length === 0) {
-      fetch('/api/get-profiles').then(r => r.json()).then(j => {
-        const cleanedProfiles = (Array.isArray(j) ? j : []).map(p => ({
+      fetch('/api/get-profiles').then((r) => r.json()).then((j) => {
+        const cleanedProfiles = (Array.isArray(j) ? j : []).map((p) => ({
           ...p,
-          client_status: p.client_status ? p.client_status.replace(/['"]/g, '').trim() : 'NEW'
+          client_status: p.client_status ? p.client_status.replace(/['"]/g, '').trim() : 'NEW',
         }));
         setProfiles(cleanedProfiles);
       });
+    }
+    if (products.length === 0 || activeTab === 'products') {
+      fetch('/api/get-products').then((r) => r.json()).then((j) => setProducts(Array.isArray(j) ? j : []));
+    }
+    // Подгрузка категорий
+    if (categories.length === 0 || activeTab === 'categories') {
+      fetch('/api/get-categories').then((r) => r.json()).then((j) => setCategories(Array.isArray(j) ? j : []));
     }
   };
 
@@ -51,7 +81,7 @@ export default function AdminClient() {
   }, [activeTab]);
 
   const updateOrder = async (id: string, updates: any) => {
-    setOrders((prev: any[]) => prev.map(o => o.id === id ? { ...o, ...updates } : o));
+    setOrders((prev: any[]) => prev.map((o) => (o.id === id ? { ...o, ...updates } : o)));
     await fetch('/api/update-order', {
       method: 'POST',
       body: JSON.stringify({ id, updates }),
@@ -62,30 +92,23 @@ export default function AdminClient() {
     if (updates.client_status) {
       updates.client_status = updates.client_status.replace(/['"]/g, '').trim();
     }
-
-    setProfiles((prev: any[]) => prev.map(p => p.email === email ? { ...p, ...updates } : p));
-    
+    setProfiles((prev: any[]) => prev.map((p) => (p.email === email ? { ...p, ...updates } : p)));
     if (selectedProfile && selectedProfile.email === email) {
-      setSelectedProfile((prev: any) => prev ? { ...prev, ...updates } : null);
+      setSelectedProfile((prev: any) => (prev ? { ...prev, ...updates } : null));
     }
-
     await fetch('/api/update-profile', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, updates })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, updates }),
     });
   };
 
   const deleteSub = async (email: string) => {
     if (!confirm(`Remove ${email} from subscribers?`)) return;
-    
-    setSubs((prev: any[]) => prev.filter(s => s.email !== email));
-    
+    setSubs((prev: any[]) => prev.filter((s) => s.email !== email));
     await fetch('/api/delete-sub', {
       method: 'POST',
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email }),
     });
   };
 
@@ -107,41 +130,114 @@ export default function AdminClient() {
     setSendingId(null);
   };
 
-  const sendNewsletter = async () => {
-    setSendResult('sending');
+  const openAddProductModal = () => {
+    setEditingProduct(null);
+    setProductForm({
+      id: '',
+      category: 'tshirts',
+      title: '',
+      price: '',
+      status: '',
+      description: '',
+      description_ua: '', 
+      variants: [],
+      imagesStr: '',
+      colorVariants: [],
+    });
+    setIsProductModalOpen(true);
+  };
+
+  const openEditProductModal = (p: any) => {
+    setEditingProduct(p);
+    setProductForm({
+      id: p.id || '',
+      category: p.category || 'tshirts',
+      title: p.title || '',
+      price: p.price || '',
+      status: p.status || '',
+      description: p.description || '',
+      description_ua: p.description_ua || '', 
+      variants: p.product_variants || p.variants || [],
+      imagesStr: Array.isArray(p.images) ? p.images.join(', ') : p.images || '',
+      colorVariants: p.color_variants || p.colorVariants || [],
+    });
+    setIsProductModalOpen(true);
+  };
+
+  const saveProduct = async () => {
+    if (!productForm.id || !productForm.title) {
+      alert('ID and Title are required!');
+      return;
+    }
+    setProductSaving(true);
+
+    const imagesArray = productForm.imagesStr 
+      ? productForm.imagesStr.split(',').map((s: string) => s.trim()).filter(Boolean)
+      : [];
+
+    const payload = {
+      id: productForm.id?.trim(),
+      category: productForm.category,
+      title: productForm.title?.trim(),
+      price: productForm.price?.toString().trim(),
+      status: productForm.status || null,
+      description: productForm.description?.trim(),
+      description_ua: productForm.description_ua?.trim() || null, 
+      images: imagesArray,
+      color_variants: productForm.colorVariants,
+      is_active: true,
+      variants: productForm.variants,
+    };
+
+    const endpoint = editingProduct ? '/api/update-product' : '/api/add-product';
+
     try {
-      const res = await fetch('/api/send-newsletter', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          subscribers: filtered,
-          ...campaignData 
-        }),
+        body: JSON.stringify(payload),
       });
       const result = await res.json();
-      if (result.success) {
-        setSendResult('success');
-        setTimeout(() => {
-          setIsCampaignModalOpen(false);
-          setSendResult('idle');
-          setCampaignData({ headerText: '', imageUrl: '', description: '', linkUrl: '' });
-        }, 1500);
+      if (result.success || res.ok) {
+        setIsProductModalOpen(false);
+        fetch('/api/get-products').then((r) => r.json()).then((j) => setProducts(Array.isArray(j) ? j : []));
       } else {
-        setSendResult('error');
+        alert('Error saving product: ' + (result.error || 'Unknown error'));
       }
-    } catch (err) {
-      setSendResult('error');
+    } catch (e: any) {
+      alert('Save crash: ' + e.message);
+    } finally {
+      setProductSaving(false);
     }
   };
 
-  const newOrdersCount = orders.filter(o => o.status === 'NEW').length;
-  const shippedOrders = orders.filter(o => o.status === 'SHIPPED');
+  const deleteProduct = async (id: string) => {
+    if (!confirm(`Delete product ${id}?`)) return;
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+    await fetch('/api/delete-product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+  };
+
+  const updateProductStatus = async (id: string, newStatus: string) => {
+    const statusVal = newStatus === 'DEFAULT' ? null : newStatus;
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, status: statusVal } : p)));
+    await fetch('/api/update-product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: statusVal }),
+    });
+  };
+
+  const newOrdersCount = orders.filter((o) => o.status === 'NEW').length;
+  const shippedOrders = orders.filter((o) => o.status === 'SHIPPED');
   const totalRevenue = shippedOrders.reduce((acc, o) => acc + (parseFloat(o.total) || 0), 0);
-  
-  // Жестко типизируем массив, чтобы Vercel понимал, что это [строка, число]
+
   const topItems: [string, number][] = useMemo(() => {
     const map: Record<string, number> = {};
-    shippedOrders.forEach(o => {
+    shippedOrders.forEach((o) => {
       if (o.items) {
         o.items.split(',').forEach((item: string) => {
           const [name, qtyStr] = item.split(' x');
@@ -154,37 +250,39 @@ export default function AdminClient() {
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 5);
   }, [shippedOrders]);
 
-  // Упростили подсчет и явно указали тип number
   const totalItemsSold: number = topItems.reduce((acc, curr) => acc + curr[1], 0);
 
   const filtered = useMemo(() => {
     let data: any[] = [];
     if (activeTab === 'orders') data = orders;
     else if (activeTab === 'subs') {
-      data = subs.map(s => {
-        const profile = profiles.find(p => p.email === s.email);
+      data = subs.map((s) => {
+        const profile = profiles.find((p) => p.email === s.email);
         return { ...s, client_status: profile?.client_status || 'NEW' };
       });
-    }
-    else if (activeTab === 'customers') data = profiles;
+    } else if (activeTab === 'customers') data = profiles;
+    else if (activeTab === 'products') data = products;
+    else if (activeTab === 'categories') data = categories;
 
-    let result = [...data].filter(i => {
+    let result = [...data].filter((i) => {
       const matchesSearch = JSON.stringify(i).toLowerCase().includes(search.toLowerCase());
-      
+
       if (activeTab === 'orders') {
         return matchesSearch && (statusFilter === 'ALL' || i.status === statusFilter);
       }
-      
       if (activeTab === 'customers') {
         return matchesSearch && (customerFilter === 'ALL' || i.client_status === customerFilter);
       }
-      
       if (activeTab === 'subs') {
         const matchesStatus = subStatusFilter === 'ALL' || i.client_status === subStatusFilter;
         const matchesLang = subLangFilter === 'ALL' || (i.lang || 'EN').toUpperCase() === subLangFilter;
         return matchesSearch && matchesStatus && matchesLang;
       }
-      
+      if (activeTab === 'products') {
+        const matchesCategory = productCategoryFilter === 'ALL' || i.category === productCategoryFilter;
+        return matchesSearch && matchesCategory;
+      }
+
       return matchesSearch;
     });
 
@@ -199,82 +297,142 @@ export default function AdminClient() {
     }
 
     return result;
-  }, [orders, subs, profiles, activeTab, search, statusFilter, customerFilter, subStatusFilter, subLangFilter]);
+  }, [orders, subs, profiles, products, categories, activeTab, search, statusFilter, customerFilter, subStatusFilter, subLangFilter, productCategoryFilter]);
 
   const copyFilteredEmails = () => {
     if (activeTab !== 'subs') return;
-    const allEmails = filtered.map(s => s.email).join(', ');
+    const allEmails = filtered.map((s) => s.email).join(', ');
     navigator.clipboard.writeText(allEmails);
     setIsCopiedAll(true);
     setTimeout(() => setIsCopiedAll(false), 2000);
   };
 
-  const customerHistory = selectedProfile ? orders.filter(o => o.email === selectedProfile.email) : [];
-  const cancelledOrdersCount = customerHistory.filter(o => o.status === 'CANCELLED').length;
-  const isProfileSubscribed = selectedProfile ? subs.some(s => s.email === selectedProfile.email) : false;
-
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex text-[#ffffff] font-mono selection:bg-white selection:text-black">
       <aside className="w-64 border-r border-[#222] p-8 flex flex-col gap-6">
-  <h2 className="text-sm font-bold tracking-widest uppercase">Stirol Admin</h2>
-  <nav className="flex flex-col gap-2"></nav>
+        <h2 className="text-sm font-bold tracking-widest uppercase">Stirol Admin</h2>
         <nav className="flex flex-col gap-2">
-          <button onClick={() => setActiveTab('orders')} className={`text-left p-2 flex justify-between ${activeTab === 'orders' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'}`}>
-            ORDERS {newOrdersCount > 0 && <span className="bg-red-600 text-white px-2 py-0.5 text-[10px] font-bold rounded-full">{newOrdersCount}</span>}
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`text-left p-2 flex justify-between ${
+              activeTab === 'orders' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            ORDERS{' '}
+            {newOrdersCount > 0 && (
+              <span className="bg-red-600 text-white px-2 py-0.5 text-[10px] font-bold rounded-full">
+                {newOrdersCount}
+              </span>
+            )}
           </button>
-          <button onClick={() => setActiveTab('subs')} className={`text-left p-2 ${activeTab === 'subs' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'}`}>SUBSCRIBERS</button>
-          <button onClick={() => setActiveTab('dashboard')} className={`text-left p-2 ${activeTab === 'dashboard' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'}`}>DASHBOARD</button>
-          <button onClick={() => setActiveTab('customers')} className={`text-left p-2 ${activeTab === 'customers' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'}`}>CUSTOMERS</button>
+          <button
+            onClick={() => setActiveTab('products')}
+            className={`text-left p-2 ${
+              activeTab === 'products' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            PRODUCTS
+          </button>
+          <button
+            onClick={() => setActiveTab('categories')}
+            className={`text-left p-2 ${
+              activeTab === 'categories' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            CATEGORIES
+          </button>
+          <button
+            onClick={() => setActiveTab('subs')}
+            className={`text-left p-2 ${
+              activeTab === 'subs' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            SUBSCRIBERS
+          </button>
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`text-left p-2 ${
+              activeTab === 'dashboard' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            DASHBOARD
+          </button>
+          <button
+            onClick={() => setActiveTab('customers')}
+            className={`text-left p-2 ${
+              activeTab === 'customers' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            CUSTOMERS
+          </button>
         </nav>
       </aside>
 
       <main className="flex-1 p-8">
         <div className="max-w-4xl">
-          {activeTab === 'dashboard' ? (
-            <div className="grid gap-8">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="border border-[#222] p-8 bg-[#111]">
-                  <p className="text-[#555] uppercase text-xs mb-2">Revenue (Shipped Only)</p>
-                  <h3 className="text-4xl font-bold">{totalRevenue.toFixed(2)}€</h3>
-                </div>
-                <div className="border border-[#222] p-8 bg-[#111]">
-                  <p className="text-[#555] uppercase text-xs mb-2">Total Items (Shipped Only)</p>
-                  {/* Теперь TypeScript 100% уверен, что тут будет число */}
-                  <h3 className="text-4xl font-bold">{totalItemsSold}</h3>
-                </div>
-              </div>
-              <div className="border border-[#222] p-8 bg-[#111]">
-                <p className="text-[#555] uppercase text-xs mb-4">Top 5 Items</p>
-                {topItems.map(([name, count], idx) => (
-                  <div key={idx} className="flex justify-between py-2 border-b border-[#222] text-sm">
-                    <span>{name}</span> <b>{count} sold</b>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
+          {activeTab !== 'dashboard' && (
             <div className="flex flex-col mb-8 gap-4">
               <div className="flex gap-4">
-                <input placeholder="SEARCH..." className="flex-1 bg-[#111] border border-[#333] p-4 outline-none focus:border-white text-sm" onChange={(e) => setSearch(e.target.value)} />
+                <input
+                  placeholder="SEARCH..."
+                  className="flex-1 bg-[#111] border border-[#333] p-4 outline-none focus:border-white text-sm"
+                  onChange={(e) => setSearch(e.target.value)}
+                />
                 {activeTab === 'subs' && (
                   <>
-                    <button onClick={copyFilteredEmails} className="bg-white text-black px-6 py-4 text-xs font-bold hover:bg-gray-200 uppercase">
+                    <button
+                      onClick={copyFilteredEmails}
+                      className="bg-white text-black px-6 py-4 text-xs font-bold hover:bg-gray-200 uppercase"
+                    >
                       {isCopiedAll ? 'COPIED!' : 'Copy Filtered Emails'}
                     </button>
-                    <button onClick={() => setIsCampaignModalOpen(true)} className="bg-red-600 text-white px-6 py-4 text-xs font-bold hover:bg-red-700 uppercase">
+                    <button
+                      onClick={() => setIsCampaignModalOpen(true)}
+                      className="bg-red-600 text-white px-6 py-4 text-xs font-bold hover:bg-red-700 uppercase"
+                    >
                       Create Campaign
                     </button>
                   </>
                 )}
               </div>
-              
+
               {activeTab === 'orders' && (
                 <div className="flex gap-2">
                   {['ALL', 'NEW', 'PACKING', 'SHIPPED', 'CANCELLED'].map((s) => (
-                    <button key={s} onClick={() => setStatusFilter(s)} className={`px-4 py-1 text-[10px] border ${statusFilter === s ? 'bg-white text-black' : 'border-[#333] text-[#555]'}`}>
+                    <button
+                      key={s}
+                      onClick={() => setStatusFilter(s)}
+                      className={`px-4 py-1 text-[10px] border ${
+                        statusFilter === s ? 'bg-white text-black' : 'border-[#333] text-[#555]'
+                      }`}
+                    >
                       {s}
                     </button>
                   ))}
+                </div>
+              )}
+
+              {activeTab === 'products' && (
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex gap-2">
+                    {['ALL', 'tshirts', 'hoodies', 'shoppers'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setProductCategoryFilter(c)}
+                        className={`px-4 py-1 text-[10px] uppercase border ${
+                          productCategoryFilter === c ? 'bg-white text-black' : 'border-[#333] text-[#555]'
+                        }`}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={openAddProductModal}
+                    className="bg-white text-black px-6 py-2.5 text-xs font-bold hover:bg-gray-200 uppercase"
+                  >
+                    + Add Product
+                  </button>
                 </div>
               )}
 
@@ -283,7 +441,13 @@ export default function AdminClient() {
                   <div className="flex gap-2 items-center">
                     <span className="text-[10px] text-[#555] uppercase">Status:</span>
                     {['ALL', 'NEW', 'REGULAR', 'VIP'].map((s) => (
-                      <button key={s} onClick={() => setSubStatusFilter(s)} className={`px-3 py-1 text-[10px] border ${subStatusFilter === s ? 'bg-white text-black' : 'border-[#333] text-[#555]'}`}>
+                      <button
+                        key={s}
+                        onClick={() => setSubStatusFilter(s)}
+                        className={`px-3 py-1 text-[10px] border ${
+                          subStatusFilter === s ? 'bg-white text-black' : 'border-[#333] text-[#555]'
+                        }`}
+                      >
                         {s}
                       </button>
                     ))}
@@ -291,7 +455,13 @@ export default function AdminClient() {
                   <div className="flex gap-2 items-center">
                     <span className="text-[10px] text-[#555] uppercase">Lang:</span>
                     {['ALL', 'EN', 'UA'].map((l) => (
-                      <button key={l} onClick={() => setSubLangFilter(l)} className={`px-3 py-1 text-[10px] border ${subLangFilter === l ? 'bg-white text-black' : 'border-[#333] text-[#555]'}`}>
+                      <button
+                        key={l}
+                        onClick={() => setSubLangFilter(l)}
+                        className={`px-3 py-1 text-[10px] border ${
+                          subLangFilter === l ? 'bg-white text-black' : 'border-[#333] text-[#555]'
+                        }`}
+                      >
                         {l}
                       </button>
                     ))}
@@ -302,7 +472,13 @@ export default function AdminClient() {
               {activeTab === 'customers' && (
                 <div className="flex gap-2">
                   {['ALL', 'NEW', 'REGULAR', 'VIP'].map((s) => (
-                    <button key={s} onClick={() => setCustomerFilter(s)} className={`px-4 py-1 text-[10px] border ${customerFilter === s ? 'bg-white text-black' : 'border-[#333] text-[#555]'}`}>
+                    <button
+                      key={s}
+                      onClick={() => setCustomerFilter(s)}
+                      className={`px-4 py-1 text-[10px] border ${
+                        customerFilter === s ? 'bg-white text-black' : 'border-[#333] text-[#555]'
+                      }`}
+                    >
                       {s}
                     </button>
                   ))}
@@ -310,196 +486,66 @@ export default function AdminClient() {
               )}
             </div>
           )}
-          
-          <div className="grid gap-4">
-            {activeTab === 'orders' && filtered.map((o) => (
-              <div key={o.id} className="border border-[#222] bg-[#111] p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-bold text-lg">{o.name} <span className="text-[#444]">#{o.id}</span>
-                      <span className="ml-2 text-[10px] bg-[#222] px-2 py-1 uppercase">{o.lang || 'EN'}</span>
-                    </h3>
-                    <div className="text-[11px] mt-2 text-[#888] flex gap-4">
-                      <span className="cursor-pointer hover:text-white" onClick={() => copy(o.email)}>{o.email}</span>
-                      <span className="cursor-pointer hover:text-white" onClick={() => copy(o.phone)}>{o.phone}</span>
-                    </div>
-                  </div>
-                  <select defaultValue={o.status || 'NEW'} className="bg-[#222] text-xs p-2 uppercase outline-none cursor-pointer" onChange={(e) => updateOrder(o.id, { status: e.target.value })}>
-                    <option value="NEW">NEW</option><option value="PACKING">PACKING</option><option value="SHIPPED">SHIPPED</option><option value="CANCELLED">CANCELLED</option>
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-xs border-t border-[#222] pt-4">
-                   <div>
-                    <p className="text-[#555] uppercase">Address</p>
-                    <p>{o.address}, {o.city}, {o.zip}</p>
-                    <input type="text" placeholder="Tracking..." value={o.tracking || ''} className="bg-[#0a0a0a] border border-[#333] p-1 mt-2 w-full" onChange={(e) => setOrders(prev => prev.map(item => item.id === o.id ? {...item, tracking: e.target.value} : item))} onBlur={(e) => updateOrder(o.id, { tracking: e.target.value })} />
-                  </div>
-                  <div className="flex flex-col justify-between">
-                    <div>
-                      <p className="text-[#555] uppercase">Items</p>
-                      {o.items?.split(',').map((item: string, idx: number) => {
-                         const [name, qty] = item.split(' x');
-                         return (
-                           <p key={idx} className="mb-0.5">• {name.trim()} {qty ? <span className="text-white font-bold ml-1 px-1.5 bg-[#333] rounded">x{qty}</span> : ''}</p>
-                         );
-                      })}
-                      <p className="mt-2"><b>TOTAL:</b> {o.total || 'N/A'}</p>
-                    </div>
-                    {(o.status === 'SHIPPED' || o.status === 'CANCELLED') && (
-                       <button disabled={sendingId === o.id} onClick={() => sendOrderEmail(o)} className="border border-white p-2 hover:bg-white hover:text-black uppercase text-[10px] font-bold disabled:opacity-30 mt-4">
-                         {sendingId === o.id ? 'SENDING...' : (statusMsg || `Send ${o.lang === 'UA' ? 'UA' : 'EN'} Email`)}
-                       </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {activeTab === 'subs' && filtered.map((s) => (
-              <div key={s.id} className="border border-[#222] p-4 bg-[#111] flex justify-between items-center text-sm group">
-                <div className="flex items-center gap-3">
-                   <span className="cursor-pointer hover:text-white" onClick={() => copy(s.email)}>{s.email}</span>
-                   <span className={`text-[9px] px-1.5 py-0.5 uppercase border ${s.client_status === 'VIP' ? 'border-yellow-500/50 text-yellow-500' : 'border-[#333] text-[#555]'}`}>
-                     {s.client_status}
-                   </span>
-                </div>
-                <div className="flex items-center gap-4">
-                   <span className="text-[#555] text-xs uppercase">{s.lang || 'EN'}</span>
-                   <button onClick={() => deleteSub(s.email)} className="text-[#444] hover:text-red-500 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
-                </div>
-              </div>
-            ))}
 
-            {activeTab === 'customers' && filtered.map((p) => {
-              const isSubbed = subs.some(s => s.email === p.email);
-              return (
-                <div key={p.email} onClick={() => { setSelectedProfile(p); setExpandedOrderId(null); }} className="border border-[#222] p-4 bg-[#111] flex justify-between items-center cursor-pointer hover:border-white transition-all">
-                  <div className="flex items-center gap-3">
-                    <span className={`font-bold ${p.client_status === 'VIP' ? 'text-yellow-500' : ''}`}>{p.email}</span>
-                    {isSubbed && <span className="text-[9px] bg-green-900/30 text-green-500 border border-green-900 px-1.5 py-0.5">SUBSCRIBED</span>}
-                  </div>
-                  <div className="flex gap-4 text-[10px] uppercase text-[#555] items-center">
-                    <span className={p.client_status === 'VIP' ? 'text-yellow-500 font-bold border border-yellow-500/30 px-2 py-0.5' : 'text-white'}>
-                      {p.client_status || 'NEW'}
-                    </span>
-                    <span>{p.total_spent}€</span>
-                    <span>{p.total_orders} orders</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          {activeTab === 'dashboard' && (
+            <DashboardTab totalRevenue={totalRevenue} totalItemsSold={totalItemsSold} topItems={topItems} />
+          )}
+          {activeTab === 'orders' && (
+            <OrdersTab
+              orders={filtered}
+              updateOrder={updateOrder}
+              setOrders={setOrders}
+              copy={copy}
+              sendOrderEmail={sendOrderEmail}
+              sendingId={sendingId}
+              statusMsg={statusMsg}
+            />
+          )}
+          {activeTab === 'products' && (
+            <ProductsTab
+              products={filtered}
+              onEdit={openEditProductModal}
+              onDelete={deleteProduct}
+              onStatusChange={updateProductStatus}
+            />
+          )}
+          {activeTab === 'categories' && (
+             <CategoriesTab categories={categories} onRefresh={fetchData} />
+          )}
+          {activeTab === 'subs' && <SubscribersTab subs={filtered} copy={copy} deleteSub={deleteSub} />}
+          {activeTab === 'customers' && (
+            <CustomersTab
+              customers={filtered}
+              subs={subs}
+              onSelectCustomer={(c) => setSelectedProfile(c)}
+            />
+          )}
         </div>
       </main>
 
-      {isCampaignModalOpen && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-8 z-50">
-          <div className="bg-[#111] border border-[#333] p-8 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-6">NEW CAMPAIGN</h2>
-            <input value={campaignData.headerText} className="w-full bg-[#222] p-2 mb-4 outline-none border border-transparent focus:border-white" placeholder="Header Text" onChange={e => setCampaignData({...campaignData, headerText: e.target.value})} />
-            <input value={campaignData.imageUrl} className="w-full bg-[#222] p-2 mb-4 outline-none border border-transparent focus:border-white" placeholder="Image URL" onChange={e => setCampaignData({...campaignData, imageUrl: e.target.value})} />
-            <textarea value={campaignData.description} className="w-full bg-[#222] p-2 mb-4 outline-none border border-transparent focus:border-white h-24 resize-none" placeholder="Description" onChange={e => setCampaignData({...campaignData, description: e.target.value})} />
-            <input value={campaignData.linkUrl} className="w-full bg-[#222] p-2 mb-6 outline-none border border-transparent focus:border-white" placeholder="Link URL" onChange={e => setCampaignData({...campaignData, linkUrl: e.target.value})} />
-            
-            <div className="flex gap-4">
-              <button 
-                onClick={sendNewsletter} 
-                disabled={sendResult === 'sending' || sendResult === 'success'}
-                className={`flex-1 p-3 font-bold uppercase text-xs tracking-wider transition-colors duration-200 ${
-                  sendResult === 'sending' ? 'bg-yellow-600 text-white cursor-wait' :
-                  sendResult === 'success' ? 'bg-green-600 text-white' :
-                  sendResult === 'error' ? 'bg-red-600 text-white' :
-                  'bg-white text-black hover:bg-gray-200'
-                }`}
-              >
-                {sendResult === 'sending' && 'SENDING...'}
-                {sendResult === 'success' && 'SUCCESSFUL!'}
-                {sendResult === 'error' && 'ERROR! TRY AGAIN'}
-                {sendResult === 'idle' && 'SEND TO FILTERED'}
-              </button>
-              <button 
-                onClick={() => { setIsCampaignModalOpen(false); setSendResult('idle'); }} 
-                className="border border-[#444] p-3 text-xs uppercase hover:border-white transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {selectedProfile && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-8 z-50" onClick={() => setSelectedProfile(null)}>
-          <div className="bg-[#111] border border-[#333] p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-1">
-               <h2 className="text-xl font-bold flex items-center gap-3">
-                 {selectedProfile.email} 
-                 {isProfileSubscribed && <span className="text-[10px] bg-green-900/30 text-green-500 border border-green-900 px-1.5 py-0.5 tracking-widest font-normal uppercase">Subscribed</span>}
-               </h2>
-            </div>
-            
-            <select 
-                value={selectedProfile.client_status ? selectedProfile.client_status.replace(/['"]/g, '').trim() : 'NEW'} 
-                onChange={(e) => updateProfile(selectedProfile.email, { client_status: e.target.value })}
-                className="bg-[#222] text-[10px] uppercase p-1 mb-6 outline-none cursor-pointer hover:bg-[#333]"
-            >
-                <option value="NEW">NEW</option>
-                <option value="REGULAR">REGULAR</option>
-                <option value="VIP">VIP</option>
-            </select>
-
-            <div className="flex gap-8 mb-6 border-b border-[#222] pb-4">
-              <div>
-                <p className="text-[10px] text-[#555] uppercase">Total Spent</p>
-                <p className="text-lg">{selectedProfile.total_spent}€</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-[#555] uppercase">Orders</p>
-                <p className="text-lg">
-                  {selectedProfile.total_orders} 
-                  {cancelledOrdersCount > 0 && <span className="text-red-500 text-xs ml-2">(Cancelled: {cancelledOrdersCount})</span>}
-                </p>
-              </div>
-            </div>
-            
-            <h3 className="text-sm font-bold mb-4">History</h3>
-            <div className="space-y-2 mb-6">
-              {customerHistory.map(o => {
-                const isExpanded = expandedOrderId === o.id;
-                return (
-                  <div key={o.id} className="border border-[#222] bg-[#0a0a0a]">
-                    <div 
-                      onClick={() => setExpandedOrderId(isExpanded ? null : o.id)}
-                      className="text-xs flex justify-between p-2 cursor-pointer hover:bg-[#151515] transition-colors items-center"
-                    >
-                      <span className={o.status === 'CANCELLED' ? 'text-[#555]' : ''}>
-                        #{o.id} - {o.status} <span className="text-[9px] text-[#444] ml-1">{isExpanded ? '▼' : '▶'}</span>
-                      </span>
-                      <span className={o.status === 'CANCELLED' ? 'text-[#555] line-through' : ''}>
-                        {o.status === 'CANCELLED' ? '0' : o.total}€
-                      </span>
-                    </div>
-
-                    {isExpanded && (
-                      <div className="p-2 border-t border-[#222] bg-[#111] text-[11px] text-[#aaa]">
-                        {o.items?.split(',').map((item: string, idx: number) => {
-                           const [name, qty] = item.split(' x');
-                           return (
-                             <p key={idx} className={`mb-0.5 ${o.status === 'CANCELLED' ? 'line-through text-[#444]' : ''}`}>
-                               • {name.trim()} {qty ? <span className="text-white font-bold ml-1 px-1 bg-[#333] rounded text-[9px]">x{qty}</span> : ''}
-                             </p>
-                           );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <button onClick={() => setSelectedProfile(null)} className="w-full border border-white py-2 text-xs font-bold uppercase hover:bg-white hover:text-black">Close</button>
-          </div>
-        </div>
-      )}
+      <CampaignModal
+        isOpen={isCampaignModalOpen}
+        onClose={() => setIsCampaignModalOpen(false)}
+        subscribers={filtered}
+      />
+      <ProductModal
+        isOpen={isProductModalOpen}
+        onClose={() => setIsProductModalOpen(false)}
+        editingProduct={editingProduct}
+        productForm={productForm}
+        setProductForm={setProductForm}
+        newColorVariant={newColorVariant}
+        setNewColorVariant={setNewColorVariant}
+        saveProduct={saveProduct}
+        productSaving={productSaving}
+      />
+      <CustomerModal
+        selectedProfile={selectedProfile}
+        onClose={() => setSelectedProfile(null)}
+        updateProfile={updateProfile}
+        orders={orders}
+        subs={subs}
+      />
     </div>
   );
 }

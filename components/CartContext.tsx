@@ -22,25 +22,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       );
 
       if (existingItemIdx > -1) {
-        return prevCart.map((cartItem, idx) => 
-          idx === existingItemIdx 
-            ? { ...cartItem, quantity: (cartItem.quantity || 1) + 1 } 
-            : cartItem
-        );
+        return prevCart.map((cartItem, idx) => {
+          if (idx === existingItemIdx) {
+            const currentQty = cartItem.quantity || 1;
+            const maxStock = Number(cartItem.stock ?? 99);
+            
+            // Если в корзине уже лежит максимум, не увеличиваем количество
+            if (currentQty >= maxStock) {
+              return cartItem;
+            }
+            return { ...cartItem, quantity: currentQty + 1 };
+          }
+          return cartItem;
+        });
       }
 
       return [...prevCart, { ...item, quantity: 1 }];
     });
   };
 
-  // ИСПРАВЛЕННАЯ ЛОГИКА
+  // ЛОГИКА С ПРОВЕРКОЙ ОСТАТКОВ НА СКЛАДЕ
   const updateQuantity = (index: number, action: 'increment' | 'decrement') => {
     setCart((prevCart) => {
       const item = prevCart[index];
       const currentQty = item.quantity || 1;
+      const maxStock = Number(item.stock ?? 99); // Запасной вариант 99, если сток не прилетел
 
       if (action === 'increment') {
-        // Создаем новый массив и новый объект айтема
+        // Жесткая проверка: если достигли лимита склада, блокируем инкремент
+        if (currentQty >= maxStock) {
+          return prevCart;
+        }
         return prevCart.map((c, i) => 
           i === index ? { ...c, quantity: currentQty + 1 } : c
         );

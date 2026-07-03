@@ -40,6 +40,40 @@ export async function POST(request: Request) {
     
     const orderId = data[0].id;
 
+    // =========================================================================
+    // БЛОК ОБНОВЛЕНИЯ ОСТАТКОВ НА СКЛАДЕ (ПРИВЯЗКА К ТАБЛИЦЕ PRODUCT_VARIANTS)
+    // =========================================================================
+    if (cart && Array.isArray(cart)) {
+      for (const item of cart) {
+        const productId = item.id;
+        const productSize = item.size || 'OS';
+        const quantityBought = parseInt(item.quantity) || 1;
+
+        if (productId) {
+          // Ищем текущий остаток товара по его ID и размеру
+          const { data: variant, error: fetchError } = await supabaseAdmin
+            .from('product_variants')
+            .select('stock')
+            .eq('product_id', productId)
+            .eq('size', productSize)
+            .maybeSingle();
+
+          // Если размер найден в базе, вычитаем купленное количество
+          if (!fetchError && variant) {
+            const newStock = Math.max(0, (variant.stock || 0) - quantityBought);
+
+            // Обновляем запись в таблице вариантов
+            await supabaseAdmin
+              .from('product_variants')
+              .update({ stock: newStock })
+              .eq('product_id', productId)
+              .eq('size', productSize);
+          }
+        }
+      }
+    }
+    // =========================================================================
+
     const isEn = lang === 'EN';
     const mailHeading = isEn ? 'STIROL — ORDER CONFIRMATION' : 'STIROL — ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ';
     const mailTextId = isEn ? 'ORDER NUMBER:' : 'НОМЕР ЗАМОВЛЕННЯ:';
