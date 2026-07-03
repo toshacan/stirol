@@ -10,7 +10,7 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('all');
   
-  // Автоматически обновляем данные роутера при монтировании, чтобы сбросить жесткий кэш Next.js
+  // Автоматически обновляем данные роутера при монтировании, чтобы сбросить клиентский кэш
   useEffect(() => {
     router.refresh();
   }, [router]);
@@ -22,7 +22,7 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
     return posA - posB;
   });
 
-  const currentLang = lang as 'EN' | 'UA';
+  const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
   
   const uiText = {
     EN: { soldout: 'SOLD OUT', comingSoon: 'COMING SOON', all: 'all' },
