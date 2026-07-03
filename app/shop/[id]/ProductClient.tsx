@@ -21,9 +21,14 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
   
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
 
+  // Парсинг изображений
+  const images = Array.isArray(product.images) 
+    ? product.images 
+    : (typeof product.images === 'string' ? product.images.split(',').map((s: string) => s.trim()) : []);
+
   const labels = {
-    EN: { back: '← BACK', next: 'NEXT ITEM →', buy: 'ADD TO CART', added: 'ADDED', sold: 'SOLD OUT', selectSize: 'SIZE', selectColor: 'COLOR', prev: 'PREV', nextImg: 'NEXT' },
-    UA: { back: '← НАЗАД', next: 'НАСТУПНА РІЧ →', buy: 'ДОДАТИ', added: 'ДОДАНО', sold: 'РОЗПРОДАНО', selectSize: 'РОЗМІР', selectColor: 'КОЛІР', prev: 'НАЗАД', nextImg: 'ДАЛІ' }
+    EN: { back: '← BACK', next: 'NEXT ITEM →', buy: 'ADD TO CART', added: 'ADDED', sold: 'SOLD OUT', selectSize: 'SIZE', selectColor: 'COLOR' },
+    UA: { back: '← НАЗАД', next: 'НАСТУПНА РІЧ →', buy: 'ДОДАТИ', added: 'ДОДАНО', sold: 'РОЗПРОДАНО', selectSize: 'РОЗМІР', selectColor: 'КОЛІР' }
   };
 
   const displayTitle = product.title;
@@ -41,19 +46,9 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
 
   const isSizeRequiredButMissing = allVariants.length > 0 && !selectedSize;
 
-  const changeImage = (direction: 'prev' | 'next') => {
-    if (!product.images || product.images.length === 0) return;
-    if (direction === 'next') {
-      setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
-    } else {
-      setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
-    }
-  };
-
   const handleAddToCart = () => {
     if (isTotalSoldOut || isSizeRequiredButMissing) return;
 
-    // ВАЖНО: находим остаток для конкретного размера
     const currentVariant = allVariants.find((v: any) => v.size === selectedSize);
     const stock = currentVariant ? Number(currentVariant.stock) : Number(product.stock ?? 99);
 
@@ -62,7 +57,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
       title: displayTitle, 
       size: selectedSize || 'OS', 
       price: product.price,
-      stock: stock // Передаем лимит в корзину
+      stock: stock
     });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -74,53 +69,64 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
   return (
     <CommonLayout>
       <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 h-auto">
+        {/* Навигация */}
         <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
           <Link href="/shop" className="hover:opacity-50">
             {labels[currentLang].back}
           </Link>
+          
           {nextProduct && nextProduct.id ? (
             <Link href={`/shop/${nextProduct.id}`} className="hover:opacity-50">
               {labels[currentLang].next}
             </Link>
           ) : (
-            <span className="text-neutral-500 opacity-20">{labels[currentLang].next}</span> 
+            <span className="text-gray-300 cursor-default select-none">{labels[currentLang].next}</span> 
           )}
         </nav>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          <div className="flex flex-col gap-3">
-            <div className="w-full aspect-square overflow-hidden bg-transparent">
-               {product.images?.length > 0 && (
-                 <img 
-                   src={product.images[currentImageIndex]} 
-                   alt={displayTitle} 
-                   draggable="false" 
-                   className="w-full h-full object-cover transition-opacity duration-300" 
-                 />
-               )}
-            </div>
-
-            {product.images?.length > 1 && (
-              <div className="flex justify-between items-center text-[9px] uppercase tracking-widest font-bold text-gray-500">
-                <button onClick={() => changeImage('prev')} className="hover:text-black">← {labels[currentLang].prev}</button>
-                <span>{currentImageIndex + 1} / {product.images.length}</span>
-                <button onClick={() => changeImage('next')} className="hover:text-black">{labels[currentLang].nextImg} →</button>
-              </div>
+          {/* Фото-блок (только фото) */}
+          <div className="w-full aspect-square overflow-hidden bg-transparent">
+            {images.length > 0 && (
+              <img 
+                src={images[currentImageIndex]} 
+                alt={displayTitle} 
+                draggable="false" 
+                className="w-full h-full object-cover transition-opacity duration-300" 
+              />
             )}
           </div>
 
+          {/* Инфо-блок */}
           <div className="flex flex-col w-full">
             <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tighter leading-none">{displayTitle}</h1>
             <p className="text-lg mt-3 font-bold">{product.price}</p>
             
-            <div className="mt-6 py-4 border-t border-b border-gray-200">
+            {/* Описание */}
+            <div className="mt-6">
               <p className="text-[11px] uppercase text-gray-700 leading-normal">{displayDescription}</p>
             </div>
 
+            {/* Миниатюры (теперь здесь) */}
+            {images.length > 1 && (
+              <div className="flex gap-2 mt-6">
+                {images.map((img: string, idx: number) => (
+                  <button 
+                    key={idx}
+                    onClick={() => setCurrentImageIndex(idx)}
+                    className={`w-12 h-12 flex-shrink-0 border transition-all ${currentImageIndex === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}
+                  >
+                    <img src={img} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Цвета */}
             {colors.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].selectColor}</h3>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   {colors.map((variant: any) => {
                     const cleanId = variant.id ? variant.id.trim() : '';
                     const currentCleanId = id ? id.trim() : '';
@@ -129,7 +135,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
                         key={variant.id} 
                         href={`/shop/${cleanId}`}
                         title={variant.name}
-                        className={`w-6 h-6 rounded-full border transition-all ${cleanId === currentCleanId ? 'border-black scale-110 ring-1 ring-black' : 'border-gray-300 hover:scale-105'}`}
+                        className={`w-5 h-5 rounded-full border transition-all ${cleanId === currentCleanId ? 'border-black scale-110 ring-1 ring-black' : 'border-gray-300 hover:scale-105'}`}
                         style={{ backgroundColor: variant.hex }}
                       />
                     );
@@ -138,6 +144,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
               </div>
             )}
 
+            {/* Размеры */}
             {allVariants.length > 0 && !isTotalSoldOut && (
               <div className="mt-6">
                 <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].selectSize}</h3>
@@ -166,6 +173,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
               </div>
             )}
 
+            {/* Кнопка */}
             <button 
               onClick={handleAddToCart} 
               className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all duration-300 border transform active:scale-[0.99]
