@@ -19,28 +19,36 @@ export async function POST(req: Request) {
       category, 
       status, 
       images, 
-      variants, // Массив размеров
-      position  // НОВЫЙ ПАРАМЕТР: Позиция для сортировки
+      variants,       
+      colorVariants,  
+      color_variants, 
+      position        
     } = body;
 
     if (!id || !title) {
       return NextResponse.json({ error: 'Missing required fields: ID and Title' }, { status: 400 });
     }
 
-    // Шаг 1: Создаем продукт с учетом новой колонки position
+    // Избавляемся от parseFloat, сохраняем цену как строку со всеми знаками типа $
+    const cleanPrice = price !== undefined && price !== null ? String(price).trim() : '';
+    // Гарантируем, что позиция преобразуется в число, даже если пришла пустая строка
+    const cleanPosition = position !== undefined && position !== null && position !== '' ? parseInt(position, 10) : 0;
+
+    // Шаг 1: Создаем продукт
     const { data: productData, error: productError } = await supabase
       .from('products')
       .insert([
         { 
           id, 
           title, 
-          price: parseFloat(price) || 0, 
+          price: cleanPrice, 
           description, 
           description_ua: description_ua || null, 
           category, 
           status: status || null, 
           images: images || [],
-          position: parseInt(position) || 0 // Сохраняем позицию (по умолчанию 0)
+          position: cleanPosition,
+          color_variants: colorVariants || color_variants || []
         }
       ])
       .select();

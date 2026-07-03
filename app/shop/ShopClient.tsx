@@ -1,15 +1,26 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link'; 
+import { useRouter } from 'next/navigation';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 
 export default function ShopClient({ initialProducts, initialCategories }: { initialProducts: any[], initialCategories: any[] }) {
   const { lang } = useLang(); 
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('all');
   
-  const [products] = useState(initialProducts);
-  const [categories] = useState(initialCategories);
+  // Автоматически обновляем данные роутера при монтировании, чтобы сбросить жесткий кэш Next.js
+  useEffect(() => {
+    router.refresh();
+  }, [router]);
+
+  // Сортируем товары строго по позиции (position), если она задана
+  const sortedProducts = [...initialProducts].sort((a, b) => {
+    const posA = Number(a.position ?? 0);
+    const posB = Number(b.position ?? 0);
+    return posA - posB;
+  });
 
   const currentLang = lang as 'EN' | 'UA';
   
@@ -19,8 +30,8 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
   };
 
   const filteredProducts = activeCategory === 'all' 
-    ? products 
-    : products.filter(p => p.category === activeCategory);
+    ? sortedProducts 
+    : sortedProducts.filter(p => p.category === activeCategory);
 
   return (
     <CommonLayout>
@@ -34,7 +45,7 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
             {uiText[currentLang].all}
           </button>
 
-          {categories.map((cat) => (
+          {initialCategories.map((cat) => (
             <button 
               key={cat.id} 
               onClick={() => setActiveCategory(cat.id)} 

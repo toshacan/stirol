@@ -1,6 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useLang } from '@/components/LangContext';
 import { useCart } from '@/components/CartContext';
 import CommonLayout from '@/components/CommonLayout';
@@ -14,12 +15,18 @@ interface ProductClientProps {
 export default function ProductClient({ product, nextProduct, id }: ProductClientProps) {
   const { lang } = useLang();
   const { addToCart } = useCart();
+  const router = useRouter();
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isAdded, setIsAdded] = useState(false);
   
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
+
+  // Сброс кэша при открытии карточки товара, чтобы данные всегда были свежими
+  useEffect(() => {
+    router.refresh();
+  }, [router]);
 
   // Парсинг изображений
   const images = Array.isArray(product.images) 
@@ -85,7 +92,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
         </nav>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {/* Фото-блок (только фото) */}
+          {/* Фото-блок */}
           <div className="w-full aspect-square overflow-hidden bg-transparent">
             {images.length > 0 && (
               <img 
@@ -107,7 +114,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
               <p className="text-[11px] uppercase text-gray-700 leading-normal">{displayDescription}</p>
             </div>
 
-            {/* Миниатюры (теперь здесь) */}
+            {/* Миниатюры */}
             {images.length > 1 && (
               <div className="flex gap-2 mt-6">
                 {images.map((img: string, idx: number) => (
@@ -122,32 +129,39 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
               </div>
             )}
 
-            {/* Цвета */}
+            {/* Цвета (Супер-минималистичные и аккуратные кнопки) */}
             {colors.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].selectColor}</h3>
-                <div className="flex gap-2">
+                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectColor}</h3>
+                <div className="flex flex-wrap gap-2">
                   {colors.map((variant: any) => {
                     const cleanId = variant.id ? variant.id.trim() : '';
                     const currentCleanId = id ? id.trim() : '';
+                    const isActive = cleanId === currentCleanId;
+                    
                     return (
                       <Link 
                         key={variant.id} 
                         href={`/shop/${cleanId}`}
-                        title={variant.name}
-                        className={`w-5 h-5 rounded-full border transition-all ${cleanId === currentCleanId ? 'border-black scale-110 ring-1 ring-black' : 'border-gray-300 hover:scale-105'}`}
-                        style={{ backgroundColor: variant.hex }}
-                      />
+                        className={`px-3 py-1.5 border text-[10px] font-bold uppercase tracking-wider transition-all duration-200
+                          ${isActive 
+                            ? 'border-black bg-black text-white' 
+                            : 'border-gray-200 text-black hover:border-black bg-white'
+                          }
+                        `}
+                      >
+                        {variant.name}
+                      </Link>
                     );
                   })}
                 </div>
               </div>
             )}
 
-            {/* Размеры */}
-            {allVariants.length > 0 && !isTotalSoldOut && (
+            {/* Размеры (Всегда на месте, зачеркнуты если 0) */}
+            {allVariants.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-3">{labels[currentLang].selectSize}</h3>
+                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectSize}</h3>
                 <div className="grid grid-cols-4 gap-2">
                   {allVariants.map((v: any) => {
                     const isOutOfStock = Number(v.stock) <= 0;
@@ -158,10 +172,10 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
                         onClick={() => setSelectedSize(v.size)} 
                         className={`border py-3 text-[10px] font-bold uppercase transition-all
                           ${isOutOfStock 
-                            ? 'border-neutral-200 bg-neutral-50 text-neutral-400 line-through opacity-40 cursor-not-allowed' 
+                            ? 'border-neutral-200 bg-neutral-50 text-neutral-400 line-through opacity-30 cursor-not-allowed' 
                             : selectedSize === v.size 
                               ? 'bg-black text-white border-black' 
-                              : 'border-gray-200 text-black hover:border-black'
+                              : 'border-gray-200 text-black hover:border-black bg-white'
                           }
                         `}
                       >
@@ -173,7 +187,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
               </div>
             )}
 
-            {/* Кнопка */}
+            {/* Кнопка купить */}
             <button 
               onClick={handleAddToCart} 
               className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all duration-300 border transform active:scale-[0.99]

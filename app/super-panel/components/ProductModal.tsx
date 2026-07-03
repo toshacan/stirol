@@ -30,7 +30,7 @@ export function ProductModal({
   if (!isOpen) return null;
 
   const variants = productForm.variants || [];
-  const colorVariants = productForm.colorVariants || [];
+  const colorVariants = productForm.colorVariants || productForm.color_variants || [];
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 md:p-8 z-50 overflow-y-auto">
@@ -38,7 +38,7 @@ export function ProductModal({
         className="bg-[#111] border border-[#333] p-6 md:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto my-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold mb-6 uppercase tracking-wider">
+        <h2 className="text-xl font-bold mb-6 uppercase tracking-wider text-white">
           {editingProduct ? `Edit: ${editingProduct.title}` : 'NEW PRODUCT'}
         </h2>
 
@@ -47,7 +47,7 @@ export function ProductModal({
             <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Product ID (Slug)</label>
             <input
               disabled={!!editingProduct}
-              value={productForm.id}
+              value={productForm.id || ''}
               onChange={(e) => setProductForm({ ...productForm, id: e.target.value })}
               className="w-full bg-[#222] p-2 text-xs outline-none border border-transparent focus:border-white disabled:opacity-50 font-mono text-white"
               placeholder="e.g. fuck-the-roc-tee"
@@ -56,7 +56,7 @@ export function ProductModal({
           <div>
             <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Category</label>
             <select
-              value={productForm.category}
+              value={productForm.category || 'tshirts'}
               onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
               className="w-full bg-[#222] p-2 text-xs uppercase outline-none border border-transparent focus:border-white text-white"
             >
@@ -69,8 +69,8 @@ export function ProductModal({
             <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Sort Position</label>
             <input
               type="number"
-              value={productForm.position || 0}
-              onChange={(e) => setProductForm({ ...productForm, position: parseInt(e.target.value) || 0 })}
+              value={productForm.position !== undefined ? productForm.position : ''}
+              onChange={(e) => setProductForm({ ...productForm, position: e.target.value === '' ? '' : parseInt(e.target.value, 10) })}
               className="w-full bg-[#222] p-2 text-xs outline-none border border-transparent focus:border-white text-white font-mono"
               placeholder="0"
             />
@@ -81,7 +81,7 @@ export function ProductModal({
           <div>
             <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Title</label>
             <input
-              value={productForm.title}
+              value={productForm.title || ''}
               onChange={(e) => setProductForm({ ...productForm, title: e.target.value })}
               className="w-full bg-[#222] p-2 text-xs outline-none border border-transparent focus:border-white text-white"
               placeholder='e.g. "FUCK THE ROC" T-SHIRT'
@@ -90,10 +90,10 @@ export function ProductModal({
           <div>
             <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Price</label>
             <input
-              value={productForm.price}
+              value={productForm.price || ''}
               onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
               className="w-full bg-[#222] p-2 text-xs outline-none border border-transparent focus:border-white font-mono text-white"
-              placeholder="e.g. 45"
+              placeholder="e.g. 80$"
             />
           </div>
         </div>
@@ -101,7 +101,7 @@ export function ProductModal({
         <div className="mb-4">
           <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Status</label>
           <select
-            value={productForm.status}
+            value={productForm.status || ''}
             onChange={(e) => setProductForm({ ...productForm, status: e.target.value })}
             className="w-full bg-[#222] p-2 text-xs uppercase outline-none border border-transparent focus:border-white text-white"
           >
@@ -114,7 +114,7 @@ export function ProductModal({
         <div className="mb-4">
           <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Description (EN / Default)</label>
           <textarea
-            value={productForm.description}
+            value={productForm.description || ''}
             onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
             className="w-full bg-[#222] p-2 text-xs outline-none border border-transparent focus:border-white h-20 resize-none text-white"
             placeholder="Product details in English..."
@@ -134,7 +134,7 @@ export function ProductModal({
         <div className="mb-6">
           <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Image URLs (Comma separated)</label>
           <input
-            value={productForm.imagesStr}
+            value={productForm.imagesStr || ''}
             onChange={(e) => setProductForm({ ...productForm, imagesStr: e.target.value })}
             className="w-full bg-[#222] p-2 text-xs outline-none border border-transparent focus:border-white text-white font-mono"
             placeholder="/shop/img1.png, /shop/img2.png"
@@ -149,7 +149,7 @@ export function ProductModal({
               <div key={idx} className="bg-[#222] border border-[#333] px-3 py-1.5 flex items-center gap-3 text-xs font-mono">
                 <span className="font-black text-white uppercase">{v.size}</span>
                 <span className="text-gray-600">|</span>
-                <span>STOCK: <span className={v.stock > 0 ? 'text-emerald-400 font-bold' : 'text-red-500 font-bold'}>{v.stock}</span></span>
+                <span>STOCK: <span className={Number(v.stock) > 0 ? 'text-emerald-400 font-bold' : 'text-red-500 font-bold'}>{v.stock}</span></span>
                 <button
                   type="button"
                   onClick={() =>
@@ -214,12 +214,14 @@ export function ProductModal({
                 </span>
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={() => {
+                    const updatedColors = colorVariants.filter((_: any, i: number) => i !== idx);
                     setProductForm({
                       ...productForm,
-                      colorVariants: colorVariants.filter((_: any, i: number) => i !== idx),
-                    })
-                  }
+                      colorVariants: updatedColors,
+                      color_variants: updatedColors,
+                    });
+                  }}
                   className="text-red-500 hover:text-red-400 ml-1 font-bold"
                 >
                   ✕
@@ -251,16 +253,18 @@ export function ProductModal({
               type="button"
               onClick={() => {
                 if (newColorVariant.name.trim() && newColorVariant.id.trim()) {
+                  const updatedColors = [
+                    ...colorVariants, 
+                    { 
+                      name: newColorVariant.name.trim(), 
+                      hex: newColorVariant.hex.trim(), 
+                      id: newColorVariant.id.trim() 
+                    }
+                  ];
                   setProductForm({
                     ...productForm,
-                    colorVariants: [
-                      ...colorVariants, 
-                      { 
-                        name: newColorVariant.name.trim(), 
-                        hex: newColorVariant.hex.trim(), 
-                        id: newColorVariant.id.trim() 
-                      }
-                    ],
+                    colorVariants: updatedColors,
+                    color_variants: updatedColors,
                   });
                   setNewColorVariant({ name: '', hex: '#000000', id: '' });
                 }
