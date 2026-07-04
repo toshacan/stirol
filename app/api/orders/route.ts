@@ -20,13 +20,15 @@ export async function POST(request: Request) {
 
     const productIds = cart.map((item: any) => item.id).filter(Boolean);
     
+    // Берем строго существующие колонки: id, title, price
     const { data: realProducts, error: prodError } = await supabaseAdmin
       .from('products')
       .select('id, title, price')
       .in('id', productIds);
 
     if (prodError || !realProducts) {
-      throw new Error('Failed to verify products price from database');
+      console.error("💥 DB Products Error:", prodError);
+      throw new Error('Failed to verify products price from database: ' + (prodError?.message || 'Unknown DB error'));
     }
 
     let verifiedTotal = 0;
@@ -73,36 +75,83 @@ export async function POST(request: Request) {
     if (dbError) throw new Error("Database insert failed: " + dbError.message);
     const orderId = data[0].id;
 
+    // --- СПИСАНИЕ СТОКА 1:1 КАК В ТВОЕМ UPDATE-PRODUCT ---
     for (const item of verifiedCartItems) {
-      const { data: variant, error: fetchError } = await supabaseAdmin
+      const targetSize = String(item.size || 'OS').toUpperCase().trim();
+      console.log(`[STOCK] Списание для товара ID=${item.id}, Размер=${targetSize}, Кол-во=${item.quantity}`);
+
+      // 1. Получаем все варианты из product_variants
+      const { data: existingVariants, error: fetchErr } = await supabaseAdmin
         .from('product_variants')
-        .select('stock')
-        .eq('product_id', item.id)
-        .eq('size', item.size)
-        .maybeSingle();
+        .select('*')
+        .eq('product_id', item.id);
 
-      if (!fetchError && variant) {
-        const newStock = Math.max(0, (variant.stock || 0) - item.quantity);
-        await supabaseAdmin
-          .from('product_variants')
-          .update({ stock: newStock })
-          .eq('product_id', item.id)
-          .eq('size', item.size);
+      if (fetchErr) {
+        console.error(`[ERROR] Не удалось загрузить варианты для ${item.id}:`, fetchErr);
+        continue;
+      }
 
-        // --- АВТОМАТИЧЕСКИЙ SOLD OUT ---
-        const { data: allVariants } = await supabaseAdmin
+      if (existingVariants && existingVariants.length > 0) {
+        let sizeFound = false;
+
+        // 2. Пересчитываем остатки
+        const cleanVariants = existingVariants.map((v: any) => {
+          const vSize = String(v.size || '').toUpperCase().trim();
+          // Совпадает размер ИЛИ это единственный вариант у товара (например OS)
+          if (vSize === targetSize || (existingVariants.length === 1 && !sizeFound)) {
+            sizeFound = true;
+            const currentStock = parseInt(v.stock, 10) || 0;
+            const newStock = Math.max(0, currentStock - item.quantity);
+            console.log(`[STOCK] Обновляем размер ${vSize}: старый сток ${currentStock} -> новый ${newStock}`);
+            return {
+              product_id: item.id,
+              size: vSize || 'OS',
+              stock: newStock
+            };
+          }
+          return {
+            product_id: item.id,
+            size: vSize,
+            stock: Math.max(0, parseInt(v.stock, 10) || 0)
+          };
+        });
+
+        // 3. Чистим старые и вставляем обновленные (ровно как в твоем update-product)
+        const { error: delErr } = await supabaseAdmin
           .from('product_variants')
-          .select('stock')
+          .delete()
           .eq('product_id', item.id);
-        
-        const totalStock = allVariants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
-        
-        if (totalStock === 0) {
+
+        if (delErr) {
+          console.error(`[ERROR] Ошибка удаления старых вариантов для ${item.id}:`, delErr);
+        } else {
+          const { error: insErr } = await supabaseAdmin
+            .from('product_variants')
+            .insert(cleanVariants);
+
+          if (insErr) {
+            console.error(`[ERROR] Ошибка вставки новых вариантов для ${item.id}:`, insErr);
+          } else {
+            console.log(`[SUCCESS] Сток успешно перезаписан для товара ${item.id}`);
+          }
+        }
+
+        // 4. Авто-обновление статуса товара
+        const totalStock = cleanVariants.reduce((acc, v) => acc + (v.stock || 0), 0);
+        if (totalStock <= 0) {
           await supabaseAdmin
             .from('products')
-            .update({ status: 's' })
+            .update({ status: 'soldout' })
+            .eq('id', item.id);
+          console.log(`[STATUS] Товар ${item.id} переведен в Sold Out`);
+        } else {
+          await supabaseAdmin
+            .from('products')
+            .update({ status: 'ACTIVE' })
             .eq('id', item.id);
         }
+      } else {
+        console.warn(`[WARN] Для товара ID=${item.id} записи в product_variants отсутствуют.`);
       }
     }
 

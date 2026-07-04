@@ -32,6 +32,34 @@ export function ProductModal({
   const variants = productForm.variants || [];
   const colorVariants = productForm.colorVariants || productForm.color_variants || [];
 
+  // Функция для обновления стока в существующем списке
+  const handleUpdateStockInline = (idx: number, newStock: string) => {
+    const updatedVariants = [...variants];
+    updatedVariants[idx].stock = parseInt(newStock) || 0;
+    setProductForm({ ...productForm, variants: updatedVariants });
+  };
+
+  // Функция для добавления нового или обновления существующего размера
+  const handleAddOrUpdateSize = () => {
+    if (!tempSize.trim()) return;
+    
+    const size = tempSize.trim().toUpperCase();
+    const existingIdx = variants.findIndex((v: any) => v.size === size);
+    let updatedVariants = [...variants];
+
+    if (existingIdx !== -1) {
+      // Обновляем существующий
+      updatedVariants[existingIdx].stock = parseInt(tempStock) || 0;
+    } else {
+      // Добавляем новый
+      updatedVariants.push({ size, stock: parseInt(tempStock) || 0 });
+    }
+
+    setProductForm({ ...productForm, variants: updatedVariants });
+    setTempSize('');
+    setTempStock('0');
+  };
+
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 md:p-8 z-50 overflow-y-auto">
       <div
@@ -149,7 +177,16 @@ export function ProductModal({
               <div key={idx} className="bg-[#222] border border-[#333] px-3 py-1.5 flex items-center gap-3 text-xs font-mono">
                 <span className="font-black text-white uppercase">{v.size}</span>
                 <span className="text-gray-600">|</span>
-                <span>STOCK: <span className={Number(v.stock) > 0 ? 'text-emerald-400 font-bold' : 'text-red-500 font-bold'}>{v.stock}</span></span>
+                
+                {/* Inline Editing */}
+                <span className="text-[10px] text-gray-500">STOCK:</span>
+                <input 
+                  type="number"
+                  value={v.stock}
+                  onChange={(e) => handleUpdateStockInline(idx, e.target.value)}
+                  className="w-12 bg-black text-white text-center border border-[#444] rounded p-0.5"
+                />
+
                 <button
                   type="button"
                   onClick={() =>
@@ -183,22 +220,10 @@ export function ProductModal({
             />
             <button
               type="button"
-              onClick={() => {
-                if (tempSize.trim()) {
-                  setProductForm({
-                    ...productForm,
-                    variants: [
-                      ...variants,
-                      { size: tempSize.trim().toUpperCase(), stock: parseInt(tempStock) || 0 }
-                    ],
-                  });
-                  setTempSize('');
-                  setTempStock('0');
-                }
-              }}
+              onClick={handleAddOrUpdateSize}
               className="bg-[#333] hover:bg-white hover:text-black px-4 py-2 text-xs uppercase transition-colors font-bold text-white"
             >
-              + Add Size
+              + Add / Update Size
             </button>
           </div>
         </div>
