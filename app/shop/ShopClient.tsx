@@ -25,8 +25,8 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
   
   const uiText = {
-    EN: { soldout: 'SOLD OUT', comingSoon: 'COMING SOON', all: 'all' },
-    UA: { soldout: 'РОЗПРОДАНО', comingSoon: 'СКОРО', all: 'все' }
+    EN: { soldout: 'SOLD OUT', comingSoon: 'COMING SOON', all: 'ALL' },
+    UA: { soldout: 'РОЗПРОДАНО', comingSoon: 'СКОРО', all: 'ВСІ' }
   };
 
   const filteredProducts = activeCategory === 'all' 
