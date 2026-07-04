@@ -23,7 +23,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
   
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
 
-  // Сброс кэша при открытии карточки товара, чтобы данные всегда были свежими
+  // Сброс кэша при открытии карточки товара
   useEffect(() => {
     router.refresh();
   }, [router]);
@@ -129,7 +129,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
               </div>
             )}
 
-            {/* Цвета (Супер-минималистичные и аккуратные кнопки) */}
+            {/* Цвета */}
             {colors.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectColor}</h3>
@@ -158,16 +158,16 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
               </div>
             )}
 
-            {/* Размеры (Всегда на месте, зачеркнуты если 0) */}
+            {/* Размеры */}
             {allVariants.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectSize}</h3>
                 <div className="grid grid-cols-4 gap-2">
-                  {allVariants.map((v: any) => {
+                  {allVariants.map((v: any, index: number) => {
                     const isOutOfStock = Number(v.stock) <= 0;
                     return (
                       <button 
-                        key={v.size} 
+                        key={`${v.size}-${index}`} 
                         disabled={isOutOfStock} 
                         onClick={() => setSelectedSize(v.size)} 
                         className={`border py-3 text-[10px] font-bold uppercase transition-all

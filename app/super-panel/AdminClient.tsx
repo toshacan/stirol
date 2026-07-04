@@ -5,20 +5,18 @@ import { OrdersTab } from './components/OrdersTab';
 import { ProductsTab } from './components/ProductsTab';
 import { SubscribersTab } from './components/SubscribersTab';
 import { CustomersTab } from './components/CustomersTab';
-import { CategoriesTab } from './components/CategoriesTab'; // Добавлено
 import { CampaignModal } from './components/CampaignModal';
 import { ProductModal } from './components/ProductModal';
 import { CustomerModal } from './components/CustomerModal';
 
 export default function AdminClient() {
-  const [activeTab, setActiveTab] = useState<'orders' | 'subs' | 'dashboard' | 'customers' | 'products' | 'categories'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'subs' | 'dashboard' | 'customers' | 'products'>('orders');
   const [orders, setOrders] = useState<any[]>([]);
   const [subs, setSubs] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
 
   const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]); // Добавлено
   const [productCategoryFilter, setProductCategoryFilter] = useState<string>('ALL');
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
@@ -69,10 +67,6 @@ export default function AdminClient() {
     }
     if (products.length === 0 || activeTab === 'products') {
       fetch('/api/get-products').then((r) => r.json()).then((j) => setProducts(Array.isArray(j) ? j : []));
-    }
-    // Подгрузка категорий
-    if (categories.length === 0 || activeTab === 'categories') {
-      fetch('/api/get-categories').then((r) => r.json()).then((j) => setCategories(Array.isArray(j) ? j : []));
     }
   };
 
@@ -262,7 +256,6 @@ export default function AdminClient() {
       });
     } else if (activeTab === 'customers') data = profiles;
     else if (activeTab === 'products') data = products;
-    else if (activeTab === 'categories') data = categories;
 
     let result = [...data].filter((i) => {
       const matchesSearch = JSON.stringify(i).toLowerCase().includes(search.toLowerCase());
@@ -297,7 +290,7 @@ export default function AdminClient() {
     }
 
     return result;
-  }, [orders, subs, profiles, products, categories, activeTab, search, statusFilter, customerFilter, subStatusFilter, subLangFilter, productCategoryFilter]);
+  }, [orders, subs, profiles, products, activeTab, search, statusFilter, customerFilter, subStatusFilter, subLangFilter, productCategoryFilter]);
 
   const copyFilteredEmails = () => {
     if (activeTab !== 'subs') return;
@@ -332,14 +325,6 @@ export default function AdminClient() {
             }`}
           >
             PRODUCTS
-          </button>
-          <button
-            onClick={() => setActiveTab('categories')}
-            className={`text-left p-2 ${
-              activeTab === 'categories' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
-            }`}
-          >
-            CATEGORIES
           </button>
           <button
             onClick={() => setActiveTab('subs')}
@@ -508,9 +493,6 @@ export default function AdminClient() {
               onDelete={deleteProduct}
               onStatusChange={updateProductStatus}
             />
-          )}
-          {activeTab === 'categories' && (
-             <CategoriesTab categories={categories} onRefresh={fetchData} />
           )}
           {activeTab === 'subs' && <SubscribersTab subs={filtered} copy={copy} deleteSub={deleteSub} />}
           {activeTab === 'customers' && (

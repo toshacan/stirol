@@ -6,11 +6,40 @@ const CartContext = createContext<any>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<any[]>([]);
 
+  // 1. Загрузка из localStorage
   useEffect(() => {
     const saved = localStorage.getItem('cart');
-    if (saved) setCart(JSON.parse(saved));
+    if (saved) {
+      const parsedCart = JSON.parse(saved);
+      setCart(parsedCart);
+      syncPricesWithDB(parsedCart); // Синхронизируем сразу после загрузки
+    }
   }, []);
 
+  // 2. Функция синхронизации цен с БД
+  const syncPricesWithDB = async (currentCart: any[]) => {
+    if (currentCart.length === 0) return;
+
+    const ids = currentCart.map(item => item.id);
+    try {
+      const res = await fetch('/api/get-cart-prices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      });
+      const { prices } = await res.json();
+
+      // Обновляем цены в корзине, если они изменились
+      setCart(prev => prev.map(item => ({
+        ...item,
+        price: prices[item.id] || item.price // Берем цену из БД, если она есть
+      })));
+    } catch (e) {
+      console.error("Ошибка синхронизации цен", e);
+    }
+  };
+
+  // 3. Сохранение в localStorage
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
@@ -26,41 +55,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (idx === existingItemIdx) {
             const currentQty = cartItem.quantity || 1;
             const maxStock = Number(cartItem.stock ?? 99);
-            
-            // Если в корзине уже лежит максимум, не увеличиваем количество
-            if (currentQty >= maxStock) {
-              return cartItem;
-            }
+            if (currentQty >= maxStock) return cartItem;
             return { ...cartItem, quantity: currentQty + 1 };
           }
           return cartItem;
         });
       }
-
       return [...prevCart, { ...item, quantity: 1 }];
     });
   };
 
-  // ЛОГИКА С ПРОВЕРКОЙ ОСТАТКОВ НА СКЛАДЕ
   const updateQuantity = (index: number, action: 'increment' | 'decrement') => {
     setCart((prevCart) => {
       const item = prevCart[index];
       const currentQty = item.quantity || 1;
-      const maxStock = Number(item.stock ?? 99); // Запасной вариант 99, если сток не прилетел
+      const maxStock = Number(item.stock ?? 99);
 
       if (action === 'increment') {
-        // Жесткая проверка: если достигли лимита склада, блокируем инкремент
-        if (currentQty >= maxStock) {
-          return prevCart;
-        }
-        return prevCart.map((c, i) => 
-          i === index ? { ...c, quantity: currentQty + 1 } : c
-        );
+        if (currentQty >= maxStock) return prevCart;
+        return prevCart.map((c, i) => (i === index ? { ...c, quantity: currentQty + 1 } : c));
       } else if (action === 'decrement') {
         if (currentQty > 1) {
-          return prevCart.map((c, i) => 
-            i === index ? { ...c, quantity: currentQty - 1 } : c
-          );
+          return prevCart.map((c, i) => (i === index ? { ...c, quantity: currentQty - 1 } : c));
         } else {
           return prevCart.filter((_, i) => i !== index);
         }
@@ -73,9 +89,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart(cart.filter((_, i) => i !== index));
   };
 
-  const clearCart = () => {
-    setCart([]);
-  };
+  const clearCart = () => setCart([]);
 
   const totalItemsCount = cart.reduce((acc, item) => acc + (item.quantity || 1), 0);
 

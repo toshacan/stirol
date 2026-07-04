@@ -1,54 +1,57 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { 
-      id, 
-      title, 
-      price, 
-      description, 
-      description_ua, 
-      category, 
-      status, 
-      images, 
-      position,
-      colorVariants,
-      color_variants
-    } = body;
+    const body = await request.json();
+    const { id, title, title_ua, price, description, description_ua, image_url, images, category, variants } = body;
 
-    if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
+    if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
 
-    // Избавляемся от parseFloat, сохраняем цену как строку со всеми знаками типа $
-    const cleanPrice = price !== undefined && price !== null ? String(price).trim() : '';
-    // Гарантируем, что позиция преобразуется в число, даже если пришла пустая строка
-    const cleanPosition = position !== undefined && position !== null && position !== '' ? parseInt(position, 10) : 0;
+    // 1. Обновление метаданных
+    const updateData: Record<string, any> = {};
+    if (title !== undefined) updateData.title = title;
+    if (title_ua !== undefined) updateData.title_ua = title_ua;
+    if (price !== undefined) updateData.price = price;
+    if (description !== undefined) updateData.description = description;
+    if (description_ua !== undefined) updateData.description_ua = description_ua;
+    if (image_url !== undefined) updateData.image_url = image_url;
+    if (images !== undefined) updateData.images = images;
+    if (category !== undefined) updateData.category = category;
 
-    const { data, error } = await supabase
-      .from('products')
-      .update({ 
-        title, 
-        price: cleanPrice, 
-        description, 
-        description_ua: description_ua || null, 
-        category, 
-        status: status || null, 
-        images: images || [],
-        position: cleanPosition, 
-        color_variants: colorVariants || color_variants || [] 
-      })
-      .eq('id', id)
-      .select();
+    if (Object.keys(updateData).length > 0) {
+      await supabaseAdmin.from('products').update(updateData).eq('id', id);
+    }
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ success: true, data });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    // 2. Обновление вариантов и авто-статус
+    if (variants && Array.isArray(variants)) {
+      await supabaseAdmin.from('product_variants').delete().eq('product_id', id);
+      
+      const cleanVariants = variants
+        .filter((v: any) => v.size && v.size.trim() !== '')
+        .map((v: any) => ({
+          product_id: id,
+          size: v.size.trim().toUpperCase(),
+          stock: Math.max(0, parseInt(v.stock, 10) || 0)
+        }));
+
+      if (cleanVariants.length > 0) {
+        await supabaseAdmin.from('product_variants').insert(cleanVariants);
+      }
+
+      // Пересчет общего стока для установки статуса
+      const totalStock = cleanVariants.reduce((sum, v) => sum + v.stock, 0);
+      const newStatus = totalStock <= 0 ? 'soldout' : 'ACTIVE';
+      
+      await supabaseAdmin
+        .from('products')
+        .update({ status: newStatus })
+        .eq('id', id);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('UPDATE ERROR:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
