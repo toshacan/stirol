@@ -32,6 +32,7 @@ export default function AdminClient() {
     variants: [] as { size: string; stock: number }[],
     imagesStr: '',
     colorVariants: [] as { name: string; hex: string; id: string }[],
+    position: 0,
   });
   const [newColorVariant, setNewColorVariant] = useState({ name: '', hex: '#000000', id: '' });
   const [productSaving, setProductSaving] = useState(false);
@@ -137,6 +138,7 @@ export default function AdminClient() {
       variants: [],
       imagesStr: '',
       colorVariants: [],
+      position: 0,
     });
     setIsProductModalOpen(true);
   };
@@ -154,6 +156,7 @@ export default function AdminClient() {
       variants: p.product_variants || p.variants || [],
       imagesStr: Array.isArray(p.images) ? p.images.join(', ') : p.images || '',
       colorVariants: p.color_variants || p.colorVariants || [],
+      position: p.position || 0,
     });
     setIsProductModalOpen(true);
   };
@@ -181,6 +184,7 @@ export default function AdminClient() {
       color_variants: productForm.colorVariants,
       is_active: true,
       variants: productForm.variants,
+      position: Number(productForm.position) || 0,
     };
 
     const endpoint = editingProduct ? '/api/update-product' : '/api/add-product';

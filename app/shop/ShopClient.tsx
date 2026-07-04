@@ -15,10 +15,16 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
     router.refresh();
   }, [router]);
 
-  // Сортируем товары строго по позиции (position), если она задана
+  // УМНАЯ СОРТИРОВКА: Товары с позицией 1, 2, 3 идут в начало, а нули (0) отправляются в конец!
   const sortedProducts = [...initialProducts].sort((a, b) => {
     const posA = Number(a.position ?? 0);
     const posB = Number(b.position ?? 0);
+    
+    // Если у одного товара позиция задана (больше 0), а у другого 0 -> заданный идет первым!
+    if (posA > 0 && posB === 0) return -1;
+    if (posA === 0 && posB > 0) return 1;
+    
+    // В остальных случаях сортируем по порядку (от 1 и далее, либо нули между собой)
     return posA - posB;
   });
 
