@@ -14,6 +14,12 @@ export default function NewsClient() {
 
   const currentLang = lang as 'EN' | 'UA';
 
+  // Словарь для перевода
+  const uiText = {
+    EN: { share: 'SHARE', copied: 'COPIED', all: 'ALL NEWS', close: 'CLOSE', archive: 'ARCHIVE' },
+    UA: { share: 'ПОДІЛИТИСЯ', copied: 'СКОПІЙОВАНО', all: 'ВСІ НОВИНИ', close: 'ЗАКРИТИ', archive: 'АРХІВ' }
+  };
+
   const filteredPosts = activeTagFilter 
     ? MAGAZINE_POSTS.filter(post => post.tag.toUpperCase() === activeTagFilter.toUpperCase())
     : MAGAZINE_POSTS;
@@ -73,12 +79,12 @@ export default function NewsClient() {
                 </button>
                 <span className="text-gray-300">|</span>
                 
-                {/* КОМПАКТНАЯ КНОПКА SHARE */}
+                {/* Кнопка SHARE с переводом */}
                 <button 
                   onClick={handleShare} 
                   className={`px-1.5 py-0.5 text-[8px] uppercase border transition-all duration-300 ${isCopied ? 'bg-pink-400 border-pink-400 text-white' : 'bg-transparent text-black border-black hover:bg-black hover:text-white'}`}
                 >
-                  {isCopied ? 'COPIED' : 'SHARE'}
+                  {isCopied ? uiText[currentLang].copied : uiText[currentLang].share}
                 </button>
               </div>
 
@@ -99,19 +105,23 @@ export default function NewsClient() {
           onClick={() => { setActiveTagFilter(null); setIsArchiveOpen(true); }}
           className="text-[9px] font-bold tracking-[0.2em] uppercase hover:underline cursor-pointer"
         >
-          {currentLang === 'EN' ? 'ALL NEWS' : 'ВСІ НОВИНИ'}
+          {uiText[currentLang].all}
         </button>
       </div>
 
-      {/* ARCHIVE OVERLAY (Full Screen) */}
+      {/* ARCHIVE OVERLAY */}
       {isArchiveOpen && (
         <div className="fixed inset-0 z-50 bg-white p-6 md:p-12 overflow-y-auto">
           <div className="flex justify-between items-center mb-12">
             <h3 className="font-bold tracking-widest uppercase text-[10px]">
-                {activeTagFilter ? `#${activeTagFilter}` : 'ARCHIVE'}
+                {activeTagFilter ? `#${activeTagFilter}` : uiText[currentLang].archive}
             </h3>
-            <button onClick={() => setIsArchiveOpen(false)} className="text-[10px] font-bold uppercase hover:text-gray-400">
-                {currentLang === 'EN' ? 'CLOSE' : 'ЗАКРИТИ'}
+            {/* Большая кнопка CLOSE */}
+            <button 
+                onClick={() => setIsArchiveOpen(false)} 
+                className="text-[14px] md:text-[16px] font-bold uppercase hover:text-gray-400 transition-colors"
+            >
+                {uiText[currentLang].close}
             </button>
           </div>
           
