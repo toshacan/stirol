@@ -47,6 +47,7 @@ export default function NewsClient() {
       {/* ОСНОВНОЙ КОНТЕНТ */}
       <div className="w-full flex-grow flex items-center justify-between relative px-2 my-auto overflow-hidden">
         
+        {/* Невидимые зоны навигации (мобильные) */}
         {hasMultiplePages && (
             <>
                 <div className="absolute inset-y-0 left-0 w-20 z-10 cursor-pointer md:hidden" onClick={() => setInnerPageIdx(p => (p > 0 ? p - 1 : currentPost.pages.length - 1))} />
@@ -72,7 +73,7 @@ export default function NewsClient() {
                 </button>
                 <span className="text-gray-300">|</span>
                 
-                {/* Маленькая кнопка SHARE */}
+                {/* КОМПАКТНАЯ КНОПКА SHARE */}
                 <button 
                   onClick={handleShare} 
                   className={`px-1.5 py-0.5 text-[8px] uppercase border transition-all duration-300 ${isCopied ? 'bg-pink-400 border-pink-400 text-white' : 'bg-transparent text-black border-black hover:bg-black hover:text-white'}`}
@@ -93,7 +94,6 @@ export default function NewsClient() {
         </main>
       </div>
 
-      {/* Текстовая кнопка ALL NEWS */}
       <div className="w-full flex justify-center pb-8 pt-4">
         <button 
           onClick={() => { setActiveTagFilter(null); setIsArchiveOpen(true); }}
@@ -103,9 +103,9 @@ export default function NewsClient() {
         </button>
       </div>
 
-      {/* ARCHIVE OVERLAY: top-[60px] оставляет место для хедера */}
+      {/* ARCHIVE OVERLAY (Full Screen) */}
       {isArchiveOpen && (
-        <div className="fixed inset-0 top-[60px] z-40 bg-white p-6 md:p-12 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-white p-6 md:p-12 overflow-y-auto">
           <div className="flex justify-between items-center mb-12">
             <h3 className="font-bold tracking-widest uppercase text-[10px]">
                 {activeTagFilter ? `#${activeTagFilter}` : 'ARCHIVE'}
