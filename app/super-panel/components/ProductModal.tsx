@@ -37,10 +37,22 @@ export function ProductModal({
     ? productForm.imagesStr 
     : (Array.isArray(productForm.images) ? productForm.images.join(', ') : (productForm.images || ''));
 
+  // Функция для автоматического пересчета статуса при изменении остатков
+  const calculateAutoStatus = (updatedVariants: any[]) => {
+    const totalStock = updatedVariants.reduce((acc: number, v: any) => acc + (parseInt(v.stock, 10) || 0), 0);
+    if (totalStock === 0) {
+      return 'soldout';
+    } else if (productForm.status === 'soldout' && totalStock > 0) {
+      return ''; // Сбрасываем soldout, если появились товары в наличии
+    }
+    return productForm.status;
+  };
+
   const handleUpdateStockInline = (idx: number, newStock: string) => { 
     const updatedVariants = [...variants]; 
-    updatedVariants[idx].stock = parseInt(newStock) || 0; 
-    setProductForm({ ...productForm, variants: updatedVariants }); 
+    updatedVariants[idx].stock = parseInt(newStock, 10) || 0; 
+    const autoStatus = calculateAutoStatus(updatedVariants);
+    setProductForm({ ...productForm, variants: updatedVariants, status: autoStatus }); 
   }; 
 
   const handleAddOrUpdateSize = () => { 
@@ -50,23 +62,27 @@ export function ProductModal({
     let updatedVariants = [...variants]; 
 
     if (existingIdx !== -1) { 
-      updatedVariants[existingIdx].stock = parseInt(tempStock) || 0; 
+      updatedVariants[existingIdx].stock = parseInt(tempStock, 10) || 0; 
     } else { 
-      updatedVariants.push({ size, stock: parseInt(tempStock) || 0 }); 
+      updatedVariants.push({ size, stock: parseInt(tempStock, 10) || 0 }); 
     } 
 
-    setProductForm({ ...productForm, variants: updatedVariants }); 
+    const autoStatus = calculateAutoStatus(updatedVariants);
+    setProductForm({ ...productForm, variants: updatedVariants, status: autoStatus }); 
     setTempSize(''); 
     setTempStock('0'); 
   }; 
 
   const handleSaveWithPriceFormatting = () => { 
     const rawPrice = productForm.price?.toString() || ''; 
-    const formattedPrice = rawPrice.includes('€') 
-      ? rawPrice 
-      : `${rawPrice.replace(/[^0-9.]/g, '')}€`; 
+    // Очищаем цену от любых символов, кроме цифр и точки, чтобы исключить дубли вроде 80€€
+    const cleanNumbersStr = rawPrice.replace(/[^0-9.]/g, '');
+    const formattedPrice = cleanNumbersStr ? `${cleanNumbersStr}€` : '0€'; 
+    
+    // Синхронно сохраняем отформатированную цену перед отправкой
+    productForm.price = formattedPrice;
     setProductForm({ ...productForm, price: formattedPrice }); 
-    setTimeout(() => saveProduct(), 0); 
+    saveProduct(); 
   }; 
 
   return ( 
@@ -194,12 +210,15 @@ export function ProductModal({
                 /> 
                 <button 
                   type="button" 
-                  onClick={() => 
+                  onClick={() => {
+                    const updated = variants.filter((_: any, i: number) => i !== idx);
+                    const autoStatus = calculateAutoStatus(updated);
                     setProductForm({ 
                       ...productForm, 
-                      variants: variants.filter((_: any, i: number) => i !== idx), 
-                    }) 
-                  } 
+                      variants: updated,
+                      status: autoStatus
+                    });
+                  }} 
                   className="text-red-500 hover:text-red-400 ml-1 font-bold" 
                 > 
                   ✕ 

@@ -4,27 +4,15 @@ import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import { MAGAZINE_POSTS } from '@/app/data/news';
 
-const ITEMS_PER_PAGE = 3;
-
 export default function NewsClient() {
   const { lang } = useLang();
   const [activeIdx, setActiveIdx] = useState(0);
   const [innerPageIdx, setInnerPageIdx] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [shareText, setShareText] = useState('SHARE');
+  const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
 
   const currentLang = lang as 'EN' | 'UA';
-
-  const textStyles = {
-    dateAndTag: "text-[9px] font-mono tracking-widest text-gray-400 uppercase space-x-2",
-    tagButton: "hover:text-black transition-colors cursor-pointer underline underline-offset-2",
-    title: "text-[14px] font-black tracking-wide leading-tight text-black uppercase",
-    description: "text-[11px] text-gray-600 leading-relaxed tracking-tight uppercase font-sans overflow-y-auto max-h-[220px] pr-2 custom-scrollbar",
-    shareBtnNormal: "bg-black text-white border border-black hover:bg-transparent hover:text-black",
-    shareBtnCopied: "bg-pink-500 text-white border border-emerald-600",
-    shareBtnBase: "text-[9px] font-mono font-bold tracking-widest px-4 py-2 transition-colors duration-200 uppercase mt-4 self-start"
-  };
 
   const filteredPosts = activeTagFilter 
     ? MAGAZINE_POSTS.filter(post => post.tag.toUpperCase() === activeTagFilter.toUpperCase())
@@ -33,13 +21,7 @@ export default function NewsClient() {
   const currentPost = filteredPosts[activeIdx] || filteredPosts[0] || MAGAZINE_POSTS[0];
   const currentPageData = currentPost?.pages[innerPageIdx] || currentPost?.pages[0];
 
-  const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE);
-  const startIndex = currentPage * ITEMS_PER_PAGE;
-  const visibleArchivePosts = filteredPosts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  useEffect(() => { 
-    setInnerPageIdx(0); 
-  }, [activeIdx]);
+  useEffect(() => { setInnerPageIdx(0); }, [activeIdx]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -50,144 +32,109 @@ export default function NewsClient() {
     }
   }, []);
 
-  const handlePrevPage = () => setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
-  const handleNextPage = () => setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
-
   const handleShare = () => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${currentPost.id}`;
+    const shareUrl = `${window.location.origin}/news?id=${currentPost.id}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
-      setShareText('COPIED!');
-      setTimeout(() => setShareText('SHARE'), 2000);
-    }).catch(() => {
-      setShareText('ERROR');
-      setTimeout(() => setShareText('SHARE'), 2000);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
     });
-  };
-
-  const uiText = {
-    EN: { page: 'PAGE', all: 'ALL NEWS' },
-    UA: { page: 'СТОРІНКА', all: 'ВСІ НОВИНИ' }
   };
 
   const hasMultiplePages = currentPost?.pages.length > 1;
 
   return (
     <CommonLayout>
+      {/* ОСНОВНОЙ КОНТЕНТ */}
       <div className="w-full flex-grow flex items-center justify-between relative px-2 my-auto overflow-hidden">
         
         {hasMultiplePages && (
-          <button 
-            onClick={() => setInnerPageIdx((p) => (p > 0 ? p - 1 : currentPost.pages.length - 1))} 
-            className="absolute left-0 z-20 w-10 h-24 bg-transparent text-black hover:text-gray-400 text-3xl font-black flex items-center justify-center transition-colors"
-          >
-            ←
-          </button>
+            <>
+                <div className="absolute inset-y-0 left-0 w-20 z-10 cursor-pointer md:hidden" onClick={() => setInnerPageIdx(p => (p > 0 ? p - 1 : currentPost.pages.length - 1))} />
+                <div className="absolute inset-y-0 right-0 w-20 z-10 cursor-pointer md:hidden" onClick={() => setInnerPageIdx(p => (p < currentPost.pages.length - 1 ? p + 1 : 0))} />
+            </>
         )}
 
-        <main className="w-full flex flex-col md:flex-row gap-12 items-start justify-center overflow-hidden px-12 py-6">
-          
-          <div className="w-full md:w-[50%] flex justify-start items-start">
-            <div className="w-full block relative bg-transparent h-auto">
-              {currentPageData?.image && (
-                <img 
-                  src={currentPageData.image} 
-                  alt="" 
-                  draggable="false"
-                  onDragStart={(e) => e.preventDefault()}
-                  className="w-full h-auto object-contain select-none pointer-events-none" 
-                />
-              )}
-              
-              {hasMultiplePages && (
-                <div className="absolute bottom-3 left-3 bg-black/90 text-white text-[8px] font-bold px-2 py-0.5 tracking-widest uppercase">
-                  {uiText[currentLang].page} {innerPageIdx + 1} / {currentPost.pages.length}
-                </div>
-              )}
-            </div>
+        <main className="w-full flex flex-col md:flex-row gap-12 items-start justify-center px-6 md:px-12 py-6">
+          <div className="w-full md:w-[50%]">
+             <img src={currentPageData?.image} alt="" className="w-full h-auto object-contain select-none" />
           </div>
           
-          <div className="w-full md:w-[50%] flex flex-col justify-start items-start text-left">
-            <div className="space-y-4 pr-6 w-full flex flex-col">
-              
-              <div className={textStyles.dateAndTag}>
-                <span>{currentPost?.date || "25/06/2026"}</span>
+          <div className="w-full md:w-[50%] flex flex-col justify-start items-start">
+            <div className="space-y-4 w-full">
+              <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase flex items-center space-x-3">
+                <span>{currentPost?.date}</span>
                 <span className="text-gray-300">|</span>
                 <button 
-                  onClick={() => setActiveTagFilter(activeTagFilter ? null : currentPost.tag)}
-                  className={textStyles.tagButton}
+                  onClick={() => { setActiveTagFilter(currentPost.tag); setIsArchiveOpen(true); }}
+                  className="hover:text-black transition-colors underline underline-offset-2"
                 >
                   #{currentPost?.tag}
                 </button>
-                {activeTagFilter && (
-                  <>
-                    <span className="text-gray-300">|</span>
-                    <button onClick={() => setActiveTagFilter(null)} className="text-red-500 hover:text-black transition-colors">
-                      [{uiText[currentLang].all}]
-                    </button>
-                  </>
-                )}
+                <span className="text-gray-300">|</span>
+                
+                {/* Маленькая кнопка SHARE */}
+                <button 
+                  onClick={handleShare} 
+                  className={`px-1.5 py-0.5 text-[8px] uppercase border transition-all duration-300 ${isCopied ? 'bg-pink-400 border-pink-400 text-white' : 'bg-transparent text-black border-black hover:bg-black hover:text-white'}`}
+                >
+                  {isCopied ? 'COPIED' : 'SHARE'}
+                </button>
               </div>
 
-              <h2 className={textStyles.title}>
+              <h2 className="text-[18px] font-black tracking-wide leading-tight text-black uppercase">
                 {currentPost?.title[currentLang]}
               </h2>
 
-              <p className={textStyles.description}>
+              <p className="text-[11px] text-gray-600 leading-relaxed tracking-tight uppercase font-sans max-h-[220px] overflow-y-auto pr-2">
                 {currentPageData?.text[currentLang]}
               </p>
-
-              <button 
-                onClick={handleShare} 
-                className={`${textStyles.shareBtnBase} ${shareText === 'COPIED!' ? textStyles.shareBtnCopied : textStyles.shareBtnNormal}`}
-              >
-                {shareText}
-              </button>
-
             </div>
           </div>
-
         </main>
-
-        {hasMultiplePages && (
-          <button 
-            onClick={() => setInnerPageIdx((p) => (p < currentPost.pages.length - 1 ? p + 1 : 0))} 
-            className="absolute right-0 z-20 w-10 h-24 bg-transparent text-black hover:text-gray-400 text-3xl font-black flex items-center justify-center transition-colors"
-          >
-            →
-          </button>
-        )}
       </div>
 
-      <div className="w-full flex flex-col items-center space-y-2 pb-2 flex-shrink-0">
-        <div className="flex justify-center items-center space-x-3">
-          {visibleArchivePosts.map((post) => {
-            const globalIdx = filteredPosts.findIndex((p) => p.id === post.id);
-            return (
+      {/* Текстовая кнопка ALL NEWS */}
+      <div className="w-full flex justify-center pb-8 pt-4">
+        <button 
+          onClick={() => { setActiveTagFilter(null); setIsArchiveOpen(true); }}
+          className="text-[9px] font-bold tracking-[0.2em] uppercase hover:underline cursor-pointer"
+        >
+          {currentLang === 'EN' ? 'ALL NEWS' : 'ВСІ НОВИНИ'}
+        </button>
+      </div>
+
+      {/* ARCHIVE OVERLAY: top-[60px] оставляет место для хедера */}
+      {isArchiveOpen && (
+        <div className="fixed inset-0 top-[60px] z-40 bg-white p-6 md:p-12 overflow-y-auto">
+          <div className="flex justify-between items-center mb-12">
+            <h3 className="font-bold tracking-widest uppercase text-[10px]">
+                {activeTagFilter ? `#${activeTagFilter}` : 'ARCHIVE'}
+            </h3>
+            <button onClick={() => setIsArchiveOpen(false)} className="text-[10px] font-bold uppercase hover:text-gray-400">
+                {currentLang === 'EN' ? 'CLOSE' : 'ЗАКРИТИ'}
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12 pb-24">
+            {filteredPosts.map((post, idx) => (
               <div 
                 key={post.id} 
-                onClick={() => setActiveIdx(globalIdx)} 
-                className={`w-16 h-11 overflow-hidden cursor-pointer transition-all border flex-shrink-0 ${activeIdx === globalIdx ? 'border-black scale-105' : 'border-transparent hover:opacity-80'}`}
+                onClick={() => { 
+                    setActiveIdx(MAGAZINE_POSTS.findIndex(p => p.id === post.id)); 
+                    setIsArchiveOpen(false); 
+                }}
+                className="cursor-pointer group"
               >
-                <img 
-                  src={post.pages[0].image} 
-                  alt="" 
-                  draggable="false"
-                  onDragStart={(e) => e.preventDefault()}
-                  className="w-full h-full object-cover select-none" 
-                />
+                <div className="aspect-[3/4] overflow-hidden mb-4">
+                  <img src={post.pages[0].image} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                </div>
+                <div className="text-[9px] uppercase font-bold tracking-widest">{post.title[currentLang]}</div>
+                <div className="text-[8px] uppercase text-gray-400 mt-1">#{post.tag}</div>
               </div>
-            );
-          })}
-        </div>
-        
-        {totalPages > 1 && (
-          <div className="flex items-center space-x-4 text-[9px] font-bold text-gray-400">
-            <button onClick={handlePrevPage} className="hover:text-black transition-colors">←</button>
-            <span className="font-mono text-[8px] tracking-widest">{currentPage + 1} / {totalPages}</span>
-            <button onClick={handleNextPage} className="hover:text-black transition-colors">→</button>
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </CommonLayout>
   );
 }

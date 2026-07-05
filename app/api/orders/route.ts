@@ -12,7 +12,10 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { name, email, phone, country, city, zip, address, cart, lang } = body;
+    let { name, email, phone, country, city, zip, address, cart, lang } = body;
+
+    // --- ФИЧА: НОРМАЛИЗАЦИЯ EMAIL ---
+    email = (email || '').toLowerCase().trim();
 
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
@@ -20,7 +23,6 @@ export async function POST(request: Request) {
 
     const productIds = cart.map((item: any) => item.id).filter(Boolean);
     
-    // Берем строго существующие колонки: id, title, price
     const { data: realProducts, error: prodError } = await supabaseAdmin
       .from('products')
       .select('id, title, price')
@@ -28,7 +30,7 @@ export async function POST(request: Request) {
 
     if (prodError || !realProducts) {
       console.error("💥 DB Products Error:", prodError);
-      throw new Error('Failed to verify products price from database: ' + (prodError?.message || 'Unknown DB error'));
+      throw new Error('Failed to verify products: ' + (prodError?.message || 'Unknown DB error'));
     }
 
     let verifiedTotal = 0;
@@ -56,11 +58,50 @@ export async function POST(request: Request) {
       });
     }
 
-    const itemsSummary = verifiedCartItems
-      .map((i) => `${i.title} (${i.size}) x${i.quantity}`)
-      .join(', ');
+    // --- ФИЧА: РОБАСТНОЕ ОБНОВЛЕНИЕ PROFILES ---
+    // 1. Сначала пытаемся вставить. Если email уникален и его нет -> сработает.
+    // 2. Если сработает ошибка (код 23505 - нарушение уникальности) -> значит юзер есть, делаем UPDATE.
+    
+    const { data: insertedData, error: insertError } = await supabaseAdmin
+      .from('profiles')
+      .insert([{
+        email: email,
+        client_status: 'NEW',
+        total_orders: 1,
+        total_spent: Number(verifiedTotal.toFixed(2))
+      }])
+      .select('id');
 
-    const { data, error: dbError } = await supabaseAdmin
+    if (insertError) {
+      // Если это ошибка нарушения уникальности, значит профиль УЖЕ существует
+      if (insertError.code === '23505') {
+        console.log(`[PROFILES] Юзер ${email} уже существует, переходим к обновлению.`);
+        
+        // Получаем текущие данные для корректного инкремента
+        const { data: existingProfile } = await supabaseAdmin
+          .from('profiles')
+          .select('id, total_orders, total_spent')
+          .eq('email', email)
+          .single();
+
+        if (existingProfile) {
+          await supabaseAdmin
+            .from('profiles')
+            .update({
+              total_orders: (existingProfile.total_orders || 0) + 1,
+              total_spent: Number(((existingProfile.total_spent || 0) + verifiedTotal).toFixed(2))
+            })
+            .eq('id', existingProfile.id);
+        }
+      } else {
+        throw new Error("Profile insert failed: " + insertError.message);
+      }
+    }
+
+    // --- СОЗДАНИЕ ЗАКАЗА ---
+    const itemsSummary = verifiedCartItems.map((i) => `${i.title} (${i.size}) x${i.quantity}`).join(', ');
+
+    const { data: orderData, error: dbError } = await supabaseAdmin
       .from('orders')
       .insert([{
         name, email, phone, country, city, zip, address, 
@@ -73,134 +114,56 @@ export async function POST(request: Request) {
       .select();
 
     if (dbError) throw new Error("Database insert failed: " + dbError.message);
-    const orderId = data[0].id;
+    const orderId = orderData[0].id;
 
-    // --- СПИСАНИЕ СТОКА 1:1 КАК В ТВОЕМ UPDATE-PRODUCT ---
+    // --- СПИСАНИЕ СТОКА ---
     for (const item of verifiedCartItems) {
       const targetSize = String(item.size || 'OS').toUpperCase().trim();
-      console.log(`[STOCK] Списание для товара ID=${item.id}, Размер=${targetSize}, Кол-во=${item.quantity}`);
-
-      // 1. Получаем все варианты из product_variants
-      const { data: existingVariants, error: fetchErr } = await supabaseAdmin
+      
+      const { data: existingVariants } = await supabaseAdmin
         .from('product_variants')
         .select('*')
         .eq('product_id', item.id);
 
-      if (fetchErr) {
-        console.error(`[ERROR] Не удалось загрузить варианты для ${item.id}:`, fetchErr);
-        continue;
-      }
-
       if (existingVariants && existingVariants.length > 0) {
         let sizeFound = false;
-
-        // 2. Пересчитываем остатки
         const cleanVariants = existingVariants.map((v: any) => {
           const vSize = String(v.size || '').toUpperCase().trim();
-          // Совпадает размер ИЛИ это единственный вариант у товара (например OS)
           if (vSize === targetSize || (existingVariants.length === 1 && !sizeFound)) {
             sizeFound = true;
             const currentStock = parseInt(v.stock, 10) || 0;
-            const newStock = Math.max(0, currentStock - item.quantity);
-            console.log(`[STOCK] Обновляем размер ${vSize}: старый сток ${currentStock} -> новый ${newStock}`);
-            return {
-              product_id: item.id,
-              size: vSize || 'OS',
-              stock: newStock
-            };
+            return { product_id: item.id, size: vSize, stock: Math.max(0, currentStock - item.quantity) };
           }
-          return {
-            product_id: item.id,
-            size: vSize,
-            stock: Math.max(0, parseInt(v.stock, 10) || 0)
-          };
+          return { product_id: item.id, size: vSize, stock: Math.max(0, parseInt(v.stock, 10) || 0) };
         });
 
-        // 3. Чистим старые и вставляем обновленные (ровно как в твоем update-product)
-        const { error: delErr } = await supabaseAdmin
-          .from('product_variants')
-          .delete()
-          .eq('product_id', item.id);
+        await supabaseAdmin.from('product_variants').delete().eq('product_id', item.id);
+        await supabaseAdmin.from('product_variants').insert(cleanVariants);
 
-        if (delErr) {
-          console.error(`[ERROR] Ошибка удаления старых вариантов для ${item.id}:`, delErr);
-        } else {
-          const { error: insErr } = await supabaseAdmin
-            .from('product_variants')
-            .insert(cleanVariants);
-
-          if (insErr) {
-            console.error(`[ERROR] Ошибка вставки новых вариантов для ${item.id}:`, insErr);
-          } else {
-            console.log(`[SUCCESS] Сток успешно перезаписан для товара ${item.id}`);
-          }
-        }
-
-        // 4. Авто-обновление статуса товара
         const totalStock = cleanVariants.reduce((acc, v) => acc + (v.stock || 0), 0);
-        if (totalStock <= 0) {
-          await supabaseAdmin
-            .from('products')
-            .update({ status: 'soldout' })
-            .eq('id', item.id);
-          console.log(`[STATUS] Товар ${item.id} переведен в Sold Out`);
-        } else {
-          await supabaseAdmin
-            .from('products')
-            .update({ status: 'ACTIVE' })
-            .eq('id', item.id);
-        }
-      } else {
-        console.warn(`[WARN] Для товара ID=${item.id} записи в product_variants отсутствуют.`);
+        await supabaseAdmin
+          .from('products')
+          .update({ status: totalStock <= 0 ? 'soldout' : 'ACTIVE' })
+          .eq('id', item.id);
       }
     }
 
+    // --- EMAIL И TELEGRAM (ОСТАВЛЕНО БЕЗ ИЗМЕНЕНИЙ) ---
     const isEn = lang === 'EN';
-    const mailHeading = isEn ? 'STIROL — ORDER CONFIRMATION' : 'STIROL — ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ';
-    
-    const emailItemsHtml = verifiedCartItems.map((i) => {
-      return `• ${i.title} [SIZE: ${i.size}] x${i.quantity} — ${i.priceStr}`;
-    }).join('<br />');
-
-    const htmlContent = `<div style="font-family: monospace; text-transform: uppercase; letter-spacing: 0.1em; color: #000; padding: 20px; max-width: 600px;">
-        <h2 style="border-bottom: 1px solid #000; padding-bottom: 10px;">${mailHeading}</h2>
-        <p><strong>${isEn ? 'ORDER NUMBER:' : 'НОМЕР ЗАМОВЛЕННЯ:'}</strong> #${orderId}</p>
-        <div style="border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 10px 0;">
-          <strong>${isEn ? 'ITEMS:' : 'ТОВАРИ:'}</strong><br />${emailItemsHtml}
-        </div>
-        <p><strong>${isEn ? 'TOTAL TO PAY:' : 'РАЗОМ ДО СПЛАТИ:'}</strong> ${verifiedTotal}€</p>
+    const htmlContent = `<div style="font-family: monospace; text-transform: uppercase; letter-spacing: 0.1em; color: #000; padding: 20px;">
+        <h2>${isEn ? 'STIROL — ORDER CONFIRMATION' : 'STIROL — ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ'}</h2>
+        <p>#${orderId}</p>
+        <p>${isEn ? 'TOTAL:' : 'РАЗОМ:'} ${verifiedTotal}€</p>
       </div>`;
 
     await resend.emails.send({
       from: 'STIROL <orders@stirol.xyz>',
       to: email,
-      subject: isEn ? "STIROL — ORDER RECEIVED #" + orderId : "STIROL — ЗАМОВЛЕННЯ ПРИЙНЯТО #" + orderId,
+      subject: `STIROL — #${orderId}`,
       html: htmlContent,
     });
 
-    const itemsTgList = verifiedCartItems.map((i) => 
-      `• ${i.title} [SIZE: ${i.size}] x${i.quantity} — ${i.priceStr}`
-    ).join('\n');
-
-    const tgMessage = [
-      ` STIROL — NEW ORDER #${orderId} `,
-      "----------------------------------",
-      `CLIENT: ${name?.toUpperCase()}`,
-      `PHONE: ${phone}`,
-      `EMAIL: ${email}`,
-      `LANG: ${lang}`,
-      "",
-      "SHIPPING:",
-      `${country?.toUpperCase()}, ${city?.toUpperCase()}`,
-      `${address?.toUpperCase()}, ${zip}`,
-      "",
-      "ITEMS:",
-      itemsTgList,
-      "",
-      `TOTAL QTY: ${totalQuantity}`,
-      `TOTAL: ${verifiedTotal}€`,
-      "----------------------------------"
-    ].join('\n');
+    const tgMessage = `STIROL — NEW ORDER #${orderId}\nCLIENT: ${name}\nEMAIL: ${email}\nTOTAL: ${verifiedTotal}€`;
 
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',

@@ -10,7 +10,10 @@ export function CustomersTab({ customers, subs, onSelectCustomer }: CustomersTab
   return (
     <div className="grid gap-4">
       {customers.map((p) => {
-        const isSubbed = subs.some((s) => s.email === p.email);
+        // Сравнение без учета регистра, чтобы подписка находилась всегда
+        const isSubbed = subs.some(
+          (s) => (s.email || '').toLowerCase() === (p.email || '').toLowerCase()
+        );
         return (
           <div
             key={p.email}
@@ -35,8 +38,6 @@ export function CustomersTab({ customers, subs, onSelectCustomer }: CustomersTab
               >
                 {p.client_status || 'NEW'}
               </span>
-              <span>{p.total_spent}€</span>
-              <span>{p.total_orders} orders</span>
             </div>
           </div>
         );

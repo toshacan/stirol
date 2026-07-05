@@ -4,12 +4,16 @@ import { supabaseAdmin } from '@/lib/supabase';
 export async function POST(request: Request) {
   try {
     const product = await request.json();
-    const { 
+    let { 
       id, title, price, status, description, description_ua, 
       imagesStr, images, category, position, variants, colorVariants, color_variants 
     } = product;
 
     if (!id) return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+
+    // Жесткая очистка цены от дублирующихся знаков евро (например, "80€€" -> "80€")
+    const rawPriceStr = String(price || '0').replace(/[^0-9.]/g, '');
+    const cleanPrice = rawPriceStr ? `${rawPriceStr}€` : '0€';
 
     // Обработка картинок
     let imagesArray: string[] = [];
@@ -22,24 +26,34 @@ export async function POST(request: Request) {
     // Обработка позиции (принудительное число)
     const finalPosition = parseInt(String(position || 0), 10);
 
+    // Автоматическая корректировка статуса на бэкенде на основе переданных размеров
+    if (variants && Array.isArray(variants)) {
+      const totalStock = variants.reduce((acc: number, v: any) => acc + (parseInt(String(v.stock || 0), 10) || 0), 0);
+      if (totalStock === 0 && variants.length > 0) {
+        status = 'soldout';
+      } else if (status === 'soldout' && totalStock > 0) {
+        status = null; // Если товары появились в наличии, сбрасываем статус soldout на доступный
+      }
+    }
+
     // Подготовка объекта для апсерта
     const productData = {
       id: String(id).trim(),
       title: title || '',
-      price: price || '0€',
+      price: cleanPrice,
       status: status || null,
       description: description || '',
       description_ua: description_ua || '',
       images: imagesArray,
       category: category || 'tshirts',
-      position: isNaN(finalPosition) ? 0 : finalPosition, // Явно передаем число
+      position: isNaN(finalPosition) ? 0 : finalPosition,
       color_variants: colorVariants || color_variants || []
     };
 
-    // 3. Сохранение в базу
+    // 3. Сохранение товара в базу
     const { error: prodError } = await supabaseAdmin
       .from('products')
-      .upsert(productData); // upsert сам определит, есть ли запись по ID
+      .upsert(productData);
 
     if (prodError) {
       console.error("Supabase Error:", prodError);
