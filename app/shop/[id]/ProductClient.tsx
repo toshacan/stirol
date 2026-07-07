@@ -130,27 +130,36 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
             )}
 
             {/* Цвета */}
+            {/* Цвета */}
             {colors.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectColor}</h3>
-                <div className="flex flex-wrap gap-2">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                   {colors.map((variant: any) => {
                     const cleanId = variant.id ? variant.id.trim() : '';
                     const currentCleanId = id ? id.trim() : '';
                     const isActive = cleanId === currentCleanId;
-                    
+
                     return (
-                      <Link 
-                        key={variant.id} 
+                      <Link
+                        key={variant.id}
                         href={`/shop/${cleanId}`}
-                        className={`px-3 py-1.5 border text-[10px] font-bold uppercase tracking-wider transition-all duration-200
-                          ${isActive 
-                            ? 'border-black bg-black text-white' 
-                            : 'border-gray-200 text-black hover:border-black bg-white'
-                          }
-                        `}
+                        title={variant.name}
+                        aria-label={variant.name}
+                        style={{ display: 'inline-block', padding: isActive ? '3px' : '0px' }}
                       >
-                        {variant.name}
+                        <span
+                          style={{
+                            display: 'block',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            backgroundColor: variant.hex || '#cccccc',
+                            border: isActive ? '2px solid #000' : '1px solid rgba(0,0,0,0.2)',
+                            boxSizing: 'border-box',
+                            transition: 'border-color 0.15s, transform 0.15s',
+                          }}
+                        />
                       </Link>
                     );
                   })}

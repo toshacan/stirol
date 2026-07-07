@@ -14,7 +14,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     let { name, email, phone, country, city, zip, address, cart, lang } = body;
 
-    // --- ФИЧА: НОРМАЛИЗАЦИЯ EMAIL ---
     email = (email || '').toLowerCase().trim();
 
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -22,7 +21,7 @@ export async function POST(request: Request) {
     }
 
     const productIds = cart.map((item: any) => item.id).filter(Boolean);
-    
+
     const { data: realProducts, error: prodError } = await supabaseAdmin
       .from('products')
       .select('id, title, price')
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
 
     for (const cartItem of cart) {
       const realProd = realProducts.find((p) => p.id === cartItem.id);
-      if (!realProd) continue; 
+      if (!realProd) continue;
 
       const qty = Math.max(1, parseInt(cartItem.quantity) || 1);
       const cleanPriceStr = typeof realProd.price === 'string' ? realProd.price : String(realProd.price || '0');
@@ -51,18 +50,62 @@ export async function POST(request: Request) {
       verifiedCartItems.push({
         id: realProd.id,
         title: realProd.title,
-        size: cartItem.size || 'OS',
+        size: String(cartItem.size || 'OS').toUpperCase().trim(),
         quantity: qty,
         unitPrice: unitPrice,
         priceStr: `${unitPrice}€`
       });
     }
 
-    // --- ФИЧА: РОБАСТНОЕ ОБНОВЛЕНИЕ PROFILES ---
-    // 1. Сначала пытаемся вставить. Если email уникален и его нет -> сработает.
-    // 2. Если сработает ошибка (код 23505 - нарушение уникальности) -> значит юзер есть, делаем UPDATE.
-    
-    const { data: insertedData, error: insertError } = await supabaseAdmin
+    if (verifiedCartItems.length === 0) {
+      return NextResponse.json({ error: 'No valid items in cart' }, { status: 400 });
+    }
+
+    // --- АТОМАРНОЕ СПИСАНИЕ СТОКА (ДО создания заказа) ---
+    // Идём по позициям заказа и резервируем сток одну за одной.
+    // Если на каком-то шаге не хватило — откатываем всё, что успели списать, и не создаём заказ.
+    const reserved: { id: string; size: string; quantity: number }[] = [];
+
+    for (const item of verifiedCartItems) {
+      const { data: success, error: rpcError } = await supabaseAdmin.rpc('decrement_variant_stock', {
+        p_product_id: item.id,
+        p_size: item.size,
+        p_qty: item.quantity,
+      });
+
+      if (rpcError) {
+        console.error("💥 Stock RPC error:", rpcError);
+        // откатываем всё, что уже списали в этом запросе
+        for (const r of reserved) {
+          await supabaseAdmin.rpc('increment_variant_stock', {
+            p_product_id: r.id,
+            p_size: r.size,
+            p_qty: r.quantity,
+          });
+        }
+        throw new Error('Stock check failed: ' + rpcError.message);
+      }
+
+      if (!success) {
+        // не хватило стока — откатываем всё, что уже списали в этом запросе
+        for (const r of reserved) {
+          await supabaseAdmin.rpc('increment_variant_stock', {
+            p_product_id: r.id,
+            p_size: r.size,
+            p_qty: r.quantity,
+          });
+        }
+        return NextResponse.json(
+          { error: `Sorry, "${item.title}" (${item.size}) just sold out. Please refresh and try again.` },
+          { status: 409 }
+        );
+      }
+
+      reserved.push({ id: item.id, size: item.size, quantity: item.quantity });
+    }
+
+    // --- ОБНОВЛЕНИЕ PROFILES ---
+    const { error: insertError } = await supabaseAdmin
       .from('profiles')
       .insert([{
         email: email,
@@ -73,11 +116,7 @@ export async function POST(request: Request) {
       .select('id');
 
     if (insertError) {
-      // Если это ошибка нарушения уникальности, значит профиль УЖЕ существует
       if (insertError.code === '23505') {
-        console.log(`[PROFILES] Юзер ${email} уже существует, переходим к обновлению.`);
-        
-        // Получаем текущие данные для корректного инкремента
         const { data: existingProfile } = await supabaseAdmin
           .from('profiles')
           .select('id, total_orders, total_spent')
@@ -94,7 +133,7 @@ export async function POST(request: Request) {
             .eq('id', existingProfile.id);
         }
       } else {
-        throw new Error("Profile insert failed: " + insertError.message);
+        console.error("💥 Profile insert error (non-blocking):", insertError.message);
       }
     }
 
@@ -104,51 +143,45 @@ export async function POST(request: Request) {
     const { data: orderData, error: dbError } = await supabaseAdmin
       .from('orders')
       .insert([{
-        name, email, phone, country, city, zip, address, 
-        items: itemsSummary, 
-        total: verifiedTotal, 
+        name, email, phone, country, city, zip, address,
+        items: itemsSummary,
+        total: verifiedTotal,
         quantity: totalQuantity,
-        lang, 
-        status: 'new'
+        lang,
+        status: 'NEW'
       }])
       .select();
 
-    if (dbError) throw new Error("Database insert failed: " + dbError.message);
+    if (dbError) {
+      // заказ не создался, а сток уже списан — откатываем, чтобы не потерять товар зря
+      for (const r of reserved) {
+        await supabaseAdmin.rpc('increment_variant_stock', {
+          p_product_id: r.id,
+          p_size: r.size,
+          p_qty: r.quantity,
+        });
+      }
+      throw new Error("Database insert failed: " + dbError.message);
+    }
     const orderId = orderData[0].id;
 
-    // --- СПИСАНИЕ СТОКА ---
-    for (const item of verifiedCartItems) {
-      const targetSize = String(item.size || 'OS').toUpperCase().trim();
-      
-      const { data: existingVariants } = await supabaseAdmin
+    // --- ОБНОВЛЕНИЕ СТАТУСА ТОВАРА (soldout / ACTIVE) НА ОСНОВЕ АКТУАЛЬНОГО СТОКА ---
+    const uniqueProductIds = [...new Set(verifiedCartItems.map((i) => i.id))];
+    for (const productId of uniqueProductIds) {
+      const { data: currentVariants } = await supabaseAdmin
         .from('product_variants')
-        .select('*')
-        .eq('product_id', item.id);
+        .select('stock')
+        .eq('product_id', productId);
 
-      if (existingVariants && existingVariants.length > 0) {
-        let sizeFound = false;
-        const cleanVariants = existingVariants.map((v: any) => {
-          const vSize = String(v.size || '').toUpperCase().trim();
-          if (vSize === targetSize || (existingVariants.length === 1 && !sizeFound)) {
-            sizeFound = true;
-            const currentStock = parseInt(v.stock, 10) || 0;
-            return { product_id: item.id, size: vSize, stock: Math.max(0, currentStock - item.quantity) };
-          }
-          return { product_id: item.id, size: vSize, stock: Math.max(0, parseInt(v.stock, 10) || 0) };
-        });
+      const totalStock = (currentVariants || []).reduce((acc, v: any) => acc + (parseInt(v.stock, 10) || 0), 0);
 
-        await supabaseAdmin.from('product_variants').delete().eq('product_id', item.id);
-        await supabaseAdmin.from('product_variants').insert(cleanVariants);
-
-        const totalStock = cleanVariants.reduce((acc, v) => acc + (v.stock || 0), 0);
-        await supabaseAdmin
-          .from('products')
-          .update({ status: totalStock <= 0 ? 'soldout' : 'ACTIVE' })
-          .eq('id', item.id);
-      }
+      await supabaseAdmin
+        .from('products')
+        .update({ status: totalStock <= 0 ? 'soldout' : 'ACTIVE' })
+        .eq('id', productId);
     }
 
-    // --- EMAIL И TELEGRAM (ОСТАВЛЕНО БЕЗ ИЗМЕНЕНИЙ) ---
+    // --- EMAIL И TELEGRAM ---
     const isEn = lang === 'EN';
     const htmlContent = `<div style="font-family: monospace; text-transform: uppercase; letter-spacing: 0.1em; color: #000; padding: 20px;">
         <h2>${isEn ? 'STIROL — ORDER CONFIRMATION' : 'STIROL — ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ'}</h2>

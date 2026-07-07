@@ -11,6 +11,7 @@ interface ProductModalProps {
   setNewColorVariant: React.Dispatch<React.SetStateAction<{ name: string; hex: string; id: string }>>; 
   saveProduct: () => void; 
   productSaving: boolean; 
+  categories: any[];
 } 
 
 export function ProductModal({ 
@@ -23,6 +24,7 @@ export function ProductModal({
   setNewColorVariant, 
   saveProduct, 
   productSaving, 
+  categories,
 }: ProductModalProps) { 
   const [tempSize, setTempSize] = useState(''); 
   const [tempStock, setTempStock] = useState('0'); 
@@ -85,6 +87,9 @@ export function ProductModal({
     saveProduct(); 
   }; 
 
+  // Дефолтная категория — первая из списка (если есть), иначе 'tshirts' как последний фолбэк
+  const defaultCategoryId = categories?.[0]?.id || 'tshirts';
+
   return ( 
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 md:p-8 z-50 overflow-y-auto"> 
       <div 
@@ -109,13 +114,18 @@ export function ProductModal({
           <div> 
             <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Category</label> 
             <select 
-              value={productForm.category || 'tshirts'} 
+              value={productForm.category || defaultCategoryId} 
               onChange={(e) => setProductForm({ ...productForm, category: e.target.value })} 
               className="w-full bg-[#222] p-2 text-xs uppercase outline-none border border-transparent focus:border-white text-white" 
             > 
-              <option value="tshirts">tshirts</option> 
-              <option value="hoodies">hoodies</option> 
-              <option value="shoppers">shoppers</option> 
+              {categories && categories.length > 0 ? (
+                categories.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.label_en || c.id}</option>
+                ))
+              ) : (
+                // Фолбэк на случай, если категории ещё не подгрузились
+                <option value="tshirts">tshirts</option>
+              )}
             </select> 
           </div> 
           <div> 

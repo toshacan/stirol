@@ -33,8 +33,13 @@ export default function Header() {
     close: lang === 'EN' ? 'CLOSE' : 'ЗАКРИТИ',
     checkout: lang === 'EN' ? 'CHECKOUT' : 'ОФОРМИТИ',
     size: lang === 'EN' ? 'SIZE' : 'РОЗМІР',
-    remove: lang === 'EN' ? 'REMOVE' : 'ВИДАЛИТИ'
+    remove: lang === 'EN' ? 'REMOVE' : 'ВИДАЛИТИ',
+    emptyCart: lang === 'EN' ? 'YOUR CART IS EMPTY' : 'ВАШ КОШИК ПОРОЖНІЙ',
+    emptyCartSub: lang === 'EN' ? 'ADD SOMETHING TO CONTINUE' : 'ДОДАЙТЕ ЩОСЬ, ЩОБ ПРОДОВЖИТИ',
+    browseShop: lang === 'EN' ? 'BROWSE SHOP →' : 'ДО МАГАЗИНУ →',
   };
+
+  const isCartEmpty = cart.length === 0;
 
   return (
     <>
@@ -108,38 +113,63 @@ export default function Header() {
               <span>{t.cart}</span>
               <button onClick={() => setIsDrawerOpen(false)} className="hover:opacity-50">{t.close} ✕</button>
             </div>
-            
-            <div className="flex-grow overflow-y-auto space-y-6">
-              {cart.map((item: any, idx: number) => {
-                // Вычисляем, достигнут ли лимит стока для отключения кнопки плюс
-                const isMaxReached = (item.quantity || 1) >= Number(item.stock || 99);
 
-                return (
-                  <div key={idx} className="flex justify-between items-start border-b border-neutral-100 pb-4 text-[10px] tracking-widest uppercase">
-                    <div className="flex flex-col space-y-1">
-                      <Link href={`/shop/${item.id}`} onClick={() => setIsDrawerOpen(false)} className="font-bold text-black">{item.title}</Link>
-                      <span className="text-gray-500">{t.size}: {item.size}</span>
-                      <div className="flex items-center space-x-3 pt-2">
-                        <div className="flex items-center space-x-2">
-                          <button onClick={() => updateQuantity(idx, 'decrement')} className="p-1 hover:text-red-500">-</button>
-                          <span className="font-mono text-[10px] px-1">{item.quantity}</span>
-                          <button 
-                            onClick={() => updateQuantity(idx, 'increment')} 
-                            disabled={isMaxReached}
-                            className={`p-1 transition-colors ${isMaxReached ? 'text-gray-200 cursor-not-allowed' : 'hover:text-green-500'}`}
-                          >
-                            +
-                          </button>
+            {isCartEmpty ? (
+              <div className="flex-grow flex flex-col items-center justify-center text-center gap-3 -mt-8">
+                <span className="text-2xl">🛒</span>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-black">{t.emptyCart}</p>
+                <p className="text-[10px] uppercase tracking-widest text-gray-400">{t.emptyCartSub}</p>
+                <Link
+                  href="/shop"
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="text-[10px] font-bold uppercase tracking-widest text-black underline underline-offset-4 hover:opacity-60 mt-2"
+                >
+                  {t.browseShop}
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="flex-grow overflow-y-auto space-y-6">
+                  {cart.map((item: any, idx: number) => {
+                    // Вычисляем, достигнут ли лимит стока для отключения кнопки плюс
+                    const isMaxReached = (item.quantity || 1) >= Number(item.stock || 99);
+
+                    return (
+                      <div key={idx} className="flex justify-between items-start border-b border-neutral-100 pb-4 text-[10px] tracking-widest uppercase">
+                        <div className="flex flex-col space-y-1">
+                          <Link href={`/shop/${item.id}`} onClick={() => setIsDrawerOpen(false)} className="font-bold text-black">{item.title}</Link>
+                          <span className="text-gray-500">{t.size}: {item.size}</span>
+                          <div className="flex items-center space-x-3 pt-2">
+                            <div className="flex items-center space-x-2">
+                              <button onClick={() => updateQuantity(idx, 'decrement')} className="p-1 hover:text-red-500">-</button>
+                              <span className="font-mono text-[10px] px-1">{item.quantity}</span>
+                              <button 
+                                onClick={() => updateQuantity(idx, 'increment')} 
+                                disabled={isMaxReached}
+                                className={`p-1 transition-colors ${isMaxReached ? 'text-gray-200 cursor-not-allowed' : 'hover:text-green-500'}`}
+                              >
+                                +
+                              </button>
+                            </div>
+                            <button onClick={() => removeFromCart(idx)} className="text-gray-300 hover:text-black hover:underline px-2 transition-all">{t.remove}</button>
+                          </div>
                         </div>
-                        <button onClick={() => removeFromCart(idx)} className="text-gray-300 hover:text-black hover:underline px-2 transition-all">{t.remove}</button>
+                        <span className="font-bold text-black font-mono">
+                          {((parseFloat(item.price) || 0) * item.quantity).toFixed(2)}€
+                        </span>
                       </div>
-                    </div>
-                    <span className="font-bold text-black font-mono">{((parseFloat(item.price) || 0) * item.quantity)}€</span>
-                  </div>
-                );
-              })}
-            </div>
-            <Link href="/checkout" className="mt-6 w-full bg-black text-white py-4 text-center font-bold uppercase tracking-widest text-[11px] hover:bg-neutral-800 transition-colors" onClick={() => setIsDrawerOpen(false)}>{t.checkout}</Link>
+                    );
+                  })}
+                </div>
+                <Link
+                  href="/checkout"
+                  className="mt-6 w-full bg-black text-white py-4 text-center font-bold uppercase tracking-widest text-[11px] hover:bg-neutral-800 transition-colors"
+                  onClick={() => setIsDrawerOpen(false)}
+                >
+                  {t.checkout}
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -5,12 +5,15 @@ import { OrdersTab } from './components/OrdersTab';
 import { ProductsTab } from './components/ProductsTab';
 import { SubscribersTab } from './components/SubscribersTab';
 import { CustomersTab } from './components/CustomersTab';
+import { CategoriesTab } from './components/CategoriesTab';
 import { CampaignModal } from './components/CampaignModal';
 import { ProductModal } from './components/ProductModal';
 import { CustomerModal } from './components/CustomerModal';
 
 export default function AdminClient() {
-  const [activeTab, setActiveTab] = useState<'orders' | 'subs' | 'dashboard' | 'customers' | 'products'>('orders');
+  const [activeTab, setActiveTab] = useState<
+    'orders' | 'subs' | 'dashboard' | 'customers' | 'products' | 'categories'
+  >('orders');
   const [orders, setOrders] = useState<any[]>([]);
   const [subs, setSubs] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -20,7 +23,9 @@ export default function AdminClient() {
   const [productCategoryFilter, setProductCategoryFilter] = useState<string>('ALL');
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
-  
+
+  const [categories, setCategories] = useState<any[]>([]);
+
   const [productForm, setProductForm] = useState({
     id: '',
     category: 'tshirts',
@@ -28,7 +33,7 @@ export default function AdminClient() {
     price: '',
     status: '',
     description: '',
-    description_ua: '', 
+    description_ua: '',
     variants: [] as { size: string; stock: number }[],
     imagesStr: '',
     colorVariants: [] as { name: string; hex: string; id: string }[],
@@ -50,6 +55,12 @@ export default function AdminClient() {
 
   const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
 
+  const fetchCategories = async () => {
+    const res = await fetch('/api/get-categories');
+    const j = await res.json();
+    setCategories(Array.isArray(j) ? j : []);
+  };
+
   const fetchData = async () => {
     if (orders.length === 0) {
       fetch('/api/get-orders').then((r) => r.json()).then((j) => setOrders(Array.isArray(j) ? j : []));
@@ -68,6 +79,9 @@ export default function AdminClient() {
     }
     if (products.length === 0 || activeTab === 'products') {
       fetch('/api/get-products').then((r) => r.json()).then((j) => setProducts(Array.isArray(j) ? j : []));
+    }
+    if (categories.length === 0 || activeTab === 'categories') {
+      fetchCategories();
     }
   };
 
@@ -100,11 +114,21 @@ export default function AdminClient() {
 
   const deleteSub = async (email: string) => {
     if (!confirm(`Remove ${email} from subscribers?`)) return;
-    setSubs((prev: any[]) => prev.filter((s) => s.email !== email));
-    await fetch('/api/delete-sub', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
+    try {
+      const res = await fetch('/api/delete-sub', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setSubs((prev: any[]) => prev.filter((s) => s.email !== email));
+      } else {
+        alert('Error: ' + (result.error || 'Unknown error'));
+      }
+    } catch (e: any) {
+      alert('Delete crash: ' + e.message);
+    }
   };
 
   const copy = (text: string) => navigator.clipboard.writeText(text);
@@ -134,7 +158,7 @@ export default function AdminClient() {
       price: '',
       status: '',
       description: '',
-      description_ua: '', 
+      description_ua: '',
       variants: [],
       imagesStr: '',
       colorVariants: [],
@@ -152,7 +176,7 @@ export default function AdminClient() {
       price: p.price || '',
       status: p.status || '',
       description: p.description || '',
-      description_ua: p.description_ua || '', 
+      description_ua: p.description_ua || '',
       variants: p.product_variants || p.variants || [],
       imagesStr: Array.isArray(p.images) ? p.images.join(', ') : p.images || '',
       colorVariants: p.color_variants || p.colorVariants || [],
@@ -168,7 +192,7 @@ export default function AdminClient() {
     }
     setProductSaving(true);
 
-    const imagesArray = productForm.imagesStr 
+    const imagesArray = productForm.imagesStr
       ? productForm.imagesStr.split(',').map((s: string) => s.trim()).filter(Boolean)
       : [];
 
@@ -179,7 +203,7 @@ export default function AdminClient() {
       price: productForm.price?.toString().trim(),
       status: productForm.status || null,
       description: productForm.description?.trim(),
-      description_ua: productForm.description_ua?.trim() || null, 
+      description_ua: productForm.description_ua?.trim() || null,
       images: imagesArray,
       color_variants: productForm.colorVariants,
       is_active: true,
@@ -260,6 +284,7 @@ export default function AdminClient() {
       });
     } else if (activeTab === 'customers') data = profiles;
     else if (activeTab === 'products') data = products;
+    else if (activeTab === 'categories') data = categories;
 
     let result = [...data].filter((i) => {
       const matchesSearch = JSON.stringify(i).toLowerCase().includes(search.toLowerCase());
@@ -289,12 +314,27 @@ export default function AdminClient() {
         if (a.client_status !== 'VIP' && b.client_status === 'VIP') return 1;
         return (b.id || 0) - (a.id || 0);
       });
+    } else if (activeTab === 'categories') {
+      result.sort((a, b) => (a.order || 0) - (b.order || 0));
     } else {
       result.sort((a, b) => (a.id || 0) - (b.id || 0));
     }
 
     return result;
-  }, [orders, subs, profiles, products, activeTab, search, statusFilter, customerFilter, subStatusFilter, subLangFilter, productCategoryFilter]);
+  }, [
+    orders,
+    subs,
+    profiles,
+    products,
+    categories,
+    activeTab,
+    search,
+    statusFilter,
+    customerFilter,
+    subStatusFilter,
+    subLangFilter,
+    productCategoryFilter,
+  ]);
 
   const copyFilteredEmails = () => {
     if (activeTab !== 'subs') return;
@@ -331,6 +371,14 @@ export default function AdminClient() {
             PRODUCTS
           </button>
           <button
+            onClick={() => setActiveTab('categories')}
+            className={`text-left p-2 ${
+              activeTab === 'categories' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            CATEGORIES
+          </button>
+          <button
             onClick={() => setActiveTab('subs')}
             className={`text-left p-2 ${
               activeTab === 'subs' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
@@ -359,7 +407,7 @@ export default function AdminClient() {
 
       <main className="flex-1 p-8">
         <div className="max-w-4xl">
-          {activeTab !== 'dashboard' && (
+          {activeTab !== 'dashboard' && activeTab !== 'categories' && (
             <div className="flex flex-col mb-8 gap-4">
               <div className="flex gap-4">
                 <input
@@ -404,7 +452,7 @@ export default function AdminClient() {
               {activeTab === 'products' && (
                 <div className="flex justify-between items-center w-full">
                   <div className="flex gap-2">
-                    {['ALL', 'tshirts', 'hoodies', 'shoppers'].map((c) => (
+                    {['ALL', ...categories.map((cat) => cat.id)].map((c) => (
                       <button
                         key={c}
                         onClick={() => setProductCategoryFilter(c)}
@@ -498,6 +546,9 @@ export default function AdminClient() {
               onStatusChange={updateProductStatus}
             />
           )}
+          {activeTab === 'categories' && (
+            <CategoriesTab categories={categories} onRefresh={fetchCategories} />
+          )}
           {activeTab === 'subs' && <SubscribersTab subs={filtered} copy={copy} deleteSub={deleteSub} />}
           {activeTab === 'customers' && (
             <CustomersTab
@@ -515,16 +566,17 @@ export default function AdminClient() {
         subscribers={filtered}
       />
       <ProductModal
-        isOpen={isProductModalOpen}
-        onClose={() => setIsProductModalOpen(false)}
-        editingProduct={editingProduct}
-        productForm={productForm}
-        setProductForm={setProductForm}
-        newColorVariant={newColorVariant}
-        setNewColorVariant={setNewColorVariant}
-        saveProduct={saveProduct}
-        productSaving={productSaving}
-      />
+  isOpen={isProductModalOpen}
+  onClose={() => setIsProductModalOpen(false)}
+  editingProduct={editingProduct}
+  productForm={productForm}
+  setProductForm={setProductForm}
+  newColorVariant={newColorVariant}
+  setNewColorVariant={setNewColorVariant}
+  saveProduct={saveProduct}
+  productSaving={productSaving}
+  categories={categories}
+/>
       <CustomerModal
         selectedProfile={selectedProfile}
         onClose={() => setSelectedProfile(null)}
