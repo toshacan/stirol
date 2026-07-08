@@ -1,8 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { useLang } from '@/components/LangContext';
 import { useCart } from '@/components/CartContext';
 import CommonLayout from '@/components/CommonLayout';
@@ -16,18 +15,12 @@ interface ProductClientProps {
 export default function ProductClient({ product, nextProduct, id }: ProductClientProps) {
   const { lang } = useLang();
   const { addToCart } = useCart();
-  const router = useRouter();
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isAdded, setIsAdded] = useState(false);
   
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
-
-  // Сброс кэша при открытии карточки товара
-  useEffect(() => {
-    router.refresh();
-  }, [router]);
 
   // Парсинг изображений
   const images = Array.isArray(product.images) 

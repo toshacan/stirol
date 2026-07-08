@@ -1,20 +1,13 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 
 export default function ShopClient({ initialProducts, initialCategories }: { initialProducts: any[], initialCategories: any[] }) {
   const { lang } = useLang(); 
-  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('all');
-  
-  // Автоматически обновляем данные роутера при монтировании, чтобы сбросить клиентский кэш
-  useEffect(() => {
-    router.refresh();
-  }, [router]);
 
   // УМНАЯ СОРТИРОВКА: Товары с позицией 1, 2, 3 идут в начало, а нули (0) отправляются в конец!
   const sortedProducts = [...initialProducts].sort((a, b) => {
