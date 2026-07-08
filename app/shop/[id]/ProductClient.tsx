@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // Импортируем роутер для плавного ухода с карточки
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLang } from '@/components/LangContext';
@@ -15,14 +16,36 @@ interface ProductClientProps {
 export default function ProductClient({ product, nextProduct, id }: ProductClientProps) {
   const { lang } = useLang();
   const { addToCart } = useCart();
+  const router = useRouter(); // Инициализируем роутер
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isAdded, setIsAdded] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false); // Состояние затухания страницы при клике НАЗАД или СЛЕДУЮЩИЙ
+  const [isMainImageLoaded, setIsMainImageLoaded] = useState(false);
   
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
 
-  // Парсинг изображений
+  useEffect(() => {
+    // Задержка фиксирует opacity-0 на старте для чистой и плавной анимации проявления
+    const timer = setTimeout(() => setIsMounted(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Перехватываем переходы по стрелкам/назад для эффекта плавного растворения страницы
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setIsLeaving(true);
+    setTimeout(() => {
+      router.push(href);
+    }, 600); // Эту цифру (время ожидания) меняй вместе с duration-600 в верстке ниже
+  };
+
+  useEffect(() => {
+    setIsMainImageLoaded(false);
+  }, [currentImageIndex]);
+
   const images = Array.isArray(product.images) 
     ? product.images 
     : (typeof product.images === 'string' ? product.images.split(',').map((s: string) => s.trim()) : []);
@@ -69,151 +92,169 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
 
   return (
     <CommonLayout>
-      <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 h-auto">
-        {/* Навигация */}
-        <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
-          <Link href="/shop" className="hover:opacity-50">
-            {labels[currentLang].back}
-          </Link>
-          
-          {nextProduct && nextProduct.id ? (
-            <Link href={`/shop/${nextProduct.id}`} className="hover:opacity-50">
-              {labels[currentLang].next}
+      {/* ЗДЕСЬ НАСТРОЙКА АНИМАЦИИ ВСЕЙ КАРТОЧКИ ТОВАРА (ТЕКСТ + БЛОКИ):
+        duration-600 — это скорость появления из пустоты и затухания страницы при клике на кнопки (600мс).
+        Хочешь медленнее — поставь duration-1000 и поменяй значение в handleNavigation выше на 1000.
+      */}
+      <div className={`transition-opacity duration-600 ease-in-out ${
+        isMounted && !isLeaving ? 'opacity-100' : 'opacity-0'
+      }`}>
+        <main className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 h-auto">
+          {/* Навигация */}
+          <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
+            <Link 
+              href="/shop" 
+              onClick={(e) => handleNavigation(e, '/shop')} // Перехватываем клик назад
+              className="hover:opacity-50"
+            >
+              {labels[currentLang].back}
             </Link>
-          ) : (
-            <span className="text-gray-300 cursor-default select-none">{labels[currentLang].next}</span> 
-          )}
-        </nav>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {/* Фото-блок */}
-          <div className="w-full aspect-square overflow-hidden bg-transparent relative">
-            {images.length > 0 && (
-              <Image
-                src={images[currentImageIndex]}
-                alt={displayTitle}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-                draggable={false}
-                className="object-cover transition-opacity duration-300"
-              />
-            )}
-          </div>
-
-          {/* Инфо-блок */}
-          <div className="flex flex-col w-full">
-            <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tighter leading-none">{displayTitle}</h1>
-            <p className="text-lg mt-3 font-bold">{product.price}</p>
             
-            {/* Описание */}
-            <div className="mt-6">
-              <p className="text-[11px] uppercase text-gray-700 leading-normal">{displayDescription}</p>
+            {nextProduct && nextProduct.id ? (
+              <Link 
+                href={`/shop/${nextProduct.id}`} 
+                onClick={(e) => handleNavigation(e, `/shop/${nextProduct.id}`)} // Перехватываем клик на следующий товар
+                className="hover:opacity-50"
+              >
+                {labels[currentLang].next}
+              </Link>
+            ) : (
+              <span className="text-gray-300 cursor-default select-none">{labels[currentLang].next}</span> 
+            )}
+          </nav>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            {/* Фото-блок */}
+            <div className="w-full aspect-square overflow-hidden bg-transparent relative">
+              {images.length > 0 && (
+                <Image
+                  src={images[currentImageIndex]}
+                  alt={displayTitle}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
+                  draggable={false}
+                  onLoad={() => setIsMainImageLoaded(true)}
+                  /* duration-700 — скорость, с которой главная фотография мягко проявляется 
+                    при первой загрузке или при переключении миниатюр.
+                  */
+                  className={`object-cover transition-opacity duration-700 ease-in-out ${
+                    isMainImageLoaded ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+              )}
             </div>
 
-            {/* Миниатюры */}
-            {images.length > 1 && (
-              <div className="flex gap-2 mt-6">
-                {images.map((img: string, idx: number) => (
-                  <button 
-                    key={idx}
-                    onClick={() => setCurrentImageIndex(idx)}
-                    className={`w-12 h-12 flex-shrink-0 border transition-all relative ${currentImageIndex === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}
-                  >
-                    <Image src={img} alt="" fill sizes="48px" className="object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Цвета */}
-            {/* Цвета */}
-            {colors.length > 0 && (
+            {/* Инфо-блок */}
+            <div className="flex flex-col w-full">
+              <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tighter leading-none">{displayTitle}</h1>
+              <p className="text-lg mt-3 font-bold">{product.price}</p>
+              
+              {/* Описание */}
               <div className="mt-6">
-                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectColor}</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                  {colors.map((variant: any) => {
-                    const cleanId = variant.id ? variant.id.trim() : '';
-                    const currentCleanId = id ? id.trim() : '';
-                    const isActive = cleanId === currentCleanId;
-
-                    return (
-                      <Link
-                        key={variant.id}
-                        href={`/shop/${cleanId}`}
-                        title={variant.name}
-                        aria-label={variant.name}
-                        style={{ display: 'inline-block', padding: isActive ? '3px' : '0px' }}
-                      >
-                        <span
-                          style={{
-                            display: 'block',
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            backgroundColor: variant.hex || '#cccccc',
-                            border: isActive ? '2px solid #000' : '1px solid rgba(0,0,0,0.2)',
-                            boxSizing: 'border-box',
-                            transition: 'border-color 0.15s, transform 0.15s',
-                          }}
-                        />
-                      </Link>
-                    );
-                  })}
-                </div>
+                <p className="text-[11px] uppercase text-gray-700 leading-normal">{displayDescription}</p>
               </div>
-            )}
 
-            {/* Размеры */}
-            {allVariants.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectSize}</h3>
-                <div className="grid grid-cols-4 gap-2">
-                  {allVariants.map((v: any, index: number) => {
-                    const isOutOfStock = Number(v.stock) <= 0;
-                    return (
-                      <button 
-                        key={`${v.size}-${index}`} 
-                        disabled={isOutOfStock} 
-                        onClick={() => setSelectedSize(v.size)} 
-                        className={`border py-3 text-[10px] font-bold uppercase transition-all
-                          ${isOutOfStock 
-                            ? 'border-neutral-200 bg-neutral-50 text-neutral-400 line-through opacity-30 cursor-not-allowed' 
-                            : selectedSize === v.size 
-                              ? 'bg-black text-white border-black' 
-                              : 'border-gray-200 text-black hover:border-black bg-white'
-                          }
-                        `}
-                      >
-                        {v.size}
-                      </button>
-                    );
-                  })}
+              {/* ... Весь остальной код кнопок, размеров и цветов полностью без изменений ... */}
+              {images.length > 1 && (
+                <div className="flex gap-2 mt-6">
+                  {images.map((img: string, idx: number) => (
+                    <button 
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      className={`w-12 h-12 flex-shrink-0 border transition-all relative ${currentImageIndex === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}
+                    >
+                      <Image src={img} alt="" fill sizes="48px" className="object-cover" />
+                    </button>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Кнопка купить */}
-            <button 
-              onClick={handleAddToCart} 
-              className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all duration-300 border transform active:scale-[0.99]
-                ${isTotalSoldOut ? 'bg-neutral-200 text-neutral-400 border-transparent cursor-not-allowed' : ''}
-                ${isSizeRequiredButMissing ? 'bg-neutral-100 text-neutral-500 border-neutral-300' : (isAdded ? activeButtonStyles : defaultButtonStyles)}
-              `} 
-              disabled={isTotalSoldOut || isAdded}
-            >
-              {isTotalSoldOut 
-                ? labels[currentLang].sold 
-                : isAdded 
-                  ? `✓ ${labels[currentLang].added}` 
-                  : isSizeRequiredButMissing 
-                    ? (currentLang === 'UA' ? 'ОБЕРІТЬ РОЗМІР' : 'SELECT SIZE') 
-                    : labels[currentLang].buy
-              }
-            </button>
+              {colors.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectColor}</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                    {colors.map((variant: any) => {
+                      const cleanId = variant.id ? variant.id.trim() : '';
+                      const currentCleanId = id ? id.trim() : '';
+                      const isActive = cleanId === currentCleanId;
+
+                      return (
+                        <Link
+                          key={variant.id}
+                          href={`/shop/${cleanId}`}
+                          title={variant.name}
+                          aria-label={variant.name}
+                          style={{ display: 'inline-block', padding: isActive ? '3px' : '0px' }}
+                        >
+                          <span
+                            style={{
+                              display: 'block',
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              backgroundColor: variant.hex || '#cccccc',
+                              border: isActive ? '2px solid #000' : '1px solid rgba(0,0,0,0.2)',
+                              boxSizing: 'border-box',
+                              transition: 'border-color 0.15s, transform 0.15s',
+                            }}
+                          />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {allVariants.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectSize}</h3>
+                  <div className="grid grid-cols-4 gap-2">
+                    {allVariants.map((v: any, index: number) => {
+                      const isOutOfStock = Number(v.stock) <= 0;
+                      return (
+                        <button 
+                          key={`${v.size}-${index}`} 
+                          disabled={isOutOfStock} 
+                          onClick={() => setSelectedSize(v.size)} 
+                          className={`border py-3 text-[10px] font-bold uppercase transition-all
+                            ${isOutOfStock 
+                              ? 'border-neutral-200 bg-neutral-50 text-neutral-400 line-through opacity-30 cursor-not-allowed' 
+                              : selectedSize === v.size 
+                                ? 'bg-black text-white border-black' 
+                                : 'border-gray-200 text-black hover:border-black bg-white'
+                            }
+                          `}
+                        >
+                          {v.size}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={handleAddToCart} 
+                className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all duration-300 border transform active:scale-[0.99]
+                  ${isTotalSoldOut ? 'bg-neutral-200 text-neutral-400 border-transparent cursor-not-allowed' : ''}
+                  ${isSizeRequiredButMissing ? 'bg-neutral-100 text-neutral-500 border-neutral-300' : (isAdded ? activeButtonStyles : defaultButtonStyles)}
+                `} 
+                disabled={isTotalSoldOut || isAdded}
+              >
+                {isTotalSoldOut 
+                  ? labels[currentLang].sold 
+                  : isAdded 
+                    ? `✓ ${labels[currentLang].added}` 
+                    : isSizeRequiredButMissing 
+                      ? (currentLang === 'UA' ? 'ОБЕРІТЬ РОЗМІР' : 'SELECT SIZE') 
+                      : labels[currentLang].buy
+                }
+              </button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </CommonLayout>
   );
 }

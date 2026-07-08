@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // Импортируем роутер для плавного перехода
 import Link from 'next/link';
 import Image from 'next/image';
 import CommonLayout from '@/components/CommonLayout';
@@ -7,7 +8,26 @@ import { useLang } from '@/components/LangContext';
 
 export default function ShopClient({ initialProducts, initialCategories }: { initialProducts: any[], initialCategories: any[] }) {
   const { lang } = useLang(); 
+  const router = useRouter(); // Инициализируем роутер
   const [activeCategory, setActiveCategory] = useState('all');
+  const [isMounted, setIsMounted] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false); // Состояние плавного затухания перед уходом
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    // Микрозадержка в 50мс заставляет браузер зафиксировать opacity-0, делая появление 진짜 плавным
+    const timer = setTimeout(() => setIsMounted(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Функция перехвата клика для анимации затухания (Fade-out)
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault(); // Останавливаем мгновенный переход Next.js
+    setIsLeaving(true);  // Включаем затухание (opacity-0)
+    setTimeout(() => {
+      router.push(href); // Переходим на страницу только после окончания анимации
+    }, 600); // Эту цифру (время ожидания) меняй вместе с duration-600 в верстке ниже
+  };
 
   // УМНАЯ СОРТИРОВКА: Товары с позицией 1, 2, 3 идут в начало, а нули (0) отправляются в конец!
   const sortedProducts = [...initialProducts].sort((a, b) => {
@@ -35,7 +55,14 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
 
   return (
     <CommonLayout>
-      <div className="w-full flex flex-col md:flex-row flex-grow mt-6 md:mt-10 gap-8 items-start mb-32 px-4 relative">
+      {/* ЗДЕСЬ НАСТРОЙКА АНИМАЦИИ СТРАНИЦЫ КАТАЛОГА:
+        duration-600 — это скорость появления и затухания всей страницы (600мс). 
+        Ты можешь менять её, например, на duration-1000 (1 секунда) или duration-300 (очень быстро).
+        Если меняешь эту цифру, меняй и задержку в функции handleNavigation выше!
+      */}
+      <div className={`w-full flex flex-col md:flex-row flex-grow mt-6 md:mt-10 gap-8 items-start mb-32 px-4 relative transition-opacity duration-600 ease-in-out ${
+        isMounted && !isLeaving ? 'opacity-100' : 'opacity-0'
+      }`}>
         
         <nav className="w-full md:w-48 flex flex-row md:flex-col flex-wrap gap-x-4 gap-y-1 text-[11px] uppercase tracking-wider text-left border-b md:border-b-0 pb-4 md:pb-0 border-gray-200 md:fixed md:top-[180px] z-10">
           <button 
@@ -59,13 +86,17 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
         <div className="flex-grow w-full md:pl-56">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10">
             {filteredProducts.map((product) => {
-              // Умная обработка: превращаем images в массив, если это вдруг строка
               const images = Array.isArray(product.images) 
                 ? product.images 
                 : (typeof product.images === 'string' ? product.images.split(',').map((s: string) => s.trim()) : []);
 
               return (
-                <Link key={product.id} href={`/shop/${product.id}`} className="flex flex-col space-y-2 group cursor-pointer">
+                <Link 
+                  key={product.id} 
+                  href={`/shop/${product.id}`} 
+                  onClick={(e) => handleNavigation(e, `/shop/${product.id}`)} // Перехватываем клик для плавного исчезновения
+                  className="flex flex-col space-y-2 group cursor-pointer"
+                >
                   
                   <div className="aspect-square bg-transparent flex items-center justify-center relative overflow-hidden border border-transparent group-hover:border-gray-200 transition-all duration-300">
                     {images.length > 0 && (
@@ -75,9 +106,11 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         draggable={false}
-                        className={`object-cover brightness-100 transition-opacity duration-300 ${
-                          images.length > 1 ? 'group-hover:opacity-0' : ''
-                        }`}
+                        onLoad={() => setLoadedImages(prev => ({ ...prev, [product.id]: true }))}
+                        /* duration-700 — скорость, с которой сами картинки мягко «выплывают» при первой загрузке сайта */
+                        className={`object-cover brightness-100 transition-opacity duration-700 ease-in-out ${
+                          loadedImages[product.id] ? 'opacity-100' : 'opacity-0'
+                        } ${images.length > 1 ? 'group-hover:opacity-0' : ''}`}
                       />
                     )}
 
