@@ -62,8 +62,6 @@ export async function POST(request: Request) {
     }
 
     // --- АТОМАРНОЕ СПИСАНИЕ СТОКА (ДО создания заказа) ---
-    // Идём по позициям заказа и резервируем сток одну за одной.
-    // Если на каком-то шаге не хватило — откатываем всё, что успели списать, и не создаём заказ.
     const reserved: { id: string; size: string; quantity: number }[] = [];
 
     for (const item of verifiedCartItems) {
@@ -75,7 +73,6 @@ export async function POST(request: Request) {
 
       if (rpcError) {
         console.error("💥 Stock RPC error:", rpcError);
-        // откатываем всё, что уже списали в этом запросе
         for (const r of reserved) {
           await supabaseAdmin.rpc('increment_variant_stock', {
             p_product_id: r.id,
@@ -87,7 +84,6 @@ export async function POST(request: Request) {
       }
 
       if (!success) {
-        // не хватило стока — откатываем всё, что уже списали в этом запросе
         for (const r of reserved) {
           await supabaseAdmin.rpc('increment_variant_stock', {
             p_product_id: r.id,
@@ -153,7 +149,6 @@ export async function POST(request: Request) {
       .select();
 
     if (dbError) {
-      // заказ не создался, а сток уже списан — откатываем, чтобы не потерять товар зря
       for (const r of reserved) {
         await supabaseAdmin.rpc('increment_variant_stock', {
           p_product_id: r.id,
@@ -165,7 +160,7 @@ export async function POST(request: Request) {
     }
     const orderId = orderData[0].id;
 
-    // --- ОБНОВЛЕНИЕ СТАТУСА ТОВАРА (soldout / ACTIVE) НА ОСНОВЕ АКТУАЛЬНОГО СТОКА ---
+    // --- ОБНОВЛЕНИЕ СТАТУСА ТОВАРА ---
     const uniqueProductIds = [...new Set(verifiedCartItems.map((i) => i.id))];
     for (const productId of uniqueProductIds) {
       const { data: currentVariants } = await supabaseAdmin
@@ -183,11 +178,80 @@ export async function POST(request: Request) {
 
     // --- EMAIL И TELEGRAM ---
     const isEn = lang === 'EN';
-    const htmlContent = `<div style="font-family: monospace; text-transform: uppercase; letter-spacing: 0.1em; color: #000; padding: 20px;">
-        <h2>${isEn ? 'STIROL — ORDER CONFIRMATION' : 'STIROL — ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ'}</h2>
-        <p>#${orderId}</p>
-        <p>${isEn ? 'TOTAL:' : 'РАЗОМ:'} ${verifiedTotal}€</p>
-      </div>`;
+    
+    // Генерация строк товаров для таблицы в письме
+    const itemsHtml = verifiedCartItems.map(item => `
+      <tr>
+        <td style="padding: 12px 0; border-bottom: 1px dashed #ccc;">
+          <div style="font-weight: bold; margin-bottom: 4px;">${item.title}</div>
+          <div style="color: #666; font-size: 12px;">SIZE: ${item.size}</div>
+        </td>
+        <td style="padding: 12px 0; border-bottom: 1px dashed #ccc; text-align: center;">x${item.quantity}</td>
+        <td style="padding: 12px 0; border-bottom: 1px dashed #ccc; text-align: right;">${item.unitPrice * item.quantity}€</td>
+      </tr>
+    `).join('');
+
+    // Обновленный индустриальный дизайн письма (чек/инвойс)
+    const htmlContent = `
+      <div style="max-width: 600px; margin: 0 auto; font-family: 'Courier New', Courier, monospace; text-transform: uppercase; letter-spacing: 0.05em; color: #000; padding: 40px 20px; background-color: #fff; border: 2px solid #000;">
+        
+        <!-- HEADER -->
+        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
+          <h1 style="margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 0.2em;">STIROL</h1>
+          <p style="margin: 8px 0 0 0; font-size: 12px; font-weight: bold;">
+            ${isEn ? 'ORDER CONFIRMATION' : 'ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ'}
+          </p>
+        </div>
+
+        <!-- INFO BLOCK -->
+        <div style="margin-bottom: 40px; font-size: 14px; line-height: 1.6;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding-bottom: 5px; width: 35%; color: #666;">${isEn ? 'ORDER NO.' : 'ЗАМОВЛЕННЯ №'}</td>
+              <td style="padding-bottom: 5px; font-weight: bold;">#${orderId}</td>
+            </tr>
+            <tr>
+              <td style="padding-bottom: 5px; color: #666;">${isEn ? 'CLIENT' : 'КЛІЄНТ'}</td>
+              <td style="padding-bottom: 5px;">${name}</td>
+            </tr>
+            <tr>
+              <td style="padding-bottom: 5px; color: #666;">${isEn ? 'DESTINATION' : 'ДОСТАВКА'}</td>
+              <td style="padding-bottom: 5px;">${address}, ${city}, ${zip}, ${country}</td>
+            </tr>
+            <tr>
+              <td style="padding-bottom: 5px; color: #666;">${isEn ? 'CONTACT' : 'ЗВ\'ЯЗОК'}</td>
+              <td style="padding-bottom: 5px;">${phone}</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- ITEMS TABLE -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
+          <thead>
+            <tr>
+              <th style="text-align: left; border-bottom: 2px solid #000; padding-bottom: 8px;">${isEn ? 'ITEM' : 'ТОВАР'}</th>
+              <th style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px;">${isEn ? 'QTY' : 'КІЛ-ТЬ'}</th>
+              <th style="text-align: right; border-bottom: 2px solid #000; padding-bottom: 8px;">${isEn ? 'PRICE' : 'ЦІНА'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+
+        <!-- TOTAL -->
+        <div style="text-align: right; font-size: 20px; font-weight: 900; border-top: 2px solid #000; padding-top: 20px; margin-bottom: 40px;">
+          ${isEn ? 'TOTAL' : 'РАЗОМ'}: ${verifiedTotal}€
+        </div>
+
+        <!-- FOOTER -->
+        <div style="text-align: center; font-size: 10px; color: #666; border-top: 1px solid #000; padding-top: 20px;">
+  
+          <p style="margin: 8px 0 0 0;">© ${new Date().getFullYear()} STIROL</p>
+        </div>
+
+      </div>
+    `;
 
     await resend.emails.send({
       from: 'STIROL <orders@stirol.xyz>',
@@ -196,7 +260,27 @@ export async function POST(request: Request) {
       html: htmlContent,
     });
 
-    const tgMessage = `STIROL — NEW ORDER #${orderId}\nCLIENT: ${name}\nEMAIL: ${email}\nTOTAL: ${verifiedTotal}€`;
+    // --- ФОРМИРОВАНИЕ НОВОГО СООБЩЕНИЯ В ТЕЛЕГРАМ ---
+    const tgItemsList = verifiedCartItems
+      .map(item => `• "${item.title}" [SIZE: ${item.size}] x${item.quantity} — ${item.unitPrice * item.quantity}€`)
+      .join('\n');
+
+    const tgMessage = `STIROL — NEW ORDER #${orderId} 
+----------------------------------
+CLIENT: ${name}
+PHONE: ${phone}
+EMAIL: ${email}
+LANG: ${lang}
+
+SHIPPING:
+${country}, ${city}
+${address}, ${zip}
+
+ITEMS:
+${tgItemsList}
+
+TOTAL QTY: ${totalQuantity}
+TOTAL: ${verifiedTotal}€`;
 
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
