@@ -15,13 +15,13 @@ export default function AboutClient() {
   const manifest: Record<'EN' | 'UA', ContentBlock> = {
     EN: {
       title: 'ABOUT',
-      p1: 'STIROL IS AN INDEPENDENT CLOTHING IMPRINT FOUNDED IN 2012 BY SKATEBOARDERS WITHIN THE INDUSTRIAL LANDSCAPES OF THE UKRAINIAN DONBAS (Horlivka). THE PROJECT MERGES THE RAW ESTHETICS OF HEAVY INDUSTRY WITH UNDERGROUND SUBSTREET CULTURES.',
-      p2: 'OUR DNA WAS FORMED AT THE INTERSECTION OF RAW BLACK METAL, THE UNCOMPROMISING SPIRIT OF PUNK ROCK AND OLD SCHOOL HIP-HOP, HARDCORE STREET SKATEBOARDING FILMED ON OLD VIDEO CAMERAS. WE DON’T FOLLOW TRENDS; WE RECORD THE ESTHETICS OF THE CONCRETE AGE.'
+      p1: 'STIROL — INDEPENDENT CLOTHING IMPRINT, STARTED IN 2012 BY SKATEBOARDERS IN HORLIVKA, DONBAS. INDUSTRIAL LANDSCAPES, BROKEN CONCRETE, UNDERGROUND STREET CULTURE — THATS WHERE THIS COMES FROM.',
+      p2: 'RAW BLACK METAL. PUNK THAT DOESNT ASK PERMISSION. OLD SCHOOL HIP-HOP. STREET SKATING SHOT ON DYING VHS CAMERAS. NO TRENDS. JUST THE CONCRETE AGE, RECORDED AS IT IS.'
     },
     UA: {
       title: 'ПРО БРЕНД',
-      p1: 'STIROL — ЦЕ NEЗАЛЕЖНИЙ БРЕНД ОДЯГУ, ЗАСНОВАНИЙ У 2012 РОЦІ СКЕЙТБОРДИСТАМИ СЕРЕД ІНДУСТРІАЛЬНИХ ЛАНДШАФТІВ УКРАЇНСЬКОГО ДОНБАСУ (ГОРЛІВКА). ПРОЄКТ ОБ’ЄДНУЄ СИРУ ЕСТЕТИКУ ВАЖКОЇ ПРОМИСЛОВОСТІ ТА АНДЕГРАУНДНИХ ВУЛИЧНИХ КУЛЬТУР.',
-      p2: 'НАШЕ ДНК СФОРМУВАЛОСЯ НА ПЕРЕТИНІ СИРОГО БЛЕК-МЕТАЛУ, БЕЗКОМПРОМІСНОГО ДУХУ ПАНК-РОКУ, ОЛДСКУЛЬНОГО ХІП-ХОПУ ТА ЖОРСТКОГО СТРІТ-СКЕЙТБОРДИНГУ, ЗНЯТОГО НА СТАРІ ВІДЕОКАМЕРИ. МИ НЕ СЛІДУЄМО ТРЕНДАМ — МИ ДОКУМЕНТУЄМО ЕСТЕТИКУ БЕТОННОЇ ЕПОХИ.'
+      p1: 'STIROL — НЕЗАЛЕЖНИЙ ОДЯГОВИЙ ІМПРИНТ, ЗАПОЧАТКОВАНИЙ У 2012 РОЦІ СКЕЙТБОРДИСТАМИ В ГОРЛІВЦІ, ДОНБАС. ІНДУСТРІАЛЬНІ ЛАНДШАФТИ, РОЗБИТИЙ БЕТОН, АНДЕГРАУНДНА ВУЛИЧНА КУЛЬТУРА — ОСЬ ЗВІДКИ ЦЕ ВСЕ ПІШЛО.',
+      p2: 'СИРИЙ BLACK METAL. ПАНК, ЯКИЙ НЕ ПИТАЄ ДОЗВОЛУ. OLD SCHOOL HIP-HOP. ВУЛИЧНИЙ СКЕЙТИНГ, ЗНЯТИЙ НА ВМИРАЮЧІ VHS-КАМЕРИ. ЖОДНИХ ТРЕНДІВ. ТІЛЬКИ ЕПОХА БЕТОНУ, ЗАФІКСОВАНА ТАКОЮ, ЯКОЮ ВОНА Є.'
     }
   };
 
