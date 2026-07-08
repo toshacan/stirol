@@ -11,8 +11,8 @@ export default function VideosClient() {
   const currentLang = lang as 'EN' | 'UA';
 
   const menuFilters = {
-    EN: [{ id: 'all', label: 'all' }, { id: 'skate', label: 'skate' }, { id: 'promo', label: 'promo' }],
-    UA: [{ id: 'all', label: 'всі' }, { id: 'skate', label: 'скейт' }, { id: 'promo', label: 'промо' }]
+    EN: [{ id: 'all', label: 'all' }, { id: 'skate', label: 'skate' }, { id: 'promo', label: 'promo' }, { id: 'bmx-mtb', label: 'bmx/mtb' }, { id: 'roots', label: 'roots' }],
+    UA: [{ id: 'all', label: 'всі' }, { id: 'skate', label: 'скейт' }, { id: 'promo', label: 'промо' }, { id: 'bmx-mtb', label: 'bmx/mtb' }, { id: 'bmx-mtb', label: 'коріння' }]
   };
 
   return (

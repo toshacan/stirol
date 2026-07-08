@@ -16,9 +16,36 @@ export interface VideoItem {
 
 export const VIDEOS: VideoItem[] = [
   {
-    id: 'gorlovka-days',
+    id: 'ugliness',
     category: 'skate',
-    title: '"GORLOVKA DAYS"',
+    title: '"UGLINESS"',
+    meta: 'SKATE ARCHIVE / 00:59',
+    // Теперь указываем прямую универсальную ссылку Wistia
+    cover: 'https://fast.wistia.com/embed/medias/v5gqmtkqb8/swatch',
+    isComingSoon: false,
+    wistiaId: 'v5gqmtkqb8', 
+    hasCustomMargin: false,
+    titleText: {
+      EN: '"UGLINESS"',
+      UA: '"UGLINESS"'
+    },
+    metaText: {
+      EN: 'CONCEPT & ANIMATION BY STIROL',
+      UA: 'ІДЕЯ ТА АНІМАЦІЯ ВІД STIROL'
+    },
+    specs: {
+      EN: '',
+      UA: ''
+    },
+    description: {
+      EN: 'A raw, unfiltered testament to movement in a static world. Shot entirely on the streets of occupied Horlivka, Ugliness blends crisp digital reality with gritty VHS aesthetics to capture the restless pulse of the underground. This isnt just a skate tape; its a visual excision of the ordinary. Navigating brutalist architecture, empty public transport, and decaying concrete, the video highlights the harsh contrast between a city frozen in time and the relentless energy of youth pushing forward. Find freedom in the grey. Make noise in the silence.',
+      UA: 'Сирий, нефільтрований доказ руху в статичному світі. Знятий на вулицях окупованої Горлівки, Ugliness поєднує чітку цифрову реальність із брудною VHS-естетикою, щоб передати неспокійний пульс андеграунду. Це не просто скейт-відео; це візуальне висічення буденності. Рухаючись крізь бруталістську архітектуру, порожній громадський транспорт та побитий бетон.'
+    }
+  },
+  {
+    id: 'sscrew',
+    category: 'skate',
+    title: '"Stirol Skateboarding"',
     meta: 'SKATE ARCHIVE / 04:15',
     cover: 'https://img.youtube.com/vi/p67mBwbgjyg/maxresdefault.jpg',
     isComingSoon: false,
@@ -203,6 +230,58 @@ export const VIDEOS: VideoItem[] = [
     description: {
       EN: 'An uncompromising post-industrial manifestation of order destruction. Merging low-fi documentary aesthetics, dark metal artwork, and high-intensity motion graphics.',
       UA: 'Безкомпромісний постіндустріальний маніфест руйнування порядку. Злиття лоу-фай документальної естетики, темної метал-графіки та інтенсивного моушн-дизайну.'
+    }
+  },
+  {
+    id: 'rustam-riding',
+    category: 'bmx-mtb',
+    title: '"RUSTAM IS RIDING"',
+    meta: 'BMX ARCHIVE / 01:23',
+    cover: 'https://img.youtube.com/vi/NAIl6qK-tkw/hqdefault.jpg',
+    isComingSoon: false,
+    youtubeId: 'NAIl6qK-tkw',
+    hasCustomMargin: false,
+    titleText: {
+        EN: '"RUSTAM IS RIDING"',
+        UA: '"РУСТАМ КАТАЄТЬСЯ"'
+    },
+    metaText: {
+      EN: 'OLD BMX STIROL BMX ARCHOVE',
+      UA: 'BMX АРХІВ STIROL'
+    },
+    specs: {
+      EN: '',
+      UA: ''
+    },
+    description: {
+      EN: 'A classic street edit. Fisheye, heavy bails, fast punk rock, and local spots. It’s not about perfect conditions; it’s about pushing through the pain to get the clip.',
+      UA: 'Класичний стріт-едіт. Фішай, жорсткі падіння, швидкий панк-рок і локальні споти. Жодних ідеальних умов — лише біль, спроби та врешті-решт взятий трюк.'
+    }
+  },
+  {
+    id: 'rustam-classic',
+    category: 'bmx-mtb',
+    title: '"CLASSIC PART"',
+    meta: 'BMX ARCHIVE / 01:23',
+    cover: 'https://img.youtube.com/vi/m2JVF6ztF14/hqdefault.jpg',
+    isComingSoon: false,
+    youtubeId: 'm2JVF6ztF14',
+    hasCustomMargin: false,
+    titleText: {
+        EN: '"CLASSIC PART"',
+        UA: '"CLASSIC PART"'
+    },
+    metaText: {
+      EN: 'OLDSCHOOL BMX PART',
+      UA: 'OLDSCHOOL BMX PART'
+    },
+    specs: {
+      EN: '',
+      UA: ''
+    },
+    description: {
+      EN: 'A tribute to the golden era of street riding. Shot entirely through a classic fisheye lens, this edit captures the pure, unfiltered momentum of BMX and MTB in a concrete playground.',
+      UA: 'Данина поваги золотій ері вуличного катання. Знятий повністю через класичний обєктив fisheye, цей едіт передає чисту, нефільтровану інерцію BMX та MTB у бетонних джунглях.'
     }
   },
   

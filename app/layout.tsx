@@ -1,23 +1,47 @@
-'use client'; // Добавляем директиву, чтобы использовать useEffect
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css"; 
+import "./globals.css";
 import { LangProvider } from '@/components/LangContext';
 import { CartProvider } from '@/components/CartContext';
+import ScrollToTop from '@/components/ScrollToTop';
 
-// ... импорты шрифтов остаются прежними ...
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-// Маленький компонент для сброса скролла
-function ScrollToTop() {
-  const pathname = usePathname();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-  return null;
-}
+export const metadata: Metadata = {
+  metadataBase: new URL('https://stirol.xyz'),
+  title: {
+    default: 'STIROL',
+    template: '%s — STIROL',
+  },
+  description: 'STIROL — independent clothing brand. Shop, lookbook, news and media.',
+  openGraph: {
+    title: 'STIROL',
+    description: 'STIROL — independent clothing brand. Shop, lookbook, news and media.',
+    url: 'https://stirol.xyz',
+    siteName: 'STIROL',
+    images: [
+      {
+        url: '/logo-heavy.png',
+        width: 1200,
+        height: 630,
+        alt: 'STIROL',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'STIROL',
+    description: 'STIROL — independent clothing brand. Shop, lookbook, news and media.',
+    images: ['/logo-heavy.png'],
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -25,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans min-h-[100dvh] flex flex-col">
         <CartProvider>
           <LangProvider>
-            <ScrollToTop /> {/* Вставляем сюда */}
+            <ScrollToTop />
             <main className="flex-grow w-full">
               {children}
             </main>

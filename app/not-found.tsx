@@ -3,12 +3,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function NotFound() {
-  const [lang, setLang] = useState<'EN' | 'UA'>('EN');
+  const [lang] = useState<'EN' | 'UA'>('EN');
   const [time, setTime] = useState('00:00:00');
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('stirol_lang') as 'EN' | 'UA';
-    if (savedLang) setLang(savedLang);
     const interval = setInterval(() => {
       setTime(new Date().toTimeString().split(' ')[0]);
     }, 1000);
@@ -46,16 +44,11 @@ export default function NotFound() {
       <div className="absolute bottom-6 left-6 w-8 h-8 md:w-12 md:h-12 border-b border-l border-gray-600 z-10" />
       <div className="absolute bottom-6 right-6 w-8 h-8 md:w-12 md:h-12 border-b border-r border-gray-600 z-10" />
 
-      {/* Верхняя строка: REC-стиль сигнал + время, как на главной */}
+      {/* Верхняя строка: REC-стиль сигнал + время, как на главной. Без переключателя языка */}
       <header className="w-full flex justify-between items-center text-[10px] md:text-[11px] tracking-widest uppercase z-10 text-gray-500 relative">
         <div className="flex items-center space-x-2 text-[#f0f0f0]">
           <span className="text-red-600 font-bold animate-pulse">●</span>
           <span>{t.signal}</span>
-        </div>
-        <div className="flex space-x-2 text-[12px] md:text-[13px] tracking-normal font-bold">
-          <button onClick={() => { setLang('EN'); localStorage.setItem('stirol_lang', 'EN'); }} className={`hover:text-white ${lang === 'EN' ? 'text-white underline' : 'text-gray-600'}`}>EN</button>
-          <span className="text-gray-700">/</span>
-          <button onClick={() => { setLang('UA'); localStorage.setItem('stirol_lang', 'UA'); }} className={`hover:text-white ${lang === 'UA' ? 'text-white underline' : 'text-gray-600'}`}>UA</button>
         </div>
         <div className="text-[#f0f0f0]">{time}</div>
       </header>
