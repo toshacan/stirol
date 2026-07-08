@@ -14,10 +14,10 @@ export const metadata: Metadata = {
     default: 'STIROL',
     template: '%s — STIROL',
   },
-  description: 'STIROL — independent clothing brand. Shop, lookbook, news and media.',
+  description: 'STIROL — official website.',
   openGraph: {
     title: 'STIROL',
-    description: 'STIROL — independent clothing brand. Shop, lookbook, news and media.',
+    description: 'STIROL — official website.',
     url: 'https://stirol.xyz',
     siteName: 'STIROL',
     images: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'STIROL',
-    description: 'STIROL — independent clothing brand. Shop, lookbook, news and media.',
+    description: 'STIROL — official website.',
     images: ['/logo-heavy.png'],
   },
   icons: {
