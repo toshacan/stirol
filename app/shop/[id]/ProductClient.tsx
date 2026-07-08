@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useLang } from '@/components/LangContext';
 import { useCart } from '@/components/CartContext';
@@ -93,13 +94,16 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {/* Фото-блок */}
-          <div className="w-full aspect-square overflow-hidden bg-transparent">
+          <div className="w-full aspect-square overflow-hidden bg-transparent relative">
             {images.length > 0 && (
-              <img 
-                src={images[currentImageIndex]} 
-                alt={displayTitle} 
-                draggable="false" 
-                className="w-full h-full object-cover transition-opacity duration-300" 
+              <Image
+                src={images[currentImageIndex]}
+                alt={displayTitle}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+                draggable={false}
+                className="object-cover transition-opacity duration-300"
               />
             )}
           </div>
@@ -121,9 +125,9 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
                   <button 
                     key={idx}
                     onClick={() => setCurrentImageIndex(idx)}
-                    className={`w-12 h-12 flex-shrink-0 border transition-all ${currentImageIndex === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}
+                    className={`w-12 h-12 flex-shrink-0 border transition-all relative ${currentImageIndex === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}
                   >
-                    <img src={img} className="w-full h-full object-cover" />
+                    <Image src={img} alt="" fill sizes="48px" className="object-cover" />
                   </button>
                 ))}
               </div>

@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 interface ProductsTabProps {
   products: any[];
@@ -23,8 +24,8 @@ export function ProductsTab({ products, onEdit, onDelete, onStatusChange }: Prod
           >
             <div className="flex gap-4 items-start md:items-center w-full md:w-auto">
               {imgUrl && (
-                <div className="w-16 h-16 bg-[#222] border border-[#333] overflow-hidden flex-shrink-0">
-                  <img src={imgUrl} alt={p.title} className="w-full h-full object-cover" />
+                <div className="w-16 h-16 bg-[#222] border border-[#333] overflow-hidden flex-shrink-0 relative">
+                  <Image src={imgUrl} alt={p.title} fill sizes="64px" className="object-cover" />
                 </div>
               )}
               <div className="flex-1 min-w-0">

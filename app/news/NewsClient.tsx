@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import { MAGAZINE_POSTS } from '@/app/data/news';
@@ -62,8 +63,10 @@ export default function NewsClient() {
         )}
 
         <main className="w-full flex flex-col md:flex-row gap-12 items-start justify-center px-6 md:px-12 py-6">
-          <div className="w-full md:w-[50%]">
-             <img src={currentPageData?.image} alt="" className="w-full h-auto object-contain select-none" />
+          <div className="w-full md:w-[50%] relative aspect-[4/3]">
+             {currentPageData?.image && (
+               <Image src={currentPageData.image} alt="" fill sizes="(max-width: 768px) 100vw, 50vw" draggable={false} className="object-contain select-none" />
+             )}
           </div>
           
           <div className="w-full md:w-[50%] flex flex-col justify-start items-start">
@@ -135,8 +138,8 @@ export default function NewsClient() {
                 }}
                 className="cursor-pointer group"
               >
-                <div className="aspect-[3/4] overflow-hidden mb-4">
-                  <img src={post.pages[0].image} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="aspect-[3/4] overflow-hidden mb-4 relative">
+                  <Image src={post.pages[0].image} alt="" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 </div>
                 <div className="text-[9px] uppercase font-bold tracking-widest">{post.title[currentLang]}</div>
                 <div className="text-[8px] uppercase text-gray-400 mt-1">#{post.tag}</div>

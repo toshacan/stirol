@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link'; 
+import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
@@ -75,22 +76,26 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
                   
                   <div className="aspect-square bg-transparent flex items-center justify-center relative overflow-hidden border border-transparent group-hover:border-gray-200 transition-all duration-300">
                     {images.length > 0 && (
-                      <img 
-                        src={images[0]} 
-                        alt={product.title} 
-                        draggable="false" 
-                        className={`w-full h-full object-cover brightness-100 transition-opacity duration-300 ${
+                      <Image
+                        src={images[0]}
+                        alt={product.title}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        draggable={false}
+                        className={`object-cover brightness-100 transition-opacity duration-300 ${
                           images.length > 1 ? 'group-hover:opacity-0' : ''
-                        }`} 
+                        }`}
                       />
                     )}
 
                     {images.length > 1 && (
-                      <img 
-                        src={images[1]} 
-                        alt={`${product.title} back`} 
-                        draggable="false" 
-                        className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                      <Image
+                        src={images[1]}
+                        alt={`${product.title} back`}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        draggable={false}
+                        className="absolute inset-0 object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       />
                     )}
                     

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import { LOOKBOOK_PRODUCTS } from '@/app/data/lookbook';
@@ -67,11 +68,14 @@ export default function LookbookClient() {
         {/* ЛЕВАЯ ЧАСТЬ: ФОТО */}
         <div className="w-full md:w-[68%] flex flex-col gap-4">
           <div className="w-full aspect-[4/3] relative group flex items-center justify-center overflow-hidden bg-gray-50">
-            <img 
-              src={currentProduct.images[activeImgIdx]} 
-              alt={currentProduct.title[currentLang]} 
-              draggable="false"
-              className="w-full h-full object-cover select-none pointer-events-none"
+            <Image
+              src={currentProduct.images[activeImgIdx]}
+              alt={currentProduct.title[currentLang]}
+              fill
+              sizes="(max-width: 768px) 100vw, 68vw"
+              priority
+              draggable={false}
+              className="object-cover select-none pointer-events-none"
             />
             {/* Стрелки переключения фото */}
             <button onClick={() => setActiveImgIdx((p) => (p - 1 + currentProduct.images.length) % currentProduct.images.length)} className="absolute left-0 top-0 bottom-0 w-1/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-start pl-4 text-white text-3xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">←</button>
@@ -98,8 +102,8 @@ export default function LookbookClient() {
           <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-black mb-4">LOOKBOOK FW26</div>
           <div className="grid grid-cols-4 gap-2 w-full">
             {LOOKBOOK_PRODUCTS.map((product, idx) => (
-              <button key={product.id} onClick={() => { setActiveProductIdx(idx); setActiveImgIdx(0); }} className={`aspect-square bg-white border overflow-hidden p-0.5 transition-all ${activeProductIdx === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}>
-                <img src={product.images[0]} alt={product.title[currentLang]} draggable="false" className="w-full h-full object-cover select-none" />
+              <button key={product.id} onClick={() => { setActiveProductIdx(idx); setActiveImgIdx(0); }} className={`aspect-square bg-white border overflow-hidden p-0.5 relative transition-all ${activeProductIdx === idx ? 'border-black' : 'border-gray-200 hover:border-gray-400'}`}>
+                <Image src={product.images[0]} alt={product.title[currentLang]} fill sizes="120px" draggable={false} className="object-cover select-none" />
               </button>
             ))}
           </div>

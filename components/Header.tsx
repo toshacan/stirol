@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLang } from './LangContext';
@@ -57,7 +58,7 @@ export default function Header() {
         {/* CENTER: Logo (Inverted) */}
         <div className="flex-shrink-0 mx-4">
           <Link href="/shop" className="block w-23 md:w-32 h-8 relative hover:opacity-80 transition-opacity">
-            <img src="/logo-heavy.png" alt="STIROL" className="w-full h-full object-contain invert" />
+            <Image src="/logo-heavy.png" alt="STIROL" fill sizes="128px" className="object-contain invert" priority />
           </Link>
         </div>
 
