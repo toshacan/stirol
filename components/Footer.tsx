@@ -31,7 +31,7 @@ export default function Footer() {
   }, [isOpen]);
 
   const translations: Record<string, Record<LangType, string>> = {
-    '/news': { EN: 'NEWS', UA: 'НОВИНИ' },
+    '/news': { EN: 'MAGAZINE', UA: 'ЗІН' },
     '/lookbook': { EN: 'LOOKBOOK 2026', UA: 'ЛУКБУК 2026' },
     '/shop': { EN: 'SHOP', UA: 'МАГАЗИН' },
     '/contact': { EN: 'CONTACT', UA: 'КОНТАКТИ' },
