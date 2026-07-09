@@ -5,9 +5,17 @@ import { usePathname } from 'next/navigation';
 export default function ScrollToTop() {
   const pathname = usePathname();
 
+  // Отключаем встроенное восстановление скролла браузера — оно может
+  // "переигрывать" наш ручной сброс на некоторых мобильных браузерах (Chrome iOS и т.п.)
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
   useEffect(() => {
     const resetScroll = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
 
@@ -19,11 +27,16 @@ export default function ScrollToTop() {
     };
 
     // Двойной requestAnimationFrame: ждём, пока браузер реально отрисует
-    // новую страницу, прежде чем сбрасывать скролл. На мобильных (особенно iOS)
-    // scrollTo, вызванный слишком рано, может быть "переигран" самим браузером.
+    // новую страницу, прежде чем сбрасывать скролл.
     requestAnimationFrame(() => {
       requestAnimationFrame(resetScroll);
     });
+
+    // Подстраховка: некоторым мобильным браузерам (особенно Chrome iOS)
+    // двух кадров анимации недостаточно — досбрасываем ещё раз чуть позже
+    const fallbackTimer = setTimeout(resetScroll, 150);
+
+    return () => clearTimeout(fallbackTimer);
   }, [pathname]);
 
   return null;
