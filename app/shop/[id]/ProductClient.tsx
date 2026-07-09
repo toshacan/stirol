@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // Импортируем роутер для плавного ухода с карточки
+import { useRouter } from 'next/navigation'; 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLang } from '@/components/LangContext';
@@ -16,35 +16,35 @@ interface ProductClientProps {
 export default function ProductClient({ product, nextProduct, id }: ProductClientProps) {
   const { lang } = useLang();
   const { addToCart } = useCart();
-  const router = useRouter(); // Инициализируем роутер
+  const router = useRouter(); 
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isAdded, setIsAdded] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isLeaving, setIsLeaving] = useState(false); // Состояние затухания страницы при клике НАЗАД или СЛЕДУЮЩИЙ
-  const [isMainImageLoaded, setIsMainImageLoaded] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false); 
   
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
 
   useEffect(() => {
-    // Задержка фиксирует opacity-0 на старте для чистой и плавной анимации проявления
     const timer = setTimeout(() => setIsMounted(true), 50);
     return () => clearTimeout(timer);
   }, []);
 
-  // Перехватываем переходы по стрелкам/назад для эффекта плавного растворения страницы
   const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setIsLeaving(true);
     setTimeout(() => {
       router.push(href);
-    }, 600); // Эту цифру (время ожидания) меняй вместе с duration-600 в верстке ниже
+    }, 600); 
   };
 
+  // Жесткий сброс индексов и триггеров при смене ID (цвета товара)
   useEffect(() => {
-    setIsMainImageLoaded(false);
-  }, [currentImageIndex]);
+    setCurrentImageIndex(0);
+    setSelectedSize(null);
+    setIsLeaving(false); 
+  }, [id]);
 
   const images = Array.isArray(product.images) 
     ? product.images 
@@ -92,10 +92,6 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
 
   return (
     <CommonLayout>
-      {/* ЗДЕСЬ НАСТРОЙКА АНИМАЦИИ ВСЕЙ КАРТОЧКИ ТОВАРА (ТЕКСТ + БЛОКИ):
-        duration-600 — это скорость появления из пустоты и затухания страницы при клике на кнопки (600мс).
-        Хочешь медленнее — поставь duration-1000 и поменяй значение в handleNavigation выше на 1000.
-      */}
       <div className={`transition-opacity duration-600 ease-in-out ${
         isMounted && !isLeaving ? 'opacity-100' : 'opacity-0'
       }`}>
@@ -104,7 +100,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
           <nav className="flex justify-between items-center mb-8 uppercase text-[10px] tracking-widest font-bold">
             <Link 
               href="/shop" 
-              onClick={(e) => handleNavigation(e, '/shop')} // Перехватываем клик назад
+              onClick={(e) => handleNavigation(e, '/shop')} 
               className="hover:opacity-50"
             >
               {labels[currentLang].back}
@@ -113,7 +109,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
             {nextProduct && nextProduct.id ? (
               <Link 
                 href={`/shop/${nextProduct.id}`} 
-                onClick={(e) => handleNavigation(e, `/shop/${nextProduct.id}`)} // Перехватываем клик на следующий товар
+                onClick={(e) => handleNavigation(e, `/shop/${nextProduct.id}`)} 
                 className="hover:opacity-50"
               >
                 {labels[currentLang].next}
@@ -128,19 +124,16 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
             <div className="w-full aspect-square overflow-hidden bg-transparent relative">
               {images.length > 0 && (
                 <Image
+                  // Уникальный ключ гарантирует, что Next.js мгновенно подменит дескриптор картинки
+                  key={`${id}-${currentImageIndex}`} 
                   src={images[currentImageIndex]}
                   alt={displayTitle}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                   draggable={false}
-                  onLoad={() => setIsMainImageLoaded(true)}
-                  /* duration-700 — скорость, с которой главная фотография мягко проявляется 
-                    при первой загрузке или при переключении миниатюр.
-                  */
-                  className={`object-cover transition-opacity duration-700 ease-in-out ${
-                    isMainImageLoaded ? 'opacity-100' : 'opacity-0'
-                  }`}
+                  // МЫ ПОЛНОСТЬЮ УБРАЛИ КОВАРНЫЙ OPACITY-0. Картинка теперь железно видима всегда.
+                  className="object-cover"
                 />
               )}
             </div>
@@ -155,7 +148,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
                 <p className="text-[11px] uppercase text-gray-700 leading-normal">{displayDescription}</p>
               </div>
 
-              {/* ... Весь остальной код кнопок, размеров и цветов полностью без изменений ... */}
+              {/* Миниатюры */}
               {images.length > 1 && (
                 <div className="flex gap-2 mt-6">
                   {images.map((img: string, idx: number) => (
@@ -170,6 +163,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
                 </div>
               )}
 
+              {/* Цвета */}
               {colors.length > 0 && (
                 <div className="mt-6">
                   <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectColor}</h3>
@@ -183,6 +177,9 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
                         <Link
                           key={variant.id}
                           href={`/shop/${cleanId}`}
+                          onClick={(e) => {
+                            if (!isActive) handleNavigation(e, `/shop/${cleanId}`);
+                          }}
                           title={variant.name}
                           aria-label={variant.name}
                           style={{ display: 'inline-block', padding: isActive ? '3px' : '0px' }}
@@ -206,6 +203,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
                 </div>
               )}
 
+              {/* Размеры */}
               {allVariants.length > 0 && (
                 <div className="mt-6">
                   <h3 className="text-[9px] font-bold uppercase text-gray-400 mb-2.5">{labels[currentLang].selectSize}</h3>
@@ -234,6 +232,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
                 </div>
               )}
 
+              {/* Кнопка купить */}
               <button 
                 onClick={handleAddToCart} 
                 className={`mt-10 w-full py-4 uppercase font-bold text-[10px] tracking-widest transition-all duration-300 border transform active:scale-[0.99]
