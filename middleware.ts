@@ -6,10 +6,10 @@ const PUBLIC_API_ROUTES = [
   '/api/get-products',
   '/api/get-categories',
   '/api/get-cart-prices',
-  '/api/orders',
+  '/api/orders',      // Создание заказа клиентом (POST) - должно быть публичным
   '/api/subscribe',
   '/api/send-email',
-  '/api/login',
+  '/api/login',       // Логин в админку
 ];
 
 export function middleware(request: NextRequest) {
@@ -39,3 +39,13 @@ export function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
+
+// ОПТИМИЗАЦИЯ ПРОИЗВОДИТЕЛЬНОСТИ
+// Указываем Next.js, на каких путях вообще нужно запускать этот файл.
+// Теперь middleware не будет тормозить загрузку картинок, стилей и скриптов.
+export const config = {
+  matcher: [
+    '/super-panel/:path*', // Срабатывает на страницах админки
+    '/api/:path*',         // Срабатывает на всех API роутах
+  ],
+};
