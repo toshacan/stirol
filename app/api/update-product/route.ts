@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: Request) {
   try {
@@ -74,6 +75,10 @@ export async function POST(request: Request) {
         await supabaseAdmin.from('product_variants').insert(variantsToInsert);
       }
     }
+
+    revalidatePath('/api/get-products');
+    revalidatePath('/shop');
+    revalidatePath(`/shop/${id}`);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

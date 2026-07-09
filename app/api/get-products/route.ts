@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// Эти две строки — ключ к тому, чтобы данные обновлялись мгновенно (без задержек кэша)
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
+// Кэшируем на 60 секунд — админка не заходит сюда чаще, а свежие правки
+// из add/update/delete-product сбрасывают кэш немедленно через revalidatePath
+export const revalidate = 60;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

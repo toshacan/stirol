@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server';
 const PUBLIC_API_ROUTES = [
   '/api/get-products',
   '/api/get-categories',
+  '/api/get-cart-prices',
   '/api/orders',
   '/api/subscribe',
   '/api/send-email',

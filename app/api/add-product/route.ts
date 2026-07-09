@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -73,6 +74,9 @@ export async function POST(req: Request) {
         console.error('Ошибка сохранения размеров:', variantsError.message);
       }
     }
+
+    revalidatePath('/api/get-products');
+    revalidatePath('/shop');
 
     return NextResponse.json({ success: true, data: productData });
   } catch (err: any) {

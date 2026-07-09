@@ -1,10 +1,11 @@
 import ShopClient from './ShopClient';
 import { createClient } from '@supabase/supabase-js';
 
-// ВОТ ОНИ — ДВЕ СТРОЧКИ, КОТОРЫЕ УБИВАЮТ КЭШ НА VERCEL:
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
+// Кэшируем на 60 секунд вместо полного отключения кэша.
+// Свежие правки из админки (add/update/delete-product, add/update/delete-category)
+// сбрасывают кэш немедленно через revalidatePath — так что задержка ощущается
+// только если кто-то поменял товар в обход админки напрямую в Supabase.
+export const revalidate = 60;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
