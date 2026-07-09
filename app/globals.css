@@ -33,3 +33,11 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Отключаем "scroll anchoring" — фичу мобильных браузеров, которая пытается
+   сама сохранить позицию скролла при смене контента и мешает scrollTo(0,0)
+   срабатывать при переходе между страницами */
+html,
+body {
+  overflow-anchor: none;
+}
