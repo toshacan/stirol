@@ -75,16 +75,8 @@ export function ProductModal({
     setTempStock('0'); 
   }; 
 
-  const handleSaveWithPriceFormatting = () => { 
-    const rawPrice = productForm.price?.toString() || ''; 
-    // Очищаем цену от любых символов, кроме цифр и точки, чтобы исключить дубли вроде 80€€
-    const cleanNumbersStr = rawPrice.replace(/[^0-9.]/g, '');
-    const formattedPrice = cleanNumbersStr ? `${cleanNumbersStr}€` : '0€'; 
-    
-    // Синхронно сохраняем отформатированную цену перед отправкой
-    productForm.price = formattedPrice;
-    setProductForm({ ...productForm, price: formattedPrice }); 
-    saveProduct(); 
+  const handleSave = () => {
+    saveProduct();
   }; 
 
   // Дефолтная категория — первая из списка (если есть), иначе 'tshirts' как последний фолбэк
@@ -151,9 +143,12 @@ export function ProductModal({
             /> 
           </div> 
           <div> 
-            <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Price</label> 
+            <label className="text-[10px] text-[#555] uppercase block mb-1 font-bold">Price (€)</label> 
             <input 
-              value={productForm.price || ''} 
+              type="number"
+              step="0.01"
+              min="0"
+              value={productForm.price ?? ''} 
               onChange={(e) => setProductForm({ ...productForm, price: e.target.value })} 
               className="w-full bg-[#222] p-2 text-xs outline-none border border-transparent focus:border-white font-mono text-white" 
               placeholder="e.g. 80" 
@@ -335,7 +330,7 @@ export function ProductModal({
 
         <div className="flex gap-4"> 
           <button 
-            onClick={handleSaveWithPriceFormatting} 
+            onClick={handleSave} 
             disabled={productSaving} 
             className="flex-1 bg-white text-black p-3 font-bold uppercase text-xs tracking-wider hover:bg-gray-200 transition-colors disabled:opacity-50" 
           > 

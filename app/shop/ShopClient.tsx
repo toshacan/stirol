@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
+import { formatPrice } from '@/lib/formatPrice';
 
 export default function ShopClient({ initialProducts, initialCategories }: { initialProducts: any[], initialCategories: any[] }) {
   const { lang } = useLang(); 
@@ -134,7 +135,7 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
 
                   <div className={`flex flex-col text-[10px] uppercase tracking-widest space-y-0.5 ${product.status === 'soldout' ? 'opacity-50' : ''}`}>
                     <span className="text-black font-bold tracking-wide group-hover:underline">{product.title}</span>
-                    <span className="text-pink-500 font-sans font-bold tracking-widest">{product.price}</span>
+                    <span className="text-pink-500 font-sans font-bold tracking-widest">{formatPrice(product.price)}</span>
                   </div>
                 </Link>
               );

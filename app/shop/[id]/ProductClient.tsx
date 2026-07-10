@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useLang } from '@/components/LangContext';
 import { useCart } from '@/components/CartContext';
 import CommonLayout from '@/components/CommonLayout';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface ProductClientProps {
   product: any; 
@@ -141,7 +142,7 @@ export default function ProductClient({ product, nextProduct, id }: ProductClien
             {/* Инфо-блок */}
             <div className="flex flex-col w-full">
               <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tighter leading-none">{displayTitle}</h1>
-              <p className="text-lg mt-3 font-bold">{product.price}</p>
+              <p className="text-lg mt-3 font-bold">{formatPrice(product.price)}</p>
               
               {/* Описание */}
               <div className="mt-6">

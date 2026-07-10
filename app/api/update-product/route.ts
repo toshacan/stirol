@@ -12,9 +12,10 @@ export async function POST(request: Request) {
 
     if (!id) return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
 
-    // Жесткая очистка цены от дублирующихся знаков евро (например, "80€€" -> "80€")
-    const rawPriceStr = String(price || '0').replace(/[^0-9.]/g, '');
-    const cleanPrice = rawPriceStr ? `${rawPriceStr}€` : '0€';
+    // Цена теперь хранится в БД как чистое число (numeric), без символа €.
+    // Чистим от любых нечисловых символов на случай, если пришло "80€" по привычке.
+    const cleanPriceStr = String(price ?? '0').replace(/[^0-9.]/g, '');
+    const cleanPrice = cleanPriceStr ? parseFloat(cleanPriceStr) : 0;
 
     // Обработка картинок
     let imagesArray: string[] = [];

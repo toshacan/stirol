@@ -30,8 +30,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields: ID and Title' }, { status: 400 });
     }
 
-    // Избавляемся от parseFloat, сохраняем цену как строку со всеми знаками типа $
-    const cleanPrice = price !== undefined && price !== null ? String(price).trim() : '';
+    // Цена теперь хранится в БД как чистое число (numeric), без символа €.
+    // Чистим от любых нечисловых символов на случай, если админка прислала "80€" по привычке.
+    const cleanPriceStr = String(price ?? '0').replace(/[^0-9.]/g, '');
+    const cleanPrice = cleanPriceStr ? parseFloat(cleanPriceStr) : 0;
+
     // Гарантируем, что позиция преобразуется в число, даже если пришла пустая строка
     const cleanPosition = position !== undefined && position !== null && position !== '' ? parseInt(position, 10) : 0;
 
