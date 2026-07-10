@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLang } from '@/components/LangContext';
 
@@ -78,18 +77,29 @@ export default function Footer() {
 
   return (
     <footer className="w-full pb-8 flex flex-col items-center gap-5 relative z-10">
-      {/* Список ссылок: на мобиле сетка 2 колонки, на десктопе строка */}
+      {/* Список ссылок: на мобиле сетка 2 колонки, на десктопе строка.
+          Используем обычные <a> (не next/link) — это настоящая навигация браузера,
+          а не мягкий SPA-переход. На мобильных (особенно iOS) мягкий переход
+          иногда оставлял страницу "недорисованной" после скролла вниз до футера —
+          кнопки визуально на месте, но не реагируют на нажатия, пока не скроллнуть
+          вручную. Полноценная перезагрузка страницы гарантированно решает эту
+          проблему, поскольку браузер каждый раз строит страницу с нуля. */}
       <div className="grid grid-cols-2 md:flex gap-x-8 gap-y-3 md:gap-6 text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 items-center justify-center">
         {links.map((link) => {
           const isActive = pathname === link.path;
           return (
-            <Link 
-              key={link.path} 
-              href={link.path} 
+            <a
+              key={link.path}
+              href={link.path}
+              onClick={(e) => {
+                if (pathname === link.path) {
+                  e.preventDefault();
+                }
+              }}
               className={`transition-colors pointer-events-auto ${isActive ? 'text-black font-black' : 'hover:text-black'}`}
             >
               {translations[link.path]?.[currentLang]}
-            </Link>
+            </a>
           );
         })}
       </div>

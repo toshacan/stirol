@@ -4,6 +4,7 @@ import { useCart } from '@/components/CartContext';
 import { useLang } from '@/components/LangContext';
 import CommonLayout from '@/components/CommonLayout';
 import Link from 'next/link';
+import { formatPrice, parsePrice } from '@/lib/formatPrice';
 
 // Массив стран: Украина первая, Нидерланды вторые, далее по алфавиту.
 // Включает ЕС + Швейцарию, Ирландию, Исландию, Норвегию, США, Канаду.
@@ -79,15 +80,11 @@ export default function CheckoutClient() {
   };
 
   const total = cart.reduce((acc: number, item: any) => {
-    const priceStr = typeof item.price === 'string' ? item.price : String(item.price || '0');
-    const parsed = parseFloat(priceStr.replace('€', '').trim());
-    return acc + (isNaN(parsed) ? 0 : parsed) * (item.quantity || 1);
+    return acc + parsePrice(item.price) * (item.quantity || 1);
   }, 0);
 
   const getItemSubtotal = (item: any) => {
-    const priceStr = typeof item.price === 'string' ? item.price : String(item.price || '0');
-    const parsed = parseFloat(priceStr.replace('€', '').trim());
-    return (isNaN(parsed) ? 0 : parsed) * (item.quantity || 1);
+    return parsePrice(item.price) * (item.quantity || 1);
   };
 
   const handleSubmit = async () => {
@@ -126,7 +123,10 @@ export default function CheckoutClient() {
         setStatus('success');
         if (clearCart) clearCart(); 
       } else {
-        setErrorMessage(t.errServer);
+        // Показываем реальную причину от сервера (например, "X just sold out"),
+        // а не общую заглушку — так покупатель понимает, что реально пошло не так
+        const data = await response.json().catch(() => null);
+        setErrorMessage(data?.error || t.errServer);
         setStatus('idle');
       }
     } catch (err) {
@@ -300,14 +300,14 @@ export default function CheckoutClient() {
                   </div>
                   
                   <span className="font-bold text-black whitespace-nowrap">
-                    {getItemSubtotal(item)}€
+                    {formatPrice(getItemSubtotal(item))}
                   </span>
                 </div>
               ))}
               
               <div className="flex justify-between font-bold text-sm pt-2">
                 <span>{t.totalLabel}</span>
-                <span>{total}€</span>
+                <span>{formatPrice(total)}</span>
               </div>
           </div>
         </div>
