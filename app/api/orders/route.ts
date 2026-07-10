@@ -195,7 +195,6 @@ export async function POST(request: Request) {
     const htmlContent = `
       <div style="max-width: 600px; margin: 0 auto; font-family: 'Courier New', Courier, monospace; text-transform: uppercase; letter-spacing: 0.05em; color: #000; padding: 40px 20px; background-color: #fff; border: 2px solid #000;">
         
-        <!-- HEADER -->
         <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
           <h1 style="margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 0.2em;">STIROL</h1>
           <p style="margin: 8px 0 0 0; font-size: 12px; font-weight: bold;">
@@ -203,7 +202,6 @@ export async function POST(request: Request) {
           </p>
         </div>
 
-        <!-- INFO BLOCK -->
         <div style="margin-bottom: 40px; font-size: 14px; line-height: 1.6;">
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
@@ -225,7 +223,6 @@ export async function POST(request: Request) {
           </table>
         </div>
 
-        <!-- ITEMS TABLE -->
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
           <thead>
             <tr>
@@ -239,14 +236,36 @@ export async function POST(request: Request) {
           </tbody>
         </table>
 
-        <!-- TOTAL -->
         <div style="text-align: right; font-size: 20px; font-weight: 900; border-top: 2px solid #000; padding-top: 20px; margin-bottom: 40px;">
           ${isEn ? 'TOTAL' : 'РАЗОМ'}: ${verifiedTotal}€
         </div>
 
-        <!-- FOOTER -->
+        <div style="margin-bottom: 40px; border: 2px dashed #000; padding: 20px; background-color: #fafafa;">
+          <div style="text-align: center; background-color: #000; color: #fff; padding: 12px; font-weight: 900; font-size: 14px; letter-spacing: 0.1em; margin-bottom: 20px;">
+            ${isEn ? 'HOW TO PAY' : 'ЯК СПЛАТИТИ'}
+          </div>
+          
+          <div style="font-size: 12px; line-height: 1.6;">
+            <div style="margin-bottom: 15px;">
+              <span style="font-weight: bold; display: block; margin-bottom: 4px;">1. ${isEn ? 'BANK CARD (UAH)' : 'БАНКІВСЬКА КАРТА (UAH)'}:</span>
+              <span style="font-size: 14px; font-weight: bold; background-color: #eee; padding: 2px 6px; display: inline-block; letter-spacing: 0.08em;">XXXX XXXX XXXX XXXX</span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <span style="font-weight: bold; display: block; margin-bottom: 4px;">2. CRYPTO (USDT TRC-20):</span>
+              <span style="font-size: 11px; font-weight: bold; background-color: #eee; padding: 2px 6px; display: block; word-break: break-all; font-family: monospace;">YOUR_USDT_TRC20_WALLET_ADDRESS_HERE</span>
+            </div>
+
+            <div style="border-top: 1px solid #ccc; padding-top: 12px; margin-top: 5px; color: #333;">
+              ${isEn 
+                ? `* IMPORTANT: PLEASE SPECIFY YOUR ORDER NUMBER <b style="color:#000;">#${orderId}</b> IN THE PAYMENT COMMENT OR SEND A SCREENSHOT OF THE PAYMENT TO OUR SUPPORT.` 
+                : `* ВАЖЛИВО: БУДЬ ЛАСКА, ВКАЖІТЬ НОМЕР ЗАМОВЛЕННЯ <b style="color:#000;">#${orderId}</b> У КОМЕНТАРІ ДО ПЛАТЕЖУ АБО НАДІШЛІТЬ СКРІНШОТ ОПЛАТИ В НАШУ СЛУЖБУ ПІДТРИМКИ.`
+              }
+            </div>
+          </div>
+        </div>
+
         <div style="text-align: center; font-size: 10px; color: #666; border-top: 1px solid #000; padding-top: 20px;">
-  
           <p style="margin: 8px 0 0 0;">© ${new Date().getFullYear()} STIROL</p>
         </div>
 
