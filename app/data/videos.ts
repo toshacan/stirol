@@ -15,6 +15,7 @@ export interface VideoItem {
 }
 
 export const VIDEOS: VideoItem[] = [
+  
   {
     id: 'ugliness',
     category: 'skate',
@@ -284,5 +285,31 @@ export const VIDEOS: VideoItem[] = [
       UA: 'Данина поваги золотій ері вуличного катання. Знятий повністю через класичний обєктив fisheye, цей едіт передає чисту, нефільтровану інерцію BMX та MTB у бетонних джунглях.'
     }
   },
-  
+  {
+    id: 'zzozh',
+    category: 'roots',
+    title: '"ZZOЖ FULL MOVIE"',
+    meta: 'ROOTS / 07:33',
+    cover: 'https://img.youtube.com/vi/oRmxLTS8D1A/hqdefault.jpg',
+    isComingSoon: false,
+    youtubeId: 'oRmxLTS8D1A',
+    hasCustomMargin: false,
+    titleText: {
+        EN: '"ZZOЖ FULL MOVIE"',
+        UA: '"ZZOЖ FULL MOVIE"'
+    },
+    metaText: {
+      EN: 'BMX AND SKATEBOARDING',
+      UA: 'BMX ТА СКЕЙТБОРДИНГ'
+    },
+    specs: {
+      EN: '',
+      UA: ''
+    },
+    description: {
+      EN: 'A film by the ZZOЖ crew, featuring skateboarders and BMX riders from Horlivka. Filmed between 2011 and 2012 in Horlivka and Donetsk, this video captured the final chapter for many of them before they walked away from riding. They did it their own way, making the best of what they had—with not a single skate shop or skatepark in their hometown. Just tricks, music, and the raw style of the early 2010s.',
+      UA: 'Фільм від ZZOЖ crew за участю скейтбордистів та BMX-райдерів із Горлівки. Зняте між 2011 та 2012 роками в Горлівці та Донецьку, це відео зафіксувало заключну главу для багатьох із них перед тим, як вони залишили катання. Вони робили це по-своєму, витискаючи максимум із того, що мали — без жодного скейтшопу чи скейтпарку в рідному місті. Тільки трюки, музика та сирий стиль ранніх 2010-х.'
+    }
+  },
+
 ];
