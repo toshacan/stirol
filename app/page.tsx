@@ -28,11 +28,11 @@ export default function Home() {
     UA: [{ id: 'news', label: 'ЗІН', path: '/news' }, { id: 'lookbook', label: 'лукбук 2026', path: '/lookbook' }, { id: 'shop', label: 'магазин', path: '/shop' }, { id: 'about', label: 'про бренд', path: '/about' }, { id: 'videos', label: 'відео', path: '/videos' }, { id: 'contact', label: 'контакти', path: '/contact' }]
   };
 
-  const bgImages: { [key: string]: string } = { news: '/menuimg/news.jpg', lookbook: '/menuimg/lookbook.jpeg', shop: '/menuimg/shop.jpg', about: '/menuimg/about.jpg', videos: '/menuimg/video.jpg', contact: '/menuimg/contact.jpeg' };
+  const bgImages: { [key: string]: string } = { news: '/menuimg/stirol.png', lookbook: '/menuimg/lookbook.jpeg', shop: '/menuimg/shop.jpg', about: '/menuimg/about.jpg', videos: '/menuimg/video.jpg', contact: '/menuimg/contact.jpeg' };
 
   return (
     // УБРАЛИ h-screen, теперь высота зависит от контента
-    <div className="bg-[#121212] text-[#f0f0f0] font-mono antialiased flex flex-col p-4 md:p-6 relative overflow-hidden min-h-screen">
+    <div className="bg-[#121212] text-[#f0f0f0] font-mono antialiased flex flex-col p-4 md:p-6 relative overflow-hidden min-h-screen select-none">
       
       {activeHover && bgImages[activeHover] && (
         <div className="absolute inset-0 bg-cover bg-center opacity-15 mix-blend-screen pointer-events-none transition-all duration-300 z-0" style={{ backgroundImage: `url(${bgImages[activeHover]})` }} />
@@ -68,8 +68,6 @@ export default function Home() {
       <footer className="w-full flex flex-col items-center z-10 pb-6 space-y-2 md:space-y-4">
         <div className="flex items-center space-x-5 md:space-x-6 text-gray-500">
           <a href="https://www.instagram.com/_stirol/" target="_blank" rel="noreferrer"><Icons.instagram /></a>
-          <a href="https://youtube.com" target="_blank" rel="noreferrer"><Icons.youtube /></a>
-          <a href="https://telegram.org" target="_blank" rel="noreferrer"><Icons.telegram /></a>
           <a href="https://www.facebook.com/profile.php?id=100079812641807" target="_blank" rel="noreferrer"><Icons.facebook /></a>
         </div>
         <div className="text-gray-600 font-sans text-[9px] md:text-[10px] tracking-[0.3em]">EST. 2012</div>

@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import ProductClient from './ProductClient';
 import { Metadata } from 'next';
+import { sortVariants } from '@/lib/sortVariants';
 
 // Без этой строки Next.js мог закэшировать страницу товара НАВСЕГДА
 // (до следующего деплоя), потому что тут нет cookies()/headers(), которые
@@ -73,6 +74,13 @@ export default async function ProductPage({ params }: Props) {
 
   if (productError || !product) {
     return notFound();
+  }
+
+  // Сортируем размеры в правильном порядке (S, M, L, XL...) — Postgres не
+  // гарантирует порядок строк без явной сортировки, особенно после UPDATE
+  // (как при возврате стока после отмены заказа), поэтому сортируем на сервере
+  if (Array.isArray(product.product_variants)) {
+    product.product_variants = sortVariants(product.product_variants);
   }
 
   // 2. Ищем список для кнопки "NEXT ITEM"

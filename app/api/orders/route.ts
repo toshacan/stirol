@@ -141,6 +141,9 @@ export async function POST(request: Request) {
       .insert([{
         name, email, phone, country, city, zip, address,
         items: itemsSummary,
+        // Структурированная копия товаров заказа (product_id/size/qty) — нужна,
+        // чтобы при отмене заказа можно было надёжно вернуть сток обратно.
+        items_json: verifiedCartItems.map((i) => ({ id: i.id, size: i.size, quantity: i.quantity })),
         total: verifiedTotal,
         quantity: totalQuantity,
         lang,
