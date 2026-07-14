@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!video) return { title: 'NOT FOUND' };
 
   const cleanTitle = video.title.replace(/"/g, '').replace('[ ', '').replace(' ]', '');
-  const description = video.metaText?.EN || video.meta || 'STIROL video';
+  const description = video.metaText?.EN  || 'STIROL video';
   const image = video.cover || '/logo-heavy.png';
 
   return {
