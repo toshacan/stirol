@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'fast.wistia.com',
+        
+      },
+      {
+        protocol: 'https',
+        hostname: 'embed-ssl.wistia.com',
+        
       },
     ],
   },

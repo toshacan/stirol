@@ -6,6 +6,7 @@ interface ContentBlock {
   title: string;
   p1: string;
   p2: string;
+  p3: string;
 }
 
 export default function AboutClient() {
@@ -15,13 +16,15 @@ export default function AboutClient() {
   const manifest: Record<'EN' | 'UA', ContentBlock> = {
     EN: {
       title: 'ABOUT',
-      p1: 'STIROL — INDEPENDENT CLOTHING IMPRINT, STARTED IN 2012 BY SKATEBOARDERS IN HORLIVKA, DONBAS. INDUSTRIAL LANDSCAPES, BROKEN CONCRETE, UNDERGROUND STREET CULTURE — THATS WHERE THIS COMES FROM.',
-      p2: 'RAW BLACK METAL. PUNK THAT DOESNT ASK PERMISSION. OLD SCHOOL HIP-HOP. STREET SKATING SHOT ON DYING VHS CAMERAS. NO TRENDS. JUST THE CONCRETE AGE, RECORDED AS IT IS.'
+      p1: 'STIROL started in 2012 in Horlivka — a group of skaters filming each other on dying VHS cameras because there was nothing else to do in an industrial town like this.',
+      p2: 'The crew became one person. The footage became an archive. At some point, the archive needed something to wear — so the clothes came out of the same place the videos did. Now it\'s all here: the footage, the pieces, the record of what this place actually looks like.',
+      p3: 'Raw black metal. Punk that doesn\'t ask permission. Old school hip-hop. No trends. Just the concrete age, recorded as it is.'
     },
     UA: {
       title: 'ПРО БРЕНД',
-      p1: 'STIROL — НЕЗАЛЕЖНИЙ ОДЯГОВИЙ ІМПРИНТ, ЗАПОЧАТКОВАНИЙ У 2012 РОЦІ СКЕЙТБОРДИСТАМИ В ГОРЛІВЦІ, ДОНБАС. ІНДУСТРІАЛЬНІ ЛАНДШАФТИ, РОЗБИТИЙ БЕТОН, АНДЕГРАУНДНА ВУЛИЧНА КУЛЬТУРА — ОСЬ ЗВІДКИ ЦЕ ВСЕ ПІШЛО.',
-      p2: 'СИРИЙ BLACK METAL. ПАНК, ЯКИЙ НЕ ПИТАЄ ДОЗВОЛУ. OLD SCHOOL HIP-HOP. ВУЛИЧНИЙ СКЕЙТИНГ, ЗНЯТИЙ НА ВМИРАЮЧІ VHS-КАМЕРИ. ЖОДНИХ ТРЕНДІВ. ТІЛЬКИ ЕПОХА БЕТОНУ, ЗАФІКСОВАНА ТАКОЮ, ЯКОЮ ВОНА Є.'
+      p1: 'STIROL зародився у 2012 році в Горлівці — тусовка скейтерів знімала одне одного на вмираючі VHS-камери просто тому, що в такому індустріальному місті більше не було чим зайнятися.',
+      p2: 'З часом команда перетворилася на одну людину. Кадри стали архівом. У якийсь момент архіву знадобилося щось носити — тому одяг вийшов звідти ж, звідки й відео. Тепер усе тут: плівка, речі та хроніка того, як це місце виглядає насправді.',
+      p3: 'Сирий блек-метал. Панк, що не питає дозволу. Олдскульний хіп-хоп. Жодних трендів. Лише епоха бетону, зафіксована такою, якою вона є.'
     }
   };
 
@@ -30,13 +33,16 @@ export default function AboutClient() {
   return (
     <CommonLayout>
       <main className="max-w-xl mx-auto my-auto py-16 text-center px-4">
+        {/* Заголовок залишається великими літерами з широким трекінгом */}
         <h1 className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-8">
           {currentData.title}
         </h1>
         
-        <div className="space-y-6 text-xs leading-relaxed uppercase tracking-wider text-[#121212] font-medium">
+        {/* Прибрано uppercase та tracking-wider для звичайного регістру, розмір змінено на text-sm для читабельності */}
+        <div className="space-y-6 text-sm leading-relaxed text-[#121212] font-medium text-left sm:text-center">
           <p>{currentData.p1}</p>
           <p>{currentData.p2}</p>
+          <p>{currentData.p3}</p>
         </div>
       </main>
     </CommonLayout>

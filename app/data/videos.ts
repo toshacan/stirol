@@ -2,7 +2,6 @@ export interface VideoItem {
   id: string;
   category: string;
   title: string;
-  meta: string;
   cover?: string;
   isComingSoon: boolean;
   youtubeId?: string;
@@ -20,9 +19,8 @@ export const VIDEOS: VideoItem[] = [
     id: 'ugliness',
     category: 'skate',
     title: '"UGLINESS"',
-    meta: 'SKATE ARCHIVE / 00:59',
     // Теперь указываем прямую универсальную ссылку Wistia
-    cover: 'https://fast.wistia.com/embed/medias/v5gqmtkqb8/swatch',
+    cover: 'https://embed-ssl.wistia.com/deliveries/271977ad35a858ca38f142ff9a840338.jpg',
     isComingSoon: false,
     wistiaId: 'v5gqmtkqb8', 
     hasCustomMargin: false,
@@ -47,7 +45,7 @@ export const VIDEOS: VideoItem[] = [
     id: 'sscrew',
     category: 'skate',
     title: '"Stirol Skateboarding"',
-    meta: 'SKATE ARCHIVE / 04:15',
+    
     cover: 'https://img.youtube.com/vi/p67mBwbgjyg/maxresdefault.jpg',
     isComingSoon: false,
     youtubeId: 'p67mBwbgjyg',
@@ -73,7 +71,7 @@ export const VIDEOS: VideoItem[] = [
     id: 'midwinter',
     category: 'skate',
     title: '"MIDWINTER"',
-    meta: 'SKATE ARCHIVE / 01:21',
+    
     cover: 'https://img.youtube.com/vi/Vh5Rm_21pcs/hqdefault.jpg',
     isComingSoon: false,
     youtubeId: 'Vh5Rm_21pcs',
@@ -99,9 +97,9 @@ export const VIDEOS: VideoItem[] = [
     id: 'fuck-the-roc',
     category: 'promo',
     title: '"FUCK THE ROC"',
-    meta: 'PROMO / 00:59',
+    
     // Теперь указываем прямую универсальную ссылку Wistia
-    cover: 'https://fast.wistia.com/embed/medias/n4t76b56ad/swatch',
+    cover: 'https://embed-ssl.wistia.com/deliveries/3cb09e99b704c226f924e9bf74a9f49024911c0f.jpg',
     isComingSoon: false,
     wistiaId: 'n4t76b56ad', 
     hasCustomMargin: false,
@@ -114,8 +112,8 @@ export const VIDEOS: VideoItem[] = [
       UA: 'ІДЕЯ ТА АНІМАЦІЯ ВІД STIROL'
     },
     specs: {
-      EN: 'ANIMATION / RECONSTRUCTED ARCHIVES',
-      UA: 'АНІМАЦІЯ / РЕКОНСТРУЙОВАНІ АРХІВИ'
+      EN: '',
+      UA: ''
     },
     description: {
       EN: 'An uncompromising post-industrial manifestation of order destruction. Merging low-fi documentary aesthetics, dark metal artwork, and high-intensity motion graphics.',
@@ -126,28 +124,28 @@ export const VIDEOS: VideoItem[] = [
 {
     id: 'we-back-home',
     category: 'promo',
-    title: '"WE BACK HOME - PROMO"',
-    meta: 'PROMO / 00:52',
+    title: '"WE BACK HOME"',
+    
     // Теперь указываем прямую универсальную ссылку Wistia
-    cover: 'https://fast.wistia.com/embed/medias/zma5ui2qdw/swatch',
+    cover: 'https://embed-ssl.wistia.com/deliveries/c8955e1f79f1f0c6f9262cb2de4e0424.jpg',
     isComingSoon: false,
     wistiaId: 'zma5ui2qdw', 
     hasCustomMargin: false,
     titleText: {
-      EN: 'WE BACK HOME - PROMO',
-      UA: 'WE BACK HOME - PROMO'
+      EN: '"WE BACK HOME" - PROMO',
+      UA: '"WE BACK HOME" - PROMO'
     },
     metaText: {
       EN: 'CONCEPT & ANIMATION BY STIROL',
       UA: 'ІДЕЯ ТА АНІМАЦІЯ ВІД STIROL'
     },
     specs: {
-      EN: 'DIY ANIMATION / RECONSTRUCTED ARCHIVES',
-      UA: 'DIY АНІМАЦІЯ / РЕКОНСТРУЙОВАНІ АРХІВИ'
+      EN: '',
+      UA: ''
     },
     description: {
-      EN: 'An uncompromising post-industrial manifestation of order destruction. Merging low-fi documentary aesthetics, dark metal artwork, and high-intensity motion graphics.',
-      UA: 'Безкомпромісний постіндустріальний маніфест руйнування порядку. Злиття лоу-фай документальної естетики, темної метал-графіки та інтенсивного моушн-дизайну.'
+      EN: 'Another attempt to return home, another attempt to make something with my own hands, and another realization that home is no longer a place.',
+      UA: 'Чергова спроба повернутися додому, чергова спроба створити щось власноруч — та чергове усвідомлення того, що дім — це більше не місце.'
     }
   },
 
@@ -155,27 +153,27 @@ export const VIDEOS: VideoItem[] = [
     id: 'shopper-promo',
     category: 'promo',
     title: '"Stirol Shopper Bag Promo"',
-    meta: 'PROMO / 00:28',
+    
     // Теперь указываем прямую универсальную ссылку Wistia
-     cover: 'https://fast.wistia.com/embed/medias/s2h1satpl8/swatch',
+     cover: 'https://embed-ssl.wistia.com/deliveries/590e1618e87c52b04e7256ec3c79a89e.jpg',
     isComingSoon: false,
     wistiaId: 's2h1satpl8', 
     hasCustomMargin: false,
     titleText: {
-      EN: 'STIROL — "FUCK THE ROC" DROP',
-      UA: 'STIROL — "FUCK THE ROC" ДРОП'
+      EN: '"Stirol Shopper Bag Promo"',
+      UA: '"Stirol Shopper Bag Promo"'
     },
     metaText: {
       EN: 'CONCEPT & ANIMATION BY STIROL',
       UA: 'ІДЕЯ ТА АНІМАЦІЯ ВІД STIROL'
     },
     specs: {
-      EN: 'DIY ANIMATION / RECONSTRUCTED ARCHIVES',
-      UA: 'DIY АНІМАЦІЯ / РЕКОНСТРУЙОВАНІ АРХІВИ'
+      EN: '',
+      UA: ''
     },
     description: {
-      EN: 'An uncompromising post-industrial manifestation of order destruction. Merging low-fi documentary aesthetics, dark metal artwork, and high-intensity motion graphics.',
-      UA: 'Безкомпромісний постіндустріальний маніфест руйнування порядку. Злиття лоу-фай документальної естетики, темної метал-графіки та інтенсивного моушн-дизайну.'
+      EN: 'Heavy beats, raw slums, and a deserted industrial zone. The first hands-on attempt to build something beautiful where everything else is standing still.',
+      UA: 'Важкі біти, сирі трущоби й покинута індустріальна зона. Перша наочна спроба збудувати щось прекрасне там, де все інше зупинилося.'
     }
   },
 
@@ -183,61 +181,61 @@ export const VIDEOS: VideoItem[] = [
     id: 'bad-timtes-promo',
     category: 'promo',
     title: '"Bad times, good friends"',
-    meta: 'PROMO / 00:59',
+    
     // Теперь указываем прямую универсальную ссылку Wistia
-    cover: 'https://fast.wistia.com/embed/medias/azp3fz7bz1/swatch', 
+    cover: 'https://embed-ssl.wistia.com/deliveries/ce1c7c70566e3284f045928d0539ee9e.jpg', 
     isComingSoon: false,
     wistiaId: 'azp3fz7bz1', 
     hasCustomMargin: false,
     titleText: {
-      EN: 'STIROL — "FUCK THE ROC" DROP',
-      UA: 'STIROL — "FUCK THE ROC" ДРОП'
+      EN: '"Bad times, good friends"',
+      UA: '"Bad times, good friends"'
     },
     metaText: {
       EN: 'CONCEPT & ANIMATION BY STIROL',
       UA: 'ІДЕЯ ТА АНІМАЦІЯ ВІД STIROL'
     },
     specs: {
-      EN: 'DIY ANIMATION / RECONSTRUCTED ARCHIVES',
-      UA: 'DIY АНІМАЦІЯ / РЕКОНСТРУЙОВАНІ АРХІВИ'
+      EN: '',
+      UA: ''
     },
     description: {
-      EN: 'An uncompromising post-industrial manifestation of order destruction. Merging low-fi documentary aesthetics, dark metal artwork, and high-intensity motion graphics.',
-      UA: 'Безкомпромісний постіндустріальний маніфест руйнування порядку. Злиття лоу-фай документальної естетики, темної метал-графіки та інтенсивного моушн-дизайну.'
+      EN: '',
+      UA: ''
     }
   },
   {
     id: 'fast-life-promo',
     category: 'promo',
     title: '"FAST LIFE"',
-    meta: 'PROMO / 00:59',
+   
     // Теперь указываем прямую универсальную ссылку Wistia
-  cover: 'https://fast.wistia.com/embed/medias/d26ss7r8xj/swatch', 
+  cover: 'https://embed-ssl.wistia.com/deliveries/d25a63870cbab1051247cf6104308d53.jpg', 
     isComingSoon: false,
     wistiaId: 'd26ss7r8xj', 
     hasCustomMargin: false,
     titleText: {
-      EN: 'STIROL — "FUCK THE ROC" DROP',
-      UA: 'STIROL — "FUCK THE ROC" ДРОП'
+      EN: '"FAST LIFE" - STIROL"',
+      UA: '"FAST LIFE" - STIROL"'
     },
     metaText: {
       EN: 'CONCEPT & ANIMATION BY STIROL',
       UA: 'ІДЕЯ ТА АНІМАЦІЯ ВІД STIROL'
     },
     specs: {
-      EN: 'DIY ANIMATION / RECONSTRUCTED ARCHIVES',
-      UA: 'DIY АНІМАЦІЯ / РЕКОНСТРУЙОВАНІ АРХІВИ'
+      EN: '',
+      UA: ''
     },
     description: {
-      EN: 'An uncompromising post-industrial manifestation of order destruction. Merging low-fi documentary aesthetics, dark metal artwork, and high-intensity motion graphics.',
-      UA: 'Безкомпромісний постіндустріальний маніфест руйнування порядку. Злиття лоу-фай документальної естетики, темної метал-графіки та інтенсивного моушн-дизайну.'
+      EN: 'Late 2010s Kyiv. A record of pure existence and a collective drift into the unknown. Moving fast, because nobody knew what was coming next.',
+      UA: 'Київ кінця 2010-х. Хроніка чистого буття та колективного дрейфу в невідомість. Стрімкий рух, адже ніхто не знав, що чекає попереду.'
     }
   },
   {
     id: 'rustam-riding',
     category: 'bmx-mtb',
     title: '"RUSTAM IS RIDING"',
-    meta: 'BMX ARCHIVE / 01:23',
+    
     cover: 'https://img.youtube.com/vi/NAIl6qK-tkw/hqdefault.jpg',
     isComingSoon: false,
     youtubeId: 'NAIl6qK-tkw',
@@ -263,7 +261,7 @@ export const VIDEOS: VideoItem[] = [
     id: 'rustam-classic',
     category: 'bmx-mtb',
     title: '"CLASSIC PART"',
-    meta: 'BMX ARCHIVE / 01:23',
+    
     cover: 'https://img.youtube.com/vi/m2JVF6ztF14/hqdefault.jpg',
     isComingSoon: false,
     youtubeId: 'm2JVF6ztF14',
@@ -289,7 +287,7 @@ export const VIDEOS: VideoItem[] = [
     id: 'zzozh',
     category: 'roots',
     title: '"ZZOЖ FULL MOVIE"',
-    meta: 'ROOTS / 07:33',
+   
     cover: 'https://img.youtube.com/vi/oRmxLTS8D1A/hqdefault.jpg',
     isComingSoon: false,
     youtubeId: 'oRmxLTS8D1A',
@@ -309,6 +307,32 @@ export const VIDEOS: VideoItem[] = [
     description: {
       EN: 'A film by the ZZOЖ crew, featuring skateboarders and BMX riders from Horlivka. Filmed between 2011 and 2012 in Horlivka and Donetsk, this video captured the final chapter for many of them before they walked away from riding. They did it their own way, making the best of what they had—with not a single skate shop or skatepark in their hometown. Just tricks, music, and the raw style of the early 2010s.',
       UA: 'Фільм від ZZOЖ crew за участю скейтбордистів та BMX-райдерів із Горлівки. Зняте між 2011 та 2012 роками в Горлівці та Донецьку, це відео зафіксувало заключну главу для багатьох із них перед тим, як вони залишили катання. Вони робили це по-своєму, витискаючи максимум із того, що мали — без жодного скейтшопу чи скейтпарку в рідному місті. Тільки трюки, музика та сирий стиль ранніх 2010-х.'
+    }
+  },
+  {
+    id: 'zzozh-teaser',
+    category: 'roots',
+    title: '"ZZOЖ TEASER"',
+   
+    cover: 'https://img.youtube.com/vi/29QpL1qXNJo/hqdefault.jpg',
+    isComingSoon: false,
+    youtubeId: '29QpL1qXNJo',
+    hasCustomMargin: false,
+    titleText: {
+        EN: '"ZZOЖ TEASER"',
+        UA: '"ZZOЖ TEASER"'
+    },
+    metaText: {
+      EN: 'BMX AND SKATEBOARDING',
+      UA: 'BMX ТА СКЕЙТБОРДИНГ'
+    },
+    specs: {
+      EN: '',
+      UA: ''
+    },
+    description: {
+      EN: '',
+      UA: ''
     }
   },
 
