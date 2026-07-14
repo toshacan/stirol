@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     siteName: 'STIROL',
     images: [
       {
-        url: '/logo-heavy.png',
+        url: '/1logo-heavy.png',
         width: 1200,
         height: 630,
         alt: 'STIROL',
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'STIROL',
     description: 'STIROL — official website.',
-    images: ['/logo-heavy.png'],
+    images: ['/1logo-heavy.png'],
   },
   icons: {
     icon: '/favicon.ico',

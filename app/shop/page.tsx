@@ -18,14 +18,14 @@ export const metadata = {
   openGraph: {
     title: 'SHOP',
     description: 'Browse the full STIROL collection.',
-    images: [{ url: '/logo-heavy.png', width: 1200, height: 630, alt: 'STIROL SHOP' }],
+    images: [{ url: '/1logo-heavy.png', width: 1200, height: 630, alt: 'STIROL SHOP' }],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'SHOP',
     description: 'Browse the full STIROL collection.',
-    images: ['/logo-heavy.png'],
+    images: ['/1logo-heavy.png'],
   },
 };
 
