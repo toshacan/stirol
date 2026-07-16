@@ -31,7 +31,6 @@ export default function Home() {
   const bgImages: { [key: string]: string } = { news: '/menuimg/stirol.png', lookbook: '/menuimg/lookbook.jpeg', shop: '/menuimg/shop.jpg', about: '/menuimg/about.jpg', videos: '/menuimg/video.jpg', contact: '/menuimg/contact.jpeg' };
 
   return (
-    // УБРАЛИ h-screen, теперь высота зависит от контента
     <div className="bg-[#121212] text-[#f0f0f0] font-mono antialiased flex flex-col p-4 md:p-6 relative overflow-hidden min-h-screen select-none">
       
       {activeHover && bgImages[activeHover] && (
@@ -48,10 +47,12 @@ export default function Home() {
         <div className="text-[#f0f0f0]">{time}</div>
       </header>
 
-      {/* Теперь main и footer идут потоком, footer будет сразу за ними */}
-      <main className="flex-grow flex flex-col items-center justify-center text-center space-y-6 md:space-y-10 z-10 w-full py-10">
+      {/* py и space-y уменьшены только на мобильном (без md:) — на десктопе
+          всё осталось как было. Это и сокращает лишний воздух на телефоне,
+          не трогая внешний вид на компьютере. */}
+      <main className="flex-grow flex flex-col items-center justify-center text-center space-y-4 md:space-y-10 z-10 w-full py-4 md:py-10">
         <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="cursor-pointer hover:opacity-80 transition-opacity duration-200 block w-full max-w-[240px] md:max-w-[320px]">
-          <div className="relative w-full h-20 md:h-24 flex items-center justify-center">
+          <div className="relative w-full h-16 md:h-24 flex items-center justify-center">
             <Image src="/logo-heavy.png" alt="STIROL" fill className="object-contain" />
           </div>
         </a>
@@ -65,7 +66,7 @@ export default function Home() {
         </nav>
       </main>
 
-      <footer className="w-full flex flex-col items-center z-10 pb-6 space-y-2 md:space-y-4">
+      <footer className="w-full flex flex-col items-center z-10 pb-4 md:pb-6 space-y-2 md:space-y-4">
         <div className="flex items-center space-x-5 md:space-x-6 text-gray-500">
           <a href="https://www.instagram.com/_stirol/" target="_blank" rel="noreferrer"><Icons.instagram /></a>
           <a href="https://www.facebook.com/profile.php?id=100079812641807" target="_blank" rel="noreferrer"><Icons.facebook /></a>
