@@ -31,7 +31,12 @@ export default function Home() {
   const bgImages: { [key: string]: string } = { news: '/menuimg/stirol.png', lookbook: '/menuimg/lookbook.jpeg', shop: '/menuimg/shop.jpg', about: '/menuimg/about.jpg', videos: '/menuimg/video.jpg', contact: '/menuimg/contact.jpeg' };
 
   return (
-    <div className="bg-[#121212] text-[#f0f0f0] font-mono antialiased flex flex-col p-4 md:p-6 relative overflow-hidden min-h-screen select-none">
+    /* min-h-screen (=100vh) заменён на min-h-[100dvh] — на мобильных браузерах
+       100vh считается по завышенной, "виртуальной" высоте экрана (не учитывает
+       скрывающуюся адресную строку), из-за чего контент, центрированный по
+       вертикали, уезжал за пределы реально видимой области. 100dvh считает
+       честную видимую высоту. */
+    <div className="bg-[#121212] text-[#f0f0f0] font-mono antialiased flex flex-col p-4 md:p-6 relative overflow-hidden min-h-[100dvh] select-none">
       
       {activeHover && bgImages[activeHover] && (
         <div className="absolute inset-0 bg-cover bg-center opacity-15 mix-blend-screen pointer-events-none transition-all duration-300 z-0" style={{ backgroundImage: `url(${bgImages[activeHover]})` }} />
@@ -47,9 +52,6 @@ export default function Home() {
         <div className="text-[#f0f0f0]">{time}</div>
       </header>
 
-      {/* py и space-y уменьшены только на мобильном (без md:) — на десктопе
-          всё осталось как было. Это и сокращает лишний воздух на телефоне,
-          не трогая внешний вид на компьютере. */}
       <main className="flex-grow flex flex-col items-center justify-center text-center space-y-4 md:space-y-10 z-10 w-full py-4 md:py-10">
         <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="cursor-pointer hover:opacity-80 transition-opacity duration-200 block w-full max-w-[240px] md:max-w-[320px]">
           <div className="relative w-full h-16 md:h-24 flex items-center justify-center">
