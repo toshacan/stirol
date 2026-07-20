@@ -35,7 +35,7 @@ export default function Footer() {
     '/shop': { EN: 'SHOP', UA: 'МАГАЗИН' },
     '/contact': { EN: 'CONTACT', UA: 'КОНТАКТИ' },
     '/videos': { EN: 'VIDEOS', UA: 'ВІДЕО' },
-    '/about': { EN: 'ABOUT', UA: 'ПРО БРЕНД' },
+    '/about': { EN: 'ABOUT', UA: 'ПРО НАС' },
     'drop_alerts': { EN: 'DROP ALERTS', UA: 'ДРОПИ' }
   };
 

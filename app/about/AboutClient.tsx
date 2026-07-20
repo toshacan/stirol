@@ -16,15 +16,15 @@ export default function AboutClient() {
   const manifest: Record<'EN' | 'UA', ContentBlock> = {
     EN: {
       title: 'ABOUT',
-      p1: 'STIROL started in 2012 in Horlivka — a group of skaters filming each other on dying VHS cameras because there was nothing else to do in an industrial town like this.',
-      p2: 'The crew became one person. The footage became an archive. At some point, the archive needed something to wear — so the clothes came out of the same place the videos did. Now it\'s all here: the footage, the pieces, the record of what this place actually looks like.',
-      p3: 'Raw black metal. Punk that doesn\'t ask permission. Old school hip-hop. No trends. Just the concrete age, recorded as it is.'
+      p1: 'STIROL was founded in 2012 as a skate crew by skaters from Horlivka.',
+      p2: 'We filmed videos. Not trying to copy anyone, just shooting the way we felt and the way we could, on cameras from our parents\' closets.',
+      p3: 'Skateboarding came and went, but the idea stayed. DIY pieces, small drops, all of it was part of becoming something bigger than what we started as.'
     },
     UA: {
-      title: 'ПРО БРЕНД',
-      p1: 'STIROL зародився у 2012 році в Горлівці — тусовка скейтерів знімала одне одного на вмираючі VHS-камери просто тому, що в такому індустріальному місті більше не було чим зайнятися.',
-      p2: 'З часом команда перетворилася на одну людину. Кадри стали архівом. У якийсь момент архіву знадобилося щось носити — тому одяг вийшов звідти ж, звідки й відео. Тепер усе тут: плівка, речі та хроніка того, як це місце виглядає насправді.',
-      p3: 'Сирий блек-метал. Панк, що не питає дозволу. Олдскульний хіп-хоп. Жодних трендів. Лише епоха бетону, зафіксована такою, якою вона є.'
+      title: 'ПРО НАС',
+      p1: 'STIROL заснували у 2012 році як скейт-крю скейтери з Горлівки.',
+      p2: 'Ми знімали відео. Не намагаючись комусь наслідувати, просто знімали так, як відчували і як вміли, на камери з батьківських шаф.',
+      p3: 'Скейтбординг то йшов, то повертався, але ідея залишалась. DIY-речі, невеликі дропи, все це було частиною того, як ми ставали чимось більшим, ніж те, з чого починали.'
     }
   };
 
@@ -32,14 +32,12 @@ export default function AboutClient() {
 
   return (
     <CommonLayout>
-      <main className="max-w-xl mx-auto my-auto py-16 text-center px-4">
-        {/* Заголовок залишається великими літерами з широким трекінгом */}
-        <h1 className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-8">
+      <main className="w-full max-w-xl mx-auto my-auto py-16 px-4">
+        <h1 className="text-xs font-bold uppercase tracking-widest text-black mb-6 text-center">
           {currentData.title}
         </h1>
-        
-        {/* Прибрано uppercase та tracking-wider для звичайного регістру, розмір змінено на text-sm для читабельності */}
-        <div className="space-y-6 text-sm leading-relaxed text-[#121212] font-medium text-left sm:text-center">
+
+        <div className="space-y-4 text-[12px] leading-[1.8] text-gray-700 max-w-lg">
           <p>{currentData.p1}</p>
           <p>{currentData.p2}</p>
           <p>{currentData.p3}</p>

@@ -141,7 +141,7 @@ export default function NewsClient() {
                 {currentPost?.title[currentLang]}
               </h2>
 
-              <p className="text-[11px] text-gray-600 leading-relaxed tracking-tight uppercase font-sans max-h-[220px] overflow-y-auto pr-2">
+              <p className="text-[11px] text-gray-800 leading-[1.9] tracking-normal uppercase font-sans max-h-[220px] overflow-y-auto pr-2">
                 {currentPageData?.text[currentLang]}
               </p>
             </div>

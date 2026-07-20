@@ -2,7 +2,7 @@
 import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import Link from 'next/link';
-import { VideoItem } from '@/app/data/videos';
+import { VIDEOS, VideoItem } from '@/app/data/videos';
 
 interface VideoClientProps {
   video: VideoItem;
@@ -13,22 +13,39 @@ export default function VideoClient({ video }: VideoClientProps) {
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
 
   const labels = {
-    EN: { back: '← BACK TO ARCHIVE' },
-    UA: { back: '← НАЗАД ДО АРХІВУ' }
+    EN: { back: '← BACK TO ARCHIVE', next: 'NEXT VIDEO →' },
+    UA: { back: '← НАЗАД ДО АРХІВУ', next: 'НАСТУПНЕ ВІДЕО →' }
   };
+
+  // Ищем следующее доступное видео (не coming soon) по списку в data/videos.ts.
+  // Если текущее — последнее, зацикливаем на первое.
+  const playableVideos = VIDEOS.filter((v) => !v.isComingSoon);
+  const currentIndex = playableVideos.findIndex((v) => v.id === video.id);
+  const nextVideo =
+    playableVideos.length > 1
+      ? playableVideos[(currentIndex + 1) % playableVideos.length]
+      : null;
 
   return (
     <CommonLayout>
-      <div className="px-4 mt-8">
+      <div className="px-4 mt-8 flex justify-between items-center">
         <Link href="/videos" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors">
           {labels[currentLang].back}
         </Link>
+
+        {nextVideo && (
+          <Link
+            href={`/videos/${nextVideo.id}`}
+            className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
+          >
+            {labels[currentLang].next}
+          </Link>
+        )}
       </div>
 
       <div className={`w-full flex flex-col lg:flex-row gap-8 items-start px-4 mt-4 pb-16 md:pb-24 
         ${video.hasCustomMargin ? 'mb-12 md:mb-16' : 'my-auto'}`}
       >
-        
         {/* ЛЕВАЯ СТОРОНА: УМНЫЙ ПЛЕЕР */}
         <div className="w-full lg:w-[70%] aspect-video bg-black border border-gray-200 overflow-hidden shadow-sm relative">
           {video.wistiaId ? (
@@ -73,8 +90,10 @@ export default function VideoClient({ video }: VideoClientProps) {
             </div>
           )}
 
+          {/* Капс оставлен (стиль сайта), но контраст и межстрочный интервал
+              увеличены — это и было причиной "нечитаемости", а не сам капс */}
           {video.description[currentLang] && (
-            <p className="text-[10px] text-gray-600 leading-relaxed uppercase tracking-tight font-sans">
+            <p className="text-[10px] text-gray-700 leading-[2] tracking-wide uppercase font-sans">
               {video.description[currentLang]}
             </p>
           )}
