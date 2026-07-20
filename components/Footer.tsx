@@ -32,6 +32,7 @@ export default function Footer() {
   const translations: Record<string, Record<LangType, string>> = {
     '/news': { EN: 'MAGAZINE', UA: 'ЗІН' },
     '/lookbook': { EN: 'LOOKBOOK 2026', UA: 'ЛУКБУК 2026' },
+    '/info': { EN: 'INFO', UA: 'ІНФО' },
     '/shop': { EN: 'SHOP', UA: 'МАГАЗИН' },
     '/contact': { EN: 'CONTACT', UA: 'КОНТАКТИ' },
     '/videos': { EN: 'VIDEOS', UA: 'ВІДЕО' },
@@ -48,7 +49,7 @@ export default function Footer() {
     exists: { EN: 'ALREADY SUBSCRIBED', UA: 'ВИ ВЖЕ ПІДПИСАНІ' },
   };
 
-  const links = [{ path: '/news' }, { path: '/lookbook' }, { path: '/shop' }, { path: '/contact' }, { path: '/videos' }, { path: '/about' }];
+  const links = [{ path: '/news' }, { path: '/lookbook' }, { path: '/info' }, { path: '/shop' }, { path: '/contact' }, { path: '/videos' }, { path: '/about' }];
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();

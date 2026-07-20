@@ -13,7 +13,7 @@ export const NewsletterTemplate = ({ lang, headerText, imageUrl, description, li
   const date = new Date().toLocaleDateString('en-US');
 
   const t = {
-    visit: lang === 'UA' ? 'Відвідати магазин' : 'Visit online shop',
+    visit: lang === 'UA' ? 'ДО МАГАЗИНУ' : 'SHOP NOW',
   };
 
   return (
@@ -21,21 +21,21 @@ export const NewsletterTemplate = ({ lang, headerText, imageUrl, description, li
       <Head />
       <Body style={{ 
         fontFamily: 'monospace', 
-        backgroundColor: '#ffffff', 
+        backgroundColor: '#f5f5f5', 
         padding: '20px',
         color: '#000000'
       }}>
         <Container style={{ 
           maxWidth: '600px', 
           margin: '0 auto', 
-          border: '1px solid #000', 
-          padding: '20px' 
+          backgroundColor: '#ffffff',
+          border: '2px solid #000', 
+          padding: '30px' 
         }}>
-          {/* Верхняя часть: Логотип (new.png) и Дата */}
+          {/* Верхняя часть: Логотип и Дата */}
           <Section style={{ marginBottom: '30px' }}>
             <Row>
               <Column align="left">
-                {/* Замена красной плашки на изображение */}
                 <Img 
                   src="stirol.xyz/newslogo.png" 
                   alt="Stirol" 
@@ -44,54 +44,80 @@ export const NewsletterTemplate = ({ lang, headerText, imageUrl, description, li
                 />
               </Column>
               <Column align="right">
-                <Text style={{ margin: 0, fontSize: '14px' }}>{date}</Text>
+                <Text style={{ margin: 0, fontSize: '11px', letterSpacing: '0.05em', color: '#666' }}>{date}</Text>
               </Column>
             </Row>
           </Section>
 
           {/* Заголовок */}
           <Text style={{ 
-            fontSize: '16px', 
-            fontWeight: 'normal', 
+            fontSize: '15px', 
+            fontWeight: 'bold', 
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
             marginBottom: '20px',
-            borderBottom: '1px solid #eee',
-            paddingBottom: '10px'
+            borderBottom: '2px solid #000',
+            paddingBottom: '14px'
           }}>
             {headerText}
           </Text>
 
           {/* Картинка-ссылка */}
-          <Link href={linkUrl} style={{ display: 'block', marginBottom: '20px' }}>
+          <Link href={linkUrl} style={{ display: 'block', marginBottom: '24px' }}>
             <Img 
               src={imageUrl} 
               width="100%" 
               alt="Drop Image" 
-              style={{ display: 'block', border: 'none' }}
+              style={{ display: 'block', border: '1px solid #000' }}
             />
           </Link>
 
           {/* Описание */}
           <Text style={{ 
-            fontSize: '14px', 
-            lineHeight: '1.5', 
+            fontSize: '13px', 
+            lineHeight: '1.7', 
             color: '#333', 
-            marginBottom: '20px' 
+            marginBottom: '28px' 
           }}>
             {description}
           </Text>
-          
-          {/* Футер-ссылка */}
-          <Link 
-            href={linkUrl} 
-            style={{ 
-              color: '#ff0000', 
-              textDecoration: 'underline', 
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}
-          >
-            {t.visit}
-          </Link>
+
+          {/* CTA — чёрная кнопка вместо красной ссылки, тот же стиль, что в остальных письмах */}
+          <table width="100%" cellPadding="0" cellSpacing="0" style={{ marginBottom: '10px' }}>
+            <tr>
+              <td align="center">
+                <Link
+                  href={linkUrl}
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor: '#000',
+                    color: '#fff',
+                    padding: '14px 36px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    textDecoration: 'none',
+                  }}
+                >
+                  {t.visit}
+                </Link>
+              </td>
+            </tr>
+          </table>
+
+          {/* Футер */}
+          <Text style={{
+            textAlign: 'center',
+            fontSize: '9px',
+            letterSpacing: '0.1em',
+            color: '#999',
+            marginTop: '24px',
+            borderTop: '1px solid #eee',
+            paddingTop: '16px'
+          }}>
+            © {new Date().getFullYear()} STIROL
+          </Text>
         </Container>
       </Body>
     </Html>
