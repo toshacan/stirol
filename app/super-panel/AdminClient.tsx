@@ -9,10 +9,11 @@ import { CategoriesTab } from './components/CategoriesTab';
 import { CampaignModal } from './components/CampaignModal';
 import { ProductModal } from './components/ProductModal';
 import { CustomerModal } from './components/CustomerModal';
+import { MessagesTab } from './components/MessagesTab';
 
 export default function AdminClient() {
   const [activeTab, setActiveTab] = useState<
-    'orders' | 'subs' | 'dashboard' | 'customers' | 'products' | 'categories'
+    'orders' | 'subs' | 'dashboard' | 'customers' | 'products' | 'categories' | 'messages'
   >('orders');
   const [orders, setOrders] = useState<any[]>([]);
   const [subs, setSubs] = useState<any[]>([]);
@@ -149,6 +150,20 @@ export default function AdminClient() {
     setSendingId(null);
   };
 
+  const extendPaymentDeadline = async (id: string) => {
+    const res = await fetch('/api/extend-payment-deadline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    const result = await res.json();
+    if (!res.ok) {
+      alert('Error: ' + (result.error || 'Unable to extend payment deadline.'));
+      return;
+    }
+    setOrders((prev) => prev.map((order) => order.id === id ? { ...order, payment_due_at: result.paymentDueAt } : order));
+  };
+
   const openAddProductModal = () => {
     setEditingProduct(null);
     setProductForm({
@@ -253,7 +268,7 @@ export default function AdminClient() {
     });
   };
 
-  const newOrdersCount = orders.filter((o) => o.status === 'NEW').length;
+  const newOrdersCount = orders.filter((o) => o.status === 'AWAITING_PAYMENT' || o.status === 'NEW').length;
   const shippedOrders = orders.filter((o) => o.status === 'SHIPPED');
   const totalRevenue = shippedOrders.reduce((acc, o) => acc + (parseFloat(o.total) || 0), 0);
 
@@ -402,6 +417,14 @@ export default function AdminClient() {
           >
             CUSTOMERS
           </button>
+          <button
+            onClick={() => setActiveTab('messages')}
+            className={`text-left p-2 ${
+              activeTab === 'messages' ? 'bg-[#1a1a1a] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            MESSAGES
+          </button>
         </nav>
       </aside>
 
@@ -435,7 +458,7 @@ export default function AdminClient() {
 
               {activeTab === 'orders' && (
                 <div className="flex gap-2">
-                  {['ALL', 'NEW', 'PACKING', 'SHIPPED', 'CANCELLED'].map((s) => (
+                  {['ALL', 'AWAITING_PAYMENT', 'PAID', 'PACKING', 'SHIPPED', 'CANCELLED'].map((s) => (
                     <button
                       key={s}
                       onClick={() => setStatusFilter(s)}
@@ -536,6 +559,7 @@ export default function AdminClient() {
               sendOrderEmail={sendOrderEmail}
               sendingId={sendingId}
               statusMsg={statusMsg}
+              extendPaymentDeadline={extendPaymentDeadline}
             />
           )}
           {activeTab === 'products' && (
@@ -557,6 +581,7 @@ export default function AdminClient() {
               onSelectCustomer={(c) => setSelectedProfile(c)}
             />
           )}
+          {activeTab === 'messages' && <MessagesTab />}
         </div>
       </main>
 

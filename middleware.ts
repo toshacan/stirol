@@ -10,6 +10,7 @@ const PUBLIC_API_ROUTES = [
   '/api/subscribe',
   '/api/send-email',
   '/api/login',       // Логин в админку
+  '/api/expire-orders', // Supabase Cron; this route verifies CRON_SECRET itself
 ];
 
 export function middleware(request: NextRequest) {

@@ -68,7 +68,7 @@ export default function CheckoutClient() {
     empty: lang === 'EN' ? 'Cart is empty' : 'КОШИК ПОРОЖНІЙ',
     success: lang === 'EN' ? 'ORDER PLACED SUCCESSFULLY!' : 'ЗАМОВЛЕННЯ УСПІШНО ОФОРМЛЕНО!',
     orderLabel: lang === 'EN' ? 'ORDER ID:' : 'НОМЕР ЗАМОВЛЕННЯ:',
-    subSuccess: lang === 'EN' ? 'We will contact you shortly.' : 'Ми зв’яжемося з вами найближчим часом.',
+    subSuccess: lang === 'EN' ? 'Check your email for payment instructions. Your items are reserved for 24 hours.' : 'Перевірте пошту для інструкції з оплати. Ваші речі зарезервовані на 24 години.',
     backShop: lang === 'EN' ? 'BACK TO SHOP' : 'НАЗАД ДО МАГАЗИНУ',
     totalLabel: lang === 'EN' ? 'TOTAL' : 'РАЗОМ',
     

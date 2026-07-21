@@ -12,7 +12,8 @@ export default function ContactClient() {
     email: '',
     order: '',
     theme: '',
-    message: ''
+    message: '',
+    website: ''
   });
 
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -61,7 +62,7 @@ export default function ContactClient() {
 
       if (response.ok) {
         setStatus('success');
-        setFormData({ name: '', email: '', order: '', theme: '', message: '' });
+        setFormData({ name: '', email: '', order: '', theme: '', message: '', website: '' });
         setTimeout(() => setStatus('idle'), 4000);
       } else {
         setStatus('error');
@@ -118,6 +119,17 @@ export default function ContactClient() {
             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
             className="w-full border border-gray-300 bg-transparent p-2 h-32 outline-none focus:border-black text-[10px] uppercase resize-none" 
             required 
+          />
+
+          <input
+            type="text"
+            name="website"
+            value={formData.website}
+            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+            className="absolute -left-[9999px]"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
           />
           
           <button 

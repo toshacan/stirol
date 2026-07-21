@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { supabaseAdmin } from '@/lib/supabase';
+import { escapeHtml, isRateLimited } from '@/lib/formProtection';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -23,10 +24,16 @@ const CONTENT = {
 
 export async function POST(request: Request) {
   try {
-    const { email, lang } = await request.json();
+    if (isRateLimited(request, 'subscribe', { limit: 3, windowMs: 60 * 60 * 1000 })) {
+      return NextResponse.json({ result: 'error' }, { status: 429 });
+    }
+
+    const { email, lang, website } = await request.json();
+    if (website) return NextResponse.json({ result: 'success' });
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
     const userLang = lang === 'UA' ? 'UA' : 'EN';
+    const safeEmail = escapeHtml(email);
 
     // 1. ПИШЕМ В СУПЕЙС
     const { error: dbError } = await supabaseAdmin
@@ -78,7 +85,7 @@ export async function POST(request: Request) {
                             ${userLang === 'UA' ? 'ПІДПИСАНО' : 'SUBSCRIBED'}
                           </p>
                           <p style="margin: 4px 0 0 0; font-size: 12px; font-weight: bold; letter-spacing: 0.05em; color: #000;">
-                            ${email}
+                            ${safeEmail}
                           </p>
                         </td>
                       </tr>

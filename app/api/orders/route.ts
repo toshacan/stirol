@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { supabaseAdmin } from '@/lib/supabase';
+import { escapeHtml, isRateLimited } from '@/lib/formProtection';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const PAYMENT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 export async function POST(request: Request) {
   const { TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID } = process.env;
@@ -11,6 +13,10 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (isRateLimited(request, 'orders', { limit: 5, windowMs: 60 * 60 * 1000 })) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     const body = await request.json();
     let { name, email, phone, country, city, zip, address, cart, lang } = body;
 
@@ -147,7 +153,8 @@ export async function POST(request: Request) {
         total: verifiedTotal,
         quantity: totalQuantity,
         lang,
-        status: 'NEW'
+        status: 'AWAITING_PAYMENT',
+        payment_due_at: new Date(Date.now() + PAYMENT_WINDOW_MS).toISOString(),
       }])
       .select();
 
@@ -181,13 +188,19 @@ export async function POST(request: Request) {
 
     // --- EMAIL И TELEGRAM ---
     const isEn = lang === 'EN';
+    const safeName = escapeHtml(name);
+    const safePhone = escapeHtml(phone);
+    const safeCountry = escapeHtml(country);
+    const safeCity = escapeHtml(city);
+    const safeZip = escapeHtml(zip);
+    const safeAddress = escapeHtml(address);
     
     // Генерация строк товаров для таблицы в письме
     const itemsHtml = verifiedCartItems.map(item => `
       <tr>
         <td style="padding: 12px 0; border-bottom: 1px dashed #ccc;">
-          <div style="font-weight: bold; margin-bottom: 4px;">${item.title}</div>
-          <div style="color: #666; font-size: 12px;">SIZE: ${item.size}</div>
+          <div style="font-weight: bold; margin-bottom: 4px;">${escapeHtml(item.title)}</div>
+          <div style="color: #666; font-size: 12px;">SIZE: ${escapeHtml(item.size)}</div>
         </td>
         <td style="padding: 12px 0; border-bottom: 1px dashed #ccc; text-align: center;">x${item.quantity}</td>
         <td style="padding: 12px 0; border-bottom: 1px dashed #ccc; text-align: right;">${item.unitPrice * item.quantity}€</td>
@@ -213,15 +226,15 @@ export async function POST(request: Request) {
             </tr>
             <tr>
               <td style="padding-bottom: 5px; color: #666;">${isEn ? 'CLIENT' : 'КЛІЄНТ'}</td>
-              <td style="padding-bottom: 5px;">${name}</td>
+              <td style="padding-bottom: 5px;">${safeName}</td>
             </tr>
             <tr>
               <td style="padding-bottom: 5px; color: #666;">${isEn ? 'DESTINATION' : 'ДОСТАВКА'}</td>
-              <td style="padding-bottom: 5px;">${address}, ${city}, ${zip}, ${country}</td>
+              <td style="padding-bottom: 5px;">${safeAddress}, ${safeCity}, ${safeZip}, ${safeCountry}</td>
             </tr>
             <tr>
               <td style="padding-bottom: 5px; color: #666;">${isEn ? 'CONTACT' : 'ЗВ\'ЯЗОК'}</td>
-              <td style="padding-bottom: 5px;">${phone}</td>
+              <td style="padding-bottom: 5px;">${safePhone}</td>
             </tr>
           </table>
         </div>

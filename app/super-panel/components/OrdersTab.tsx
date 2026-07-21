@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 interface OrdersTabProps {
   orders: any[];
   updateOrder: (id: string, updates: any) => void;
@@ -8,6 +10,7 @@ interface OrdersTabProps {
   sendOrderEmail: (order: any) => void;
   sendingId: string | null;
   statusMsg: string | null;
+  extendPaymentDeadline: (id: string) => void;
 }
 
 export function OrdersTab({
@@ -18,7 +21,24 @@ export function OrdersTab({
   sendOrderEmail,
   sendingId,
   statusMsg,
+  extendPaymentDeadline,
 }: OrdersTabProps) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const timeLeft = (dueAt: string | null | undefined) => {
+    if (!dueAt) return 'DEADLINE MISSING';
+    const remaining = new Date(dueAt).getTime() - now;
+    if (remaining <= 0) return 'EXPIRING...';
+    const hours = Math.floor(remaining / 3_600_000);
+    const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+    return `${hours}H ${String(minutes).padStart(2, '0')}M LEFT`;
+  };
+
   return (
     <div className="grid gap-4">
       {/* Новые заказы сверху, старые снизу */}
@@ -40,11 +60,12 @@ export function OrdersTab({
               </div>
             </div>
             <select
-              defaultValue={o.status || 'NEW'}
+              value={o.status || 'AWAITING_PAYMENT'}
               className="bg-[#222] text-xs p-2 uppercase outline-none cursor-pointer"
               onChange={(e) => updateOrder(o.id, { status: e.target.value })}
             >
-              <option value="NEW">NEW</option>
+              <option value="AWAITING_PAYMENT">AWAITING PAYMENT</option>
+              <option value="PAID">PAID</option>
               <option value="PACKING">PACKING</option>
               <option value="SHIPPED">SHIPPED</option>
               <option value="CANCELLED">CANCELLED</option>
@@ -92,13 +113,28 @@ export function OrdersTab({
                   )}
                 </p>
               </div>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {o.status === 'AWAITING_PAYMENT' && (
+                  <>
+                    <span className="border border-yellow-700 text-yellow-300 px-2 py-1.5 text-[10px] uppercase">
+                      {timeLeft(o.payment_due_at)}
+                    </span>
+                    <button
+                      onClick={() => extendPaymentDeadline(o.id)}
+                      className="border border-[#555] px-2 py-1.5 text-[10px] uppercase hover:border-white hover:text-white"
+                    >
+                      + 24H
+                    </button>
+                  </>
+                )}
+              </div>
               {(o.status === 'SHIPPED' || o.status === 'CANCELLED') && (
                 <button
                   disabled={sendingId === o.id}
                   onClick={() => sendOrderEmail(o)}
                   className="border border-white p-2 hover:bg-white hover:text-black uppercase text-[10px] font-bold disabled:opacity-30 mt-4"
                 >
-                  {sendingId === o.id ? 'SENDING...' : statusMsg || `Send ${o.lang === 'UA' ? 'UA' : 'EN'} Email`}
+                  {sendingId === o.id ? 'SENDING...' : statusMsg || `${o.status === 'CANCELLED' ? 'Resend' : 'Send'} ${o.lang === 'UA' ? 'UA' : 'EN'} Email`}
                 </button>
               )}
             </div>

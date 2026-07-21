@@ -12,6 +12,7 @@ export default function Footer() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'exists'>('idle');
 
   // ЖЕСТКАЯ блокировка скролла
@@ -59,7 +60,7 @@ export default function Footer() {
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, lang: currentLang }),
+        body: JSON.stringify({ email, lang: currentLang, website }),
       });
       const data = await response.json();
       if (data.result === 'success' || data.result === 'exists') {
@@ -134,6 +135,16 @@ export default function Footer() {
                 disabled={status !== 'idle'} 
                 className="w-full bg-transparent border-b border-black pb-1 text-[9px] uppercase tracking-[0.1em] font-medium placeholder-gray-400 focus:outline-none disabled:opacity-50" 
                 required 
+              />
+              <input
+                type="text"
+                name="website"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                className="absolute -left-[9999px]"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
               />
               <button 
                 type="submit" 
