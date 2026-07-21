@@ -16,6 +16,11 @@ export function formatPrice(price: number | string | null | undefined): string {
 /**
  * Превращает цену (число или старую строку с €) в чистое число для расчётов.
  */
+
+
+
+
+
 export function parsePrice(price: number | string | null | undefined): number {
   if (typeof price === 'number') return price;
   return parseFloat(String(price ?? '0').replace(/[^0-9.]/g, '')) || 0;
