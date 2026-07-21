@@ -185,49 +185,42 @@ export default function InfoClient() {
 
   return (
     <CommonLayout>
-      <div className="w-full max-w-3xl mx-auto px-4 my-20 md:my-32 min-h-[50vh]">
-        
-        <div className="mb-16 text-center">
-          <h1 className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">
-            {currentLang === 'UA' ? 'ІНФОРМАЦІЯ' : 'INFORMATION'}
-          </h1>
-        </div>
+      <div className="w-full max-w-xl mx-auto px-4 my-20 md:my-28 min-h-[50vh]">
 
-        <div className="w-full flex flex-col gap-y-6">
-          {sections.map((id) => {
+        <h1 className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-12 text-center">
+          {currentLang === 'UA' ? 'ІНФОРМАЦІЯ' : 'INFORMATION'}
+        </h1>
+
+        <div className="w-full">
+          {sections.map((id, idx) => {
             const item = infoData[id][currentLang];
             const isOpen = openSection === id;
 
             return (
-              <div key={id} className="flex flex-col">
+              <div key={id} className={`border-b border-gray-100 ${idx === 0 ? 'border-t' : ''}`}>
                 <button
                   onClick={() => toggleSection(id)}
-                  className="w-full flex items-center justify-between py-4 text-left group cursor-pointer"
+                  className="w-full flex items-center justify-between py-5 text-left group cursor-pointer"
                 >
                   <span
-                    className={`text-sm md:text-base uppercase tracking-[0.15em] font-bold transition-all duration-300 ${
-                      isOpen ? 'text-black' : 'text-gray-400 group-hover:text-black'
+                    className={`text-[11px] uppercase tracking-[0.15em] font-bold transition-colors duration-200 ${
+                      isOpen ? 'text-black' : 'text-gray-500 group-hover:text-black'
                     }`}
                   >
                     {item.title}
                   </span>
-                  
-                  <div className="relative w-4 h-4 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
-                    <span className="absolute w-full h-[1.5px] bg-current"></span>
-                    <span 
-                      className={`absolute w-full h-[1.5px] bg-current transition-transform duration-300 ease-out ${
-                        isOpen ? 'rotate-0' : 'rotate-90'
-                      }`}
-                    ></span>
-                  </div>
+
+                  <span className="text-gray-400 text-sm font-mono leading-none w-4 text-center">
+                    {isOpen ? '−' : '+'}
+                  </span>
                 </button>
 
-                <div 
-                  className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                    isOpen ? 'max-h-[2000px] opacity-100 pt-6 pb-12' : 'max-h-0 opacity-0 pt-0 pb-0'
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    isOpen ? 'max-h-[2000px] opacity-100 pb-8' : 'max-h-0 opacity-0'
                   }`}
                 >
-                  <div className="text-xs md:text-sm leading-relaxed text-[#121212] tracking-wide font-medium pr-4 md:pr-12">
+                  <div className="text-[12px] leading-[1.8] text-gray-600 max-w-md">
                     {item.content}
                   </div>
                 </div>
