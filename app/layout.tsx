@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { LangProvider } from '@/components/LangContext';
 import { CartProvider } from '@/components/CartContext';
@@ -20,26 +21,12 @@ export const metadata: Metadata = {
     description: 'STIROL — official website.',
     url: 'https://stirol.xyz',
     siteName: 'STIROL',
-    images: [
-      {
-        url: '/1logo-heavy.png',
-        width: 1200,
-        height: 630,
-        alt: 'STIROL',
-      },
-    ],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'STIROL',
     description: 'STIROL — official website.',
-    images: ['/1logo-heavy.png'],
-  },
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -55,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </LangProvider>
         </CartProvider>
+        <Analytics />
       </body>
     </html>
   );
