@@ -7,39 +7,40 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
-    // Теперь принимаем не просто массив email, а массив объектов: [{ email: '...', lang: 'EN' }, ...]
+    // subscribers: [{ email: '...', lang: 'EN' }, ...]
     const { subscribers, headerText, imageUrl, description, linkUrl } = await req.json();
 
-    // Группируем подписчиков по языку, чтобы сделать всего 2 отправки (для EN и UA)
-    const groups = subscribers.reduce((acc: any, sub: any) => {
-      const lang = (sub.lang || 'EN').toUpperCase();
-      if (!acc[lang]) acc[lang] = [];
-      acc[lang].push(sub.email);
-      return acc;
-    }, {});
+    // Отправляем по одному письму на подписчика — это нужно, чтобы у каждого
+    // была своя персональная ссылка отписки (email в теле письма отличается,
+    // поэтому один общий HTML на всех больше не подходит).
+    const results = await Promise.allSettled(
+      subscribers.map(async (sub: any) => {
+        const lang = (sub.lang || 'EN').toUpperCase() as 'EN' | 'UA';
 
-    const promises = Object.entries(groups).map(async ([lang, emails]) => {
-      const html = await render(
-        NewsletterTemplate({ 
-          lang: lang as 'EN' | 'UA', 
-          headerText, 
-          imageUrl, 
-          description, 
-          linkUrl 
-        })
-      );
+        const html = await render(
+          NewsletterTemplate({
+            lang,
+            headerText,
+            imageUrl,
+            description,
+            linkUrl,
+            subscriberEmail: sub.email,
+          })
+        );
 
-      return resend.emails.send({
-        from: 'Stirol <news@stirol.xyz>',
-        to: emails as string[],
-        subject: headerText,
-        html: html,
-      });
-    });
+        return resend.emails.send({
+          from: 'Stirol <news@stirol.xyz>',
+          to: sub.email,
+          subject: headerText,
+          html: html,
+        });
+      })
+    );
 
-    await Promise.all(promises);
+    const failed = results.filter((r) => r.status === 'rejected').length;
+    const sent = results.length - failed;
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, sent, failed });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

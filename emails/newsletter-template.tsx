@@ -7,14 +7,18 @@ interface NewsletterProps {
   imageUrl: string;
   description: string;
   linkUrl: string;
+  subscriberEmail: string;
 }
 
-export const NewsletterTemplate = ({ lang, headerText, imageUrl, description, linkUrl }: NewsletterProps) => {
+export const NewsletterTemplate = ({ lang, headerText, imageUrl, description, linkUrl, subscriberEmail }: NewsletterProps) => {
   const date = new Date().toLocaleDateString('en-US');
 
   const t = {
     visit: lang === 'UA' ? 'ДО МАГАЗИНУ' : 'SHOP NOW',
+    unsubscribe: lang === 'UA' ? 'Відписатися від розсилки' : 'Unsubscribe',
   };
+
+  const unsubscribeUrl = `https://stirol.xyz/unsubscribe?email=${encodeURIComponent(subscriberEmail)}`;
 
   return (
     <Html>
@@ -117,6 +121,18 @@ export const NewsletterTemplate = ({ lang, headerText, imageUrl, description, li
             paddingTop: '16px'
           }}>
             © {new Date().getFullYear()} STIROL
+          </Text>
+
+          {/* Отписка — обязательна для маркетинговых писем */}
+          <Text style={{
+            textAlign: 'center',
+            fontSize: '9px',
+            letterSpacing: '0.05em',
+            marginTop: '4px',
+          }}>
+            <Link href={unsubscribeUrl} style={{ color: '#999', textDecoration: 'underline' }}>
+              {t.unsubscribe}
+            </Link>
           </Text>
         </Container>
       </Body>
