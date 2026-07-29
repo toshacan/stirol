@@ -50,6 +50,11 @@ export default function Footer() {
     exists: { EN: 'ALREADY SUBSCRIBED', UA: 'ВИ ВЖЕ ПІДПИСАНІ' },
   };
 
+  const noteText: Record<LangType, string> = {
+    EN: 'You can unsubscribe at any time.',
+    UA: 'Ви можете відписатись у будь-який момент.',
+  };
+
   const links = [{ path: '/news' }, { path: '/lookbook' }, { path: '/info' }, { path: '/shop' }, { path: '/contact' }, { path: '/videos' }, { path: '/about' }];
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -153,6 +158,12 @@ export default function Footer() {
               >
                 {formTranslations[status === 'idle' ? 'button' : status]?.[currentLang]}
               </button>
+
+              {/* Маленькая надпись про отписку — стоит тише кнопки, не капсом,
+                  чтобы не спорить визуально с остальной формой */}
+              <p className="text-[8px] normal-case tracking-normal text-gray-400 text-center leading-relaxed">
+                {noteText[currentLang]}
+              </p>
             </form>
           </div>
         </div>
