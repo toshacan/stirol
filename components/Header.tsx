@@ -63,7 +63,7 @@ export default function Header() {
               alt="STIROL" 
               width={1600} 
               height={290} 
-              className="w-28 md:w-36 h-auto object-contain" 
+              className="w-22 md:w-36 h-auto object-contain" 
               priority 
             />
           </Link>
