@@ -55,10 +55,17 @@ export default function Header() {
           </Link>
         </div>
         
-        {/* CENTER: Logo (Inverted) */}
+        {/* CENTER: Logo */}
         <div className="flex-shrink-0 mx-4">
-          <Link href="/shop" className="block w-23 md:w-32 h-8 relative hover:opacity-80 transition-opacity">
-            <Image src="/BOXLOGO.png" alt="STIROL" fill sizes="128px" priority />
+          <Link href="/shop" className="block hover:opacity-80 transition-opacity">
+            <Image 
+              src="/BOXLOGO.png" 
+              alt="STIROL" 
+              width={1600} 
+              height={290} 
+              className="w-28 md:w-36 h-auto object-contain" 
+              priority 
+            />
           </Link>
         </div>
 
