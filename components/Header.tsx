@@ -63,8 +63,11 @@ export default function Header() {
               alt="STIROL" 
               width={1600} 
               height={290} 
-              className="w-22 md:w-36 h-auto object-contain" 
+              className="w-22 md:w-36 h-auto object-contain select-none" 
               priority 
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              onDragStart={(e) => e.preventDefault()}
             />
           </Link>
         </div>
@@ -139,7 +142,6 @@ export default function Header() {
               <>
                 <div className="flex-grow overflow-y-auto space-y-6">
                   {cart.map((item: any, idx: number) => {
-                    // Вычисляем, достигнут ли лимит стока для отключения кнопки плюс
                     const isMaxReached = (item.quantity || 1) >= Number(item.stock || 99);
 
                     return (
