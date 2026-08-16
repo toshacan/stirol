@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Говорим браузеру использовать светлые системные элементы */
+  color-scheme: light;
 }
 
 @theme inline {
@@ -16,18 +18,17 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    /* Говорим браузеру использовать темные системные элементы */
+    color-scheme: dark;
   }
 }
 
-/* 
-   ИСПРАВЛЕНИЕ: Добавлен тег html. 
-   Теперь фон закрашивает весь корень документа, включая зарезервированную 
-   зону scrollbar-gutter, избавляя от черной/белой полосы сбоку.
-*/
 html, body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* Добавляем минимальную высоту, чтобы фон 100% заливал весь экран */
+  min-height: 100vh; 
 }
 
 /* Утилита для скрытия системных скроллбаров */
@@ -39,18 +40,12 @@ html, body {
   scrollbar-width: none;
 }
 
-/* Отключаем "scroll anchoring" — фичу мобильных браузеров, которая пытается
-   сама сохранить позицию скролла при смене контента и мешает scrollTo(0,0)
-   срабатывать при переходе между страницами */
-/* Резервируем место под вертикальный скроллбар всегда — иначе при раскрытии
-   аккордеона на Info-странице (или любого другого контента, меняющего высоту)
-   скроллбар появляется/исчезает, и весь центрированный контент (лого в шапке
-   и т.д.) на долю секунды "прыгает" в сторону */
-html {
-  scrollbar-gutter: stable;
+/* Отключаем "scroll anchoring" */
+html, body {
+  overflow-anchor: none;
 }
 
-html,
-body {
-  overflow-anchor: none;
+/* Резервируем место под вертикальный скроллбар всегда */
+html {
+  scrollbar-gutter: stable;
 }
