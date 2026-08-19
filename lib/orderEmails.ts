@@ -20,7 +20,7 @@ function receiptTemplate(heading: string, body: string) {
       </div>
       <div style="font-size:13px;line-height:1.7;white-space:pre-wrap;">${body}</div>
       <div style="text-align:center;font-size:9px;color:#666;border-top:1px solid #000;padding-top:16px;margin-top:28px;">
-        STIROL SYSTEM // CONTACT US FOR ANY QUESTIONS
+        STIROL | CONTACT US FOR ANY QUESTIONS
       </div>
     </div>`;
 }
@@ -43,7 +43,7 @@ export async function sendOrderStatusEmail(order: OrderEmail) {
   return resend.emails.send({
     from: 'STIROL <orders@stirol.xyz>',
     to: order.email,
-    subject: `STIROL // ${heading} #${order.id}`,
+    subject: `STIROL | ${heading} #${order.id}`,
     html: receiptTemplate(heading, body),
   });
 }
@@ -55,7 +55,7 @@ export async function sendOrderMessageEmail(order: OrderEmail, subject: string, 
   return resend.emails.send({
     from: 'STIROL <orders@stirol.xyz>',
     to: order.email,
-    subject: `STIROL // ${subject.trim().slice(0, 100)} #${order.id}`,
+    subject: `STIROL | ${subject.trim().slice(0, 100)} #${order.id}`,
     html: receiptTemplate(safeSubject, safeMessage),
   });
 }
