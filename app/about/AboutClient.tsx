@@ -37,7 +37,7 @@ export default function AboutClient() {
           {currentData.title}
         </h1>
 
-        <div className="space-y-4 text-[12px] leading-[1.8] text-gray-700 max-w-lg">
+        <div className="space-y-4 text-[12px] leading-[1.9] tracking-wide uppercase text-gray-700 max-w-lg">
           <p>{currentData.p1}</p>
           <p>{currentData.p2}</p>
           <p>{currentData.p3}</p>
