@@ -59,8 +59,8 @@ export const VIDEOS: VideoItem[] = [
       UA: ''
     },
     specs: {
-      EN: 'OLD DIGITAL OLYMPUS CAMERA',
-      UA: 'СТАРА ЦИФРОВА КАМЕРА '
+      EN: '',
+      UA: ''
     },
     description: {
       EN: 'A dialogue between the dynamics of modern skateboarding and monumental shots from Fellinis "8 1/2," Vertigo, and Hitchcocks "Psycho."',

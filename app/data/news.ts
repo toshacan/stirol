@@ -19,13 +19,13 @@ export interface MagazinePost {
 
 export const MAGAZINE_POSTS: MagazinePost[] = [
   {
-    id: 'chronicle-01',
+    id: 'ch-01',
     tag: 'REBOOT',
     title: {
-      EN: 'STIROL: CHAPTER II / THE REBOOT',
-      UA: 'STIROL: ГЛАВА II / ПЕРЕЗАПУСК'
+      EN: 'STIROL: CHAPTER II',
+      UA: 'STIROL: ГЛАВА II'
     },
-    date: '24/06/2026',
+    date: '31/08/2026',
     pages: [
       {
         image: '/news/run.png',
