@@ -58,7 +58,7 @@ export default function VideosClient() {
               video.isComingSoon ? (
                 <div key={video.id} className="flex flex-col space-y-2 opacity-30">
                   <div className="aspect-square bg-white border border-gray-100 flex items-center justify-center p-4">
-                    <div className="text-[9px] text-gray-400 uppercase tracking-widest">COMING SOON</div>
+                    <div className="text-[9px] text-gray-400 uppercase tracking-widest">{currentLang === 'UA' ? 'НЕЗАБАРОМ' : 'COMING SOON'}</div>
                   </div>
                   <div className="flex flex-col text-[10px] uppercase tracking-wider space-y-0.5">
                     <span className="text-gray-400 font-bold">{video.title}</span>
@@ -80,7 +80,7 @@ export default function VideosClient() {
                       className="object-cover scale-[1.35]  group-hover:scale-[1.42] transition-all duration-500 ease-out"
                     />
                     <div className="absolute bg-white/90 text-black text-[10px] tracking-widest font-bold px-2 py-1 uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      PLAY
+                      {currentLang === 'UA' ? 'ДИВИТИСЯ' : 'PLAY'}
                     </div>
                   </div>
                   <div className="flex flex-col text-[10px] uppercase tracking-wider space-y-0.5">

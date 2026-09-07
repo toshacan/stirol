@@ -68,7 +68,7 @@ export default function CheckoutClient() {
     empty: lang === 'EN' ? 'Cart is empty' : 'КОШИК ПОРОЖНІЙ',
     success: lang === 'EN' ? 'ORDER PLACED SUCCESSFULLY!' : 'ЗАМОВЛЕННЯ УСПІШНО ОФОРМЛЕНО!',
     orderLabel: lang === 'EN' ? 'ORDER ID:' : 'НОМЕР ЗАМОВЛЕННЯ:',
-    subSuccess: lang === 'EN' ? 'Check your email for payment instructions. Your items are reserved for 24 hours.' : 'Перевірте пошту для інструкції з оплати. Ваші речі зарезервовані на 24 години.',
+    subSuccess: lang === 'EN' ? 'Check your email for payment instructions. Your items are reserved for 24 hours.' : 'Перевір пошту для інструкцій з оплати. Твої речі зарезервовані на 24 години.',
     backShop: lang === 'EN' ? 'BACK TO SHOP' : 'НАЗАД ДО МАГАЗИНУ',
     totalLabel: lang === 'EN' ? 'TOTAL' : 'РАЗОМ',
     
@@ -161,7 +161,7 @@ export default function CheckoutClient() {
     <CommonLayout>
       <div className="max-w-xl mx-auto mt-20 text-center uppercase tracking-widest text-[10px]">
         <p className="mb-6">{t.empty}</p>
-        <Link href="/shop" className="border border-black px-6 py-2 hover:bg-black hover:text-white transition-colors">SHOP</Link>
+        <Link href="/shop" className="border border-black px-6 py-2 hover:bg-black hover:text-white transition-colors">{lang === 'EN' ? 'SHOP' : 'ДО МАГАЗИНУ'}</Link>
       </div>
     </CommonLayout>
   );

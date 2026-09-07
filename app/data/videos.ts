@@ -38,7 +38,7 @@ export const VIDEOS: VideoItem[] = [
     },
     description: {
       EN: 'A raw, unfiltered testament to movement in a static world. Shot entirely on the streets of occupied Horlivka, Ugliness blends crisp digital reality with gritty VHS aesthetics to capture the restless pulse of the underground. This isnt just a skate tape; its a visual excision of the ordinary. Navigating brutalist architecture, empty public transport, and decaying concrete, the video highlights the harsh contrast between a city frozen in time and the relentless energy of youth pushing forward. Find freedom in the grey. Make noise in the silence.',
-      UA: 'Сирий, нефільтрований доказ руху в статичному світі. Знятий на вулицях окупованої Горлівки, Ugliness поєднує чітку цифрову реальність із брудною VHS-естетикою, щоб передати неспокійний пульс андеграунду. Це не просто скейт-відео; це візуальне висічення буденності. Рухаючись крізь бруталістську архітектуру, порожній громадський транспорт та побитий бетон.'
+      UA: 'Сире, нефільтроване свідчення руху в застиглому світі. Зняте на вулицях окупованої Горлівки, Ugliness поєднує чітку цифрову реальність із брудною VHS-естетикою, передаючи неспокійний пульс андеграунду. Це не просто скейт-відео, а візуальний розрив із буденністю: бруталістська архітектура, порожній громадський транспорт і побитий бетон.'
     }
   },
   {
@@ -82,7 +82,7 @@ export const VIDEOS: VideoItem[] = [
     },
     metaText: {
       EN: 'FILMED IN 2014 BEFORE THE OCCUPATION OF DONBAS',
-      UA: 'ЗНЯТО У 2014 ПЕРЕД ОКУПАЦІЄЮ ДОНБАСУ'
+      UA: 'ЗНЯТО У 2014 РОЦІ, ДО ОКУПАЦІЇ ДОНБАСУ'
     },
     specs: {
       EN: 'OLD DIGITAL OLYMPUS CAMERA',
@@ -117,7 +117,7 @@ export const VIDEOS: VideoItem[] = [
     },
     description: {
       EN: 'An uncompromising post-industrial manifestation of order destruction. Merging low-fi documentary aesthetics, dark metal artwork, and high-intensity motion graphics.',
-      UA: 'Безкомпромісний постіндустріальний маніфест руйнування порядку. Злиття лоу-фай документальної естетики, темної метал-графіки та інтенсивного моушн-дизайну.'
+      UA: 'Безкомпромісний постіндустріальний маніфест руйнування порядку. Поєднання лоу-фай документальної естетики, темної метал-графіки та інтенсивного моушн-дизайну.'
     }
   },
 
@@ -173,7 +173,7 @@ export const VIDEOS: VideoItem[] = [
     },
     description: {
       EN: 'Heavy beats, raw slums, and a deserted industrial zone. The first hands-on attempt to build something beautiful where everything else is standing still.',
-      UA: 'Важкі біти, сирі трущоби й покинута індустріальна зона. Перша наочна спроба збудувати щось прекрасне там, де все інше зупинилося.'
+      UA: 'Важкі біти, сирі трущоби й покинута індустріальна зона. Перша спроба власноруч створити щось прекрасне там, де все інше зупинилося.'
     }
   },
 
@@ -228,7 +228,7 @@ export const VIDEOS: VideoItem[] = [
     },
     description: {
       EN: 'Late 2010s Kyiv. A record of pure existence and a collective drift into the unknown. Moving fast, because nobody knew what was coming next.',
-      UA: 'Київ кінця 2010-х. Хроніка чистого буття та колективного дрейфу в невідомість. Стрімкий рух, адже ніхто не знав, що чекає попереду.'
+      UA: 'Київ кінця 2010-х. Хроніка чистого буття та колективного дрейфу в невідомість. Ми рухалися стрімко, бо ніхто не знав, що буде далі.'
     }
   },
   {
@@ -242,11 +242,11 @@ export const VIDEOS: VideoItem[] = [
     hasCustomMargin: false,
     titleText: {
         EN: '"RUSTAM IS RIDING"',
-        UA: '"РУСТАМ КАТАЄТЬСЯ"'
+        UA: '"RUSTAM IS RIDING"'
     },
     metaText: {
       EN: 'OLD BMX STIROL BMX ARCHOVE',
-      UA: 'BMX АРХІВ STIROL'
+      UA: 'АРХІВ BMX STIROL'
     },
     specs: {
       EN: '',
@@ -280,7 +280,7 @@ export const VIDEOS: VideoItem[] = [
     },
     description: {
       EN: 'A tribute to the golden era of street riding. Shot entirely through a classic fisheye lens, this edit captures the pure, unfiltered momentum of BMX and MTB in a concrete playground.',
-      UA: 'Данина поваги золотій ері вуличного катання. Знятий повністю через класичний обєктив fisheye, цей едіт передає чисту, нефільтровану інерцію BMX та MTB у бетонних джунглях.'
+      UA: 'Данина поваги золотій добі вуличного катання. Знятий повністю через класичний об’єктив fisheye, цей едіт передає чисту, нефільтровану інерцію BMX та MTB у бетонних джунглях.'
     }
   },
   {
@@ -306,7 +306,7 @@ export const VIDEOS: VideoItem[] = [
     },
     description: {
       EN: 'A film by the ZZOЖ crew, featuring skateboarders and BMX riders from Horlivka. Filmed between 2011 and 2012 in Horlivka and Donetsk, this video captured the final chapter for many of them before they walked away from riding. They did it their own way, making the best of what they had—with not a single skate shop or skatepark in their hometown. Just tricks, music, and the raw style of the early 2010s.',
-      UA: 'Фільм від ZZOЖ crew за участю скейтбордистів та BMX-райдерів із Горлівки. Зняте між 2011 та 2012 роками в Горлівці та Донецьку, це відео зафіксувало заключну главу для багатьох із них перед тим, як вони залишили катання. Вони робили це по-своєму, витискаючи максимум із того, що мали — без жодного скейтшопу чи скейтпарку в рідному місті. Тільки трюки, музика та сирий стиль ранніх 2010-х.'
+      UA: 'Фільм команди ZZOЖ за участю скейтбордистів і BMX-райдерів із Горлівки. Зняте в Горлівці та Донецьку у 2011–2012 роках, це відео зафіксувало останній етап для багатьох із них перед тим, як вони залишили катання. Вони робили це по-своєму, витискаючи максимум із того, що мали, — без жодного скейтшопу чи скейтпарку в рідному місті. Тільки трюки, музика та сирий стиль ранніх 2010-х.'
     }
   },
   {

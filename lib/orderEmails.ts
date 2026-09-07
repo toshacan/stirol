@@ -34,8 +34,8 @@ export async function sendOrderStatusEmail(order: OrderEmail) {
   const tracking = escapeHtml(order.tracking || 'PENDING');
   const body = isUkrainian
     ? (isShipped
-      ? `Ми відправили ваше замовлення #${order.id}.\n\nТрек-номер: ${tracking}.`
-      : `Ваше замовлення #${order.id} було скасовано.\n\nЯкщо це сталося помилково або вам потрібна допомога — напишіть нам.`)
+      ? `Ми відправили твоє замовлення #${order.id}.\n\nТрек-номер: ${tracking}.`
+      : `Твоє замовлення #${order.id} було скасовано.\n\nЯкщо це сталося помилково або тобі потрібна допомога — напиши нам.`)
     : (isShipped
       ? `Your order #${order.id} has been shipped.\n\nTracking number: ${tracking}.`
       : `Your order #${order.id} has been cancelled.\n\nIf this happened by mistake or you need help, please contact us.`);

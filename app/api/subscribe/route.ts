@@ -8,8 +8,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const CONTENT = {
   UA: {
     subject: 'ВІТАЄМО У STIROL',
-    title: 'WELCOME TO THE FAMILY',
-    sub: 'SUBSCRIBER CONFIRMATION',
+    title: 'ЛАСКАВО ПРОСИМО ДО STIROL',
+    sub: 'ПІДТВЕРДЖЕННЯ ПІДПИСКИ',
     text: 'Дякуємо за підписку. Ми не спамимо — тільки важливі новини, дропи та ексклюзивний контент.',
     btn: 'ПЕРЕЙТИ В МАГАЗИН'
   },

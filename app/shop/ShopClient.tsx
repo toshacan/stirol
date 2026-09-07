@@ -47,7 +47,7 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
   
   const uiText = {
     EN: { soldout: 'SOLD OUT', comingSoon: 'COMING SOON', all: 'ALL' },
-    UA: { soldout: 'РОЗПРОДАНО', comingSoon: 'СКОРО', all: 'ВСІ' }
+    UA: { soldout: 'РОЗПРОДАНО', comingSoon: 'НЕЗАБАРОМ', all: 'ВСІ' }
   };
 
   const filteredProducts = activeCategory === 'all' 

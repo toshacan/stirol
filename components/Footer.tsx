@@ -43,7 +43,7 @@ export default function Footer() {
 
   const formTranslations: Record<string, Record<LangType, string>> = {
     placeholder: { EN: 'ENTER YOUR EMAIL', UA: 'ВВЕДІТЬ ВАШ EMAIL' },
-    button: { EN: 'SUBSCRIBE', UA: 'ПІДПИСАТИСЬ' },
+    button: { EN: 'SUBSCRIBE', UA: 'ПІДПИСАТИСЯ' },
     loading: { EN: 'SENDING...', UA: 'ВІДПРАВКА...' },
     success: { EN: 'SUCCESS', UA: 'УСПІШНО' },
     error: { EN: 'ERROR', UA: 'ПОМИЛКА' },
@@ -52,7 +52,7 @@ export default function Footer() {
 
   const noteText: Record<LangType, string> = {
     EN: 'You can unsubscribe at any time.',
-    UA: 'Ви можете відписатись у будь-який момент.',
+    UA: 'Ти можеш відписатися будь-коли.',
   };
 
   const links = [{ path: '/news' }, { path: '/lookbook' }, { path: '/info' }, { path: '/shop' }, { path: '/contact' }, { path: '/videos' }, { path: '/about' }];

@@ -23,7 +23,7 @@ export const MAGAZINE_POSTS: MagazinePost[] = [
     tag: 'REBOOT',
     title: {
       EN: 'STIROL: CHAPTER II',
-      UA: 'STIROL: ГЛАВА II'
+      UA: 'STIROL: РОЗДІЛ II'
     },
     date: '31/08/2026',
     pages: [
@@ -31,7 +31,7 @@ export const MAGAZINE_POSTS: MagazinePost[] = [
         image: '/news/run.png',
         text: {
           EN: 'We are fully shifting our focus back to STIROL. This website is a basic setup for everything we want to release next. From our roots in the industrial landscapes of Horlivka to this new system, we are just quietly doing what we love. More attention to product quality, custom cuts, and bright contrast graphics. The framework is ready, and Drop 1 is loading. Stay tuned.',
-          UA: 'Ми повністю повертаємо фокус на STIROL. Цей сайт — базова інфраструктура для всього, що ми хочемо релізити далі. Від нашого коріння в індустріальній Горлівці до цієї нової системи, ми просто спокійно робимо те, що любимо. Більше уваги до якості речей, правильного крою та яскравої контрастної графіки. Система готова, первый дроп уже завантажується. На звʼязку.'
+          UA: 'Ми знову повністю зосереджуємося на STIROL. Цей сайт — основа для всього, що ми хочемо релізити далі. Від індустріальної Горлівки, де ми виросли, до нової системи — ми просто тихо робимо те, що любимо. Більше уваги до якості речей, продуманого крою та яскравої контрастної графіки. Система готова, перший дроп уже завантажується. На звʼязку.'
         }
       }
     ]

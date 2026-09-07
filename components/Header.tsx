@@ -36,7 +36,7 @@ export default function Header() {
     size: lang === 'EN' ? 'SIZE' : 'РОЗМІР',
     remove: lang === 'EN' ? 'REMOVE' : 'ВИДАЛИТИ',
     emptyCart: lang === 'EN' ? 'YOUR CART IS EMPTY' : 'ВАШ КОШИК ПОРОЖНІЙ',
-    emptyCartSub: lang === 'EN' ? 'ADD SOMETHING TO CONTINUE' : 'ДОДАЙТЕ ЩОСЬ, ЩОБ ПРОДОВЖИТИ',
+    emptyCartSub: lang === 'EN' ? 'ADD SOMETHING TO CONTINUE' : 'ДОДАЙ ЩОСЬ, ЩОБ ПРОДОВЖИТИ',
     browseShop: lang === 'EN' ? 'BROWSE SHOP →' : 'ДО МАГАЗИНУ →',
   };
 
