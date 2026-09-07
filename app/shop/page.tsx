@@ -1,5 +1,6 @@
 import ShopClient from './ShopClient';
 import { createClient } from '@supabase/supabase-js';
+import { PUBLIC_PRODUCT_FIELDS } from '@/lib/storefrontProducts';
 
 // Кэшируем на 60 секунд вместо полного отключения кэша.
 // Свежие правки из админки (add/update/delete-product, add/update/delete-category)
@@ -32,7 +33,7 @@ export const metadata = {
 export default async function ShopPage() {
   // Параллельно грузим товары и категории прямо на сервере
   const [productsRes, categoriesRes] = await Promise.all([
-    supabase.from('products').select('*'),
+    supabase.from('products').select(PUBLIC_PRODUCT_FIELDS).eq('is_active', true),
     supabase.from('categories').select('*')
   ]);
 

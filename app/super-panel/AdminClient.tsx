@@ -79,7 +79,7 @@ export default function AdminClient() {
       });
     }
     if (products.length === 0 || activeTab === 'products') {
-      fetch('/api/get-products').then((r) => r.json()).then((j) => setProducts(Array.isArray(j) ? j : []));
+      fetch('/api/get-admin-products').then((r) => r.json()).then((j) => setProducts(Array.isArray(j) ? j : []));
     }
     if (categories.length === 0 || activeTab === 'categories') {
       fetchCategories();
@@ -237,7 +237,7 @@ export default function AdminClient() {
       const result = await res.json();
       if (result.success || res.ok) {
         setIsProductModalOpen(false);
-        fetch('/api/get-products').then((r) => r.json()).then((j) => setProducts(Array.isArray(j) ? j : []));
+        fetch('/api/get-admin-products').then((r) => r.json()).then((j) => setProducts(Array.isArray(j) ? j : []));
       } else {
         alert('Error saving product: ' + (result.error || 'Unknown error'));
       }

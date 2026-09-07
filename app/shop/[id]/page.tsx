@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import ProductClient from './ProductClient';
 import { Metadata } from 'next';
 import { sortVariants } from '@/lib/sortVariants';
+import { PUBLIC_PRODUCT_WITH_VARIANTS_FIELDS } from '@/lib/storefrontProducts';
 
 // Без этой строки Next.js мог закэшировать страницу товара НАВСЕГДА
 // (до следующего деплоя), потому что тут нет cookies()/headers(), которые
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from('products')
     .select('title, description, images')
     .eq('id', id)
+    .eq('is_active', true)
     .single();
 
   if (!product) {
@@ -60,16 +62,9 @@ export default async function ProductPage({ params }: Props) {
   // 1. Ищем текущий товар
   const { data: product, error: productError } = await supabase
     .from('products')
-    .select(`
-      *,
-      product_variants (
-        id,
-        size,
-        stock,
-        price_modifier
-      )
-    `)
+    .select(PUBLIC_PRODUCT_WITH_VARIANTS_FIELDS)
     .eq('id', id)
+    .eq('is_active', true)
     .maybeSingle();
 
   if (productError || !product) {
@@ -87,6 +82,7 @@ export default async function ProductPage({ params }: Props) {
   const { data: allProducts } = await supabase
     .from('products')
     .select('id')
+    .eq('is_active', true)
     .order('created_at', { ascending: false });
 
   let nextProduct = null;

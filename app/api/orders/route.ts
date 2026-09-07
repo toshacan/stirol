@@ -8,9 +8,6 @@ const PAYMENT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 export async function POST(request: Request) {
   const { TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID } = process.env;
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
-  }
 
   try {
     if (isRateLimited(request, 'orders', { limit: 5, windowMs: 60 * 60 * 1000 })) {
@@ -180,10 +177,14 @@ export async function POST(request: Request) {
 
       const totalStock = (currentVariants || []).reduce((acc, v: any) => acc + (parseInt(v.stock, 10) || 0), 0);
 
-      await supabaseAdmin
+      const { error: statusError } = await supabaseAdmin
         .from('products')
         .update({ status: totalStock <= 0 ? 'soldout' : 'ACTIVE' })
         .eq('id', productId);
+
+      if (statusError) {
+        console.error('Product status update failed after order creation:', statusError);
+      }
     }
 
     // --- EMAIL И TELEGRAM ---
@@ -288,12 +289,22 @@ export async function POST(request: Request) {
       </div>
     `;
 
-    await resend.emails.send({
-      from: 'STIROL <orders@stirol.xyz>',
-      to: email,
-      subject: `STIROL — #${orderId}`,
-      html: htmlContent,
-    });
+    // The order is already committed at this point. Notifications are best-effort:
+    // a temporary Resend or Telegram failure must not tell the customer their order failed.
+    try {
+      const emailResult = await resend.emails.send({
+        from: 'STIROL <orders@stirol.xyz>',
+        to: email,
+        subject: `STIROL — #${orderId}`,
+        html: htmlContent,
+      });
+
+      if (emailResult.error) {
+        console.error('Order confirmation email failed:', { orderId, error: emailResult.error });
+      }
+    } catch (notificationError) {
+      console.error('Order confirmation email threw after order creation:', { orderId, error: notificationError });
+    }
 
     // --- ФОРМИРОВАНИЕ НОВОГО СООБЩЕНИЯ В ТЕЛЕГРАМ ---
     const tgItemsList = verifiedCartItems
@@ -317,11 +328,23 @@ ${tgItemsList}
 TOTAL QTY: ${totalQuantity}
 TOTAL: ${verifiedTotal}€`;
 
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: tgMessage }),
-    });
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+      console.error('Telegram notification skipped: missing configuration.', { orderId });
+    } else {
+      try {
+        const telegramResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: tgMessage }),
+        });
+
+        if (!telegramResponse.ok) {
+          console.error('Telegram notification failed:', { orderId, status: telegramResponse.status });
+        }
+      } catch (notificationError) {
+        console.error('Telegram notification threw after order creation:', { orderId, error: notificationError });
+      }
+    }
 
     return NextResponse.json({ success: true, orderId });
 
