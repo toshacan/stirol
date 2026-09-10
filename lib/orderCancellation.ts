@@ -1,22 +1,46 @@
 import { supabaseAdmin } from '@/lib/supabase';
 
 type CancelUpdates = Record<string, unknown>;
+const STOCK_RESTORABLE_STATUSES = ['AWAITING_PAYMENT', 'PAID', 'PACKING'];
 
 export async function cancelOrder(id: string, updates: CancelUpdates = {}) {
-  // The conditional update is the lock: only one request can transition an order
-  // to CANCELLED and therefore return its stock or send the automatic email.
-  const { data: cancelledOrders, error: updateError } = await supabaseAdmin
+  // Read the current status first so a shipped order can still be marked
+  // cancelled without accidentally returning an item that has already left.
+  const { data: currentOrder, error: currentOrderError } = await supabaseAdmin
     .from('orders')
-    .update({ ...updates, status: 'CANCELLED' })
+    .select('id, status')
     .eq('id', id)
-    .neq('status', 'CANCELLED')
+    .maybeSingle();
+
+  if (currentOrderError) throw currentOrderError;
+  if (!currentOrder || currentOrder.status === 'CANCELLED') {
+    return { cancelled: false, stockRestored: false, order: null };
+  }
+
+  const shouldRestoreStock = STOCK_RESTORABLE_STATUSES.includes(currentOrder.status);
+
+  // The status condition makes this safe if another request changes the order
+  // between the read above and this update.
+  const cancellationQuery = shouldRestoreStock
+    ? supabaseAdmin
+        .from('orders')
+        .update({ ...updates, status: 'CANCELLED' })
+        .eq('id', id)
+        .in('status', STOCK_RESTORABLE_STATUSES)
+    : supabaseAdmin
+        .from('orders')
+        .update({ ...updates, status: 'CANCELLED' })
+        .eq('id', id)
+        .eq('status', currentOrder.status);
+
+  const { data: cancelledOrders, error: updateError } = await cancellationQuery
     .select('id, status, items_json, email, lang, tracking');
 
   if (updateError) throw updateError;
   const order = cancelledOrders?.[0];
-  if (!order) return { cancelled: false, order: null };
+  if (!order) return { cancelled: false, stockRestored: false, order: null };
 
-  if (Array.isArray(order.items_json)) {
+  if (shouldRestoreStock && Array.isArray(order.items_json)) {
     for (const item of order.items_json) {
       await supabaseAdmin.rpc('increment_variant_stock', {
         p_product_id: item.id,
@@ -46,5 +70,5 @@ export async function cancelOrder(id: string, updates: CancelUpdates = {}) {
     }
   }
 
-  return { cancelled: true, order };
+  return { cancelled: true, stockRestored: shouldRestoreStock, order };
 }

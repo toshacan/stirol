@@ -13,11 +13,11 @@ export async function POST(request: Request) {
     }
 
     if (updates.status === 'CANCELLED') {
-      const { cancelled, order } = await cancelOrder(id, updates);
+      const { cancelled, stockRestored, order } = await cancelOrder(id, updates);
       if (cancelled && order) {
         await sendOrderStatusEmail(order);
       }
-      return NextResponse.json({ success: true, stockRestored: cancelled });
+      return NextResponse.json({ success: true, stockRestored });
     }
 
     const { error: updateError } = await supabaseAdmin
