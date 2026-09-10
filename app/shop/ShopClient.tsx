@@ -7,7 +7,7 @@ import CommonLayout from '@/components/CommonLayout';
 import { useLang } from '@/components/LangContext';
 import { formatPrice } from '@/lib/formatPrice';
 
-export default function ShopClient({ initialProducts, initialCategories }: { initialProducts: any[], initialCategories: any[] }) {
+export default function ShopClient({ initialProducts, initialCategories, loadError }: { initialProducts: any[], initialCategories: any[], loadError: 'products' | 'categories' | null }) {
   const { lang } = useLang(); 
   const router = useRouter(); // Инициализируем роутер
   const [activeCategory, setActiveCategory] = useState('all');
@@ -46,8 +46,22 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
   const currentLang = (lang === 'UA' ? 'UA' : 'EN') as 'EN' | 'UA';
   
   const uiText = {
-    EN: { soldout: 'SOLD OUT', comingSoon: 'COMING SOON', all: 'ALL' },
-    UA: { soldout: 'РОЗПРОДАНО', comingSoon: 'НЕЗАБАРОМ', all: 'ВСІ' }
+    EN: {
+      soldout: 'SOLD OUT',
+      comingSoon: 'COMING SOON',
+      all: 'ALL',
+      productsError: 'THE CATALOGUE IS TEMPORARILY UNAVAILABLE. PLEASE TRY AGAIN.',
+      categoriesError: 'CATEGORIES ARE TEMPORARILY UNAVAILABLE. PRODUCTS ARE SHOWN BELOW.',
+      empty: 'NO ACTIVE ITEMS RIGHT NOW.',
+    },
+    UA: {
+      soldout: 'РОЗПРОДАНО',
+      comingSoon: 'НЕЗАБАРОМ',
+      all: 'ВСІ',
+      productsError: 'КАТАЛОГ ТИМЧАСОВО НЕДОСТУПНИЙ. СПРОБУЙ ЩЕ РАЗ.',
+      categoriesError: 'КАТЕГОРІЇ ТИМЧАСОВО НЕДОСТУПНІ. ТОВАРИ ПОКАЗАНО НИЖЧЕ.',
+      empty: 'ЗАРАЗ НЕМАЄ АКТИВНИХ РЕЧЕЙ.',
+    }
   };
 
   const filteredProducts = activeCategory === 'all' 
@@ -85,8 +99,23 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
         </nav>
         
         <div className="flex-grow w-full md:pl-56">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10">
-            {filteredProducts.map((product) => {
+          {loadError === 'categories' && (
+            <p className="mb-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              {uiText[currentLang].categoriesError}
+            </p>
+          )}
+
+          {loadError === 'products' ? (
+            <p className="py-20 text-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              {uiText[currentLang].productsError}
+            </p>
+          ) : filteredProducts.length === 0 ? (
+            <p className="py-20 text-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              {uiText[currentLang].empty}
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10">
+              {filteredProducts.map((product) => {
               const images = Array.isArray(product.images) 
                 ? product.images 
                 : (typeof product.images === 'string' ? product.images.split(',').map((s: string) => s.trim()) : []);
@@ -139,8 +168,9 @@ export default function ShopClient({ initialProducts, initialCategories }: { ini
                   </div>
                 </Link>
               );
-            })}
-          </div>
+              })}
+            </div>
+          )}
         </div>
       </div>
     </CommonLayout>

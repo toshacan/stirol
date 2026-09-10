@@ -2,11 +2,9 @@ import ShopClient from './ShopClient';
 import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_PRODUCT_FIELDS } from '@/lib/storefrontProducts';
 
-// Кэшируем на 60 секунд вместо полного отключения кэша.
-// Свежие правки из админки (add/update/delete-product, add/update/delete-category)
-// сбрасывают кэш немедленно через revalidatePath — так что задержка ощущается
-// только если кто-то поменял товар в обход админки напрямую в Supabase.
-export const revalidate = 60;
+// Каталог всегда получает актуальные данные: изменения в Supabase видны сразу,
+// включая правки, сделанные напрямую через Dashboard.
+export const dynamic = 'force-dynamic';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,6 +35,14 @@ export default async function ShopPage() {
     supabase.from('categories').select('*')
   ]);
 
+  if (productsRes.error) {
+    console.error('Shop products query failed:', productsRes.error);
+  }
+
+  if (categoriesRes.error) {
+    console.error('Shop categories query failed:', categoriesRes.error);
+  }
+
   const products = productsRes.data || [];
   const categories = categoriesRes.data || [];
 
@@ -44,5 +50,11 @@ export default async function ShopPage() {
   const sortedProducts = products.sort((a, b) => (a.position || 0) - (b.position || 0));
   const sortedCategories = categories.sort((a, b) => (a.order || 0) - (b.order || 0));
 
-  return <ShopClient initialProducts={sortedProducts} initialCategories={sortedCategories} />;
+  return (
+    <ShopClient
+      initialProducts={sortedProducts}
+      initialCategories={sortedCategories}
+      loadError={productsRes.error ? 'products' : categoriesRes.error ? 'categories' : null}
+    />
+  );
 }
