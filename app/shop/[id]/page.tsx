@@ -23,7 +23,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from('products')
     .select('title, description, images')
     .eq('id', id)
-    .eq('is_active', true)
     .single();
 
   if (!product) {
@@ -64,7 +63,6 @@ export default async function ProductPage({ params }: Props) {
     .from('products')
     .select(PUBLIC_PRODUCT_WITH_VARIANTS_FIELDS)
     .eq('id', id)
-    .eq('is_active', true)
     .maybeSingle();
 
   if (productError || !product) {
@@ -82,7 +80,6 @@ export default async function ProductPage({ params }: Props) {
   const { data: allProducts } = await supabase
     .from('products')
     .select('id')
-    .eq('is_active', true)
     .order('created_at', { ascending: false });
 
   let nextProduct = null;

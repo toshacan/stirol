@@ -12,7 +12,6 @@ export async function GET() {
     const { data, error } = await supabase
       .from('products')
       .select(PUBLIC_PRODUCT_WITH_VARIANTS_FIELDS)
-      .eq('is_active', true)
       .order('position', { ascending: true });
 
     if (error) {

@@ -21,8 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { data: products } = await supabaseAdmin
       .from('products')
-      .select('id')
-      .eq('is_active', true);
+      .select('id');
 
     productRoutes = (products || []).map((p: any) => ({
       url: `${BASE_URL}/shop/${p.id}`,
