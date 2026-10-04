@@ -85,8 +85,8 @@ export const VIDEOS: VideoItem[] = [
       UA: 'ЗНЯТО У 2014 РОЦІ, ДО ОКУПАЦІЇ ДОНБАСУ'
     },
     specs: {
-      EN: 'OLD DIGITAL OLYMPUS CAMERA',
-      UA: 'OLD DIGITAL OLYMPUS CAMERA'
+      EN: '',
+      UA: ''
     },
     description: {
       EN: 'Raw winter street skate clip from the archives. Cold concrete, heavy vibes, and the unyielding spirit of local skateboarding.',
