@@ -32,7 +32,7 @@ export default function Footer() {
 
   const translations: Record<string, Record<LangType, string>> = {
     '/news': { EN: 'MAGAZINE', UA: 'ЗІН' },
-    '/lookbook': { EN: 'LOOKBOOK 2026', UA: 'ЛУКБУК 2026' },
+    '/lookbook': { EN: 'LOOKBOOK', UA: 'ЛУКБУК 2026' },
     '/info': { EN: 'INFO', UA: 'ІНФО' },
     '/shop': { EN: 'SHOP', UA: 'МАГАЗИН' },
     '/contact': { EN: 'CONTACT', UA: 'КОНТАКТИ' },

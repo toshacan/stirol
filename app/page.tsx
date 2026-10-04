@@ -24,7 +24,7 @@ export default function Home() {
   }, []);
 
   const menuItems = {
-    EN: [{ id: 'news', label: 'MAGAZINE', path: '/news' }, { id: 'lookbook', label: 'lookbook 2026', path: '/lookbook' }, { id: 'shop', label: 'shop', path: '/shop' }, { id: 'about', label: 'about', path: '/about' }, { id: 'videos', label: 'videos', path: '/videos' }, { id: 'contact', label: 'contact', path: '/contact' }],
+    EN: [{ id: 'news', label: 'MAGAZINE', path: '/news' }, { id: 'lookbook', label: 'lookbook', path: '/lookbook' }, { id: 'shop', label: 'shop', path: '/shop' }, { id: 'about', label: 'about', path: '/about' }, { id: 'videos', label: 'videos', path: '/videos' }, { id: 'contact', label: 'contact', path: '/contact' }],
     UA: [{ id: 'news', label: 'ЗІН', path: '/news' }, { id: 'lookbook', label: 'лукбук 2026', path: '/lookbook' }, { id: 'shop', label: 'магазин', path: '/shop' }, { id: 'about', label: 'про нас', path: '/about' }, { id: 'videos', label: 'відео', path: '/videos' }, { id: 'contact', label: 'контакти', path: '/contact' }]
   };
 
