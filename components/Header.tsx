@@ -45,7 +45,7 @@ export default function Header() {
   return (
     <>
       {/* HEADER */}
-      <header className="w-full flex items-center justify-between px-4 py-3 bg-neutral-100 md:bg-transparent transition-colors duration-300">
+      <header className="relative w-full flex items-center justify-between px-4 py-3 bg-neutral-100 md:bg-transparent transition-colors duration-300">
         
         {/* LEFT: Back Button */}
         <div className="flex-1">
@@ -56,14 +56,19 @@ export default function Header() {
         </div>
         
         {/* CENTER: Logo */}
-        <div className="flex-shrink-0 mx-4">
-          <Link href="/shop" className="block hover:opacity-80 transition-opacity">
+        <div className="absolute left-[50vw] top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+          <Link
+            href="/shop"
+            draggable={false}
+            onDragStart={(e) => e.preventDefault()}
+            className="block select-none hover:opacity-80 transition-opacity"
+          >
             <Image 
               src="/BOXLOGO.png" 
               alt="STIROL" 
               width={1600} 
               height={290} 
-              className="w-22 md:w-36 h-auto object-contain select-none" 
+              className="w-22 md:w-36 h-auto object-contain select-none [-webkit-user-drag:none]"
               priority 
               draggable={false}
               onContextMenu={(e) => e.preventDefault()}
